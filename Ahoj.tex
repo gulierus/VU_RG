@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{microtype}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+
+\title{Ahoj — A Sample \LaTeX{} Document}
+\author{Author Name}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A short abstract summarizing the document content.
+\end{abstract}
+
+\section{Introduction}
+Write standard \LaTeX{} text here. This minimal template demonstrates common structures:
+plain text, sections, lists, mathematics, and figures.
+
+\section{Mathematics}
+Inline math example: $e^{i\pi} + 1 = 0$.
+
+Display math example:
+\[
+f(x) = \int_{0}^{x} e^{-t^2}\,dt.
+\]
+
+A numbered equation:
+\begin{equation}
+\label{eq:sample}
+a^2 + b^2 = c^2.
+\end{equation}
+
+\section{Lists}
+\begin{itemize}
+    \item First item.
+    \item Second item with nested list:
+        \begin{enumerate}
+            \item Subitem one.
+            \item Subitem two.
+        \end{enumerate}
+\end{itemize}
+
+\section{Figures}
+% To include a figure, uncomment and replace 'example-image' with a valid file.
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.6\textwidth]{example-image}
+%   \caption{Example figure.}
+%   \label{fig:example}
+% \end{figure}
+
+\section{Conclusion}
+Concluding remarks and suggestions for further development.
+
+\bigskip
+\noindent\textbf{Keywords:} \LaTeX{}, template, example.
+
+\end{document}
