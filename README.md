@@ -1,5 +1,13 @@
 # Project Transformer
 
+## TODO: 4.11.
+- rewrite hand notes into latex notes with explanation of examples from the *GP_test_zone.ipynb file*.
+
+## Selfstudy:
+- done TODO from 21.10. (*GP_test_zone.ipynb file*).
+- made notes about hyperparaametres estimations, Type II ML e.t.c.
+- studied "Transformers Can Do Bayesian Inference".
+
 ## TODO: 21.10.
 - hyperparameter selection/posterior
 - select N (e.g. N=8) points from a step function and evaluate GPs of many hyperparameters
@@ -11,4 +19,3 @@
 - try GP on toy problem., e.g. a step function
 
 
-## test test 
