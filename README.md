@@ -1,5 +1,18 @@
 # Project Transformer
 
+## TODO: 7.12.
+- Finish the experiments with GP with fixed hyperparameter
+  - Check with a few data points
+  - Does prediction at points far away from the measurement converge to the prior?
+  - Is the variance at points x' underestimated?
+- Analyze relations mentioned in [link](background/PFN-GP.md)
+  - Try visualizing the corresponding quantities, such as the weights of $y$
+
+- Try to train a more advanced PFN for a GP with distribution of hyperparameters
+  - check how the PFN works with context data generated from GP with a fixed HP
+  - analyze if the attention learned the correct kernel 
+
+
 ## TODO: 4.11.
 - rewrite hand notes into latex notes with explanation of examples from the *GP_test_zone.ipynb file*.
 
