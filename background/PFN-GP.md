@@ -10,7 +10,7 @@ The posterior predictive mean of a GP is given by:
 $$\bar{f}(x*) = k(x*, X) \left[ K(X, X) + \sigma^2 I \right]^{-1} y$$
 
 Where:
-* $k(x_*, X)$ is a row vector of kernel similarities between the query $x_*$ and support points $X$.
+* $k(x*, X)$ is a row vector of kernel similarities between the query $x*$ and support points $X$.
 * $K(X, X)$ is the Gram matrix (covariance matrix) of the support points.
 * $y$ are the target values.
 
@@ -30,7 +30,7 @@ If we map this to the prediction task:
 
 The equation effectively becomes:
 
-$$\hat{y} = \text{softmax}\left( \langle \phi(x_*), \phi(X) \rangle \right) y$$
+$$\hat{y} = \text{softmax}\left( \langle \phi(x*), \phi(X) \rangle \right) y$$
 
 
 
@@ -51,7 +51,7 @@ If we look at a **single** attention head, it acts almost exactly like a **Nadar
 
 The Nadaraya-Watson estimator predicts $\hat{y}$ as a weighted average of observed $y_i$, where weights depend on the kernel distance:
 
-$$\hat{y} = \sum_{i=1}^{n} \frac{k(x_*, x_i)}{\sum_{j} k(x_*, x_j)} y_i$$
+$$\hat{y} = \sum_{i=1}^{n} \frac{k(x*, x_i)}{\sum_{j} k(x*, x_j)} y_i$$
 
 This is mathematically identical to the Attention mechanism if you replace the softmax normalization with the simple division normalization used above.
 * **Attention:** Calculates similarity (Kernel), normalizes it (Softmax), and computes the weighted average of values ($V$).
