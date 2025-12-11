@@ -7,7 +7,7 @@ To understand the approximation, we look at how a GP predicts the value for a ne
 
 The posterior predictive mean of a GP is given by:
 
-$$\bar{f}(x_*) = k(x_*, X) \left[ K(X, X) + \sigma^2 I \right]^{-1} y$$
+$$\bar{f}(x_{*}) = k(x_{*}, X) \left[ K(X, X) + \sigma^2 I \right]^{-1} y$$
 
 Where:
 * $k(x_*, X)$ is a row vector of kernel similarities between the query $x_*$ and support points $X$.
