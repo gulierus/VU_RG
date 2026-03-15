@@ -7,3 +7,23 @@
 *.synctex.gz
 *.tex
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Models (large files - store separately)
+models/*.pth
+models/*.pt
+models/*.pkl
+!models/.gitkeep
+
+# PFNs repo (installed via setup.sh)
+PFNs/
+
+# Environment
+.env
+venv/
+.venv/
+

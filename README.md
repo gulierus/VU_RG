@@ -1,34 +1,60 @@
-# Project Transformer
+# Project Transformer — PFN as GP Approximator
 
-## TODO: 7.12.
+Výzkumný projekt: Jak Prior-Fitted Networks (PFN) aproximují inferenci Gaussovských procesů.
+
+## Struktura repozitáře
+
+```
+VU_RG/
+├── experiments/          # Hlavní experimenty
+│   ├── HOW_PFN_APPROX_GP_KERNEL_big_model.ipynb    # Analýza velkého modelu (100 epoch)
+│   └── HOW_PFN_APPROX_GP_KERNEL_small_model.ipynb  # Analýza malého modelu (20 epoch)
+├── train/                # Trénování modelu
+│   └── PFN_TRAIN_SETUP.ipynb   # Setup a spuštění tréninku
+├── examples/             # Pomocné příklady (GP metody, TabPFN)
+├── background/           # Matematické podklady
+│   └── PFN-GP.md         # Vztah mezi PFN a GP
+├── models/               # Uložené modely (ignorovány gitem)
+├── requirements.txt
+└── setup.sh
+```
+
+## Quickstart
+
+```bash
+# 1. Naklonuj repozitář
+git clone <repo-url> && cd VU_RG
+
+# 2. Nainstaluj závislosti a PFNs
+bash setup.sh
+
+# 3. Spusť Jupyter z rootu projektu (důležité pro správné cesty k modelům)
+jupyter notebook
+```
+
+## Workflow
+
+1. **Trénování:** `train/PFN_TRAIN_SETUP.ipynb` — natrénuje PFN na GP prioru, uloží model do `models/`
+2. **Experimenty:** `experiments/HOW_PFN_APPROX_GP_KERNEL_*.ipynb` — načte model a spustí analýzu
+
+## Experimenty (shrnutí)
+
+| Experiment | Popis |
+|---|---|
+| 1 | Konvergence mean funkce k prioru + kalibrace variance |
+| 2 | Analýza attention vah přes vrstvy |
+| 3 | Porovnání attention vs RBF kernel |
+| 4 | PFN vs Nadaraya-Watson vs true GP |
+| 5 | Vliv velikosti kontextu na MSE |
+| 6 | Analýza jedné attention hlavy — NW hypotéza |
+
+## TODO
+
 - Finish the experiments with GP with fixed hyperparameter
-  - Check with a few data points
-  - Does prediction at points far away from the measurement converge to the prior?
-  - Is the variance at points x' underestimated?
-- Analyze relations mentioned in [link](background/PFN-GP.md)
-  - Try visualizing the corresponding quantities, such as the weights of $y$
-
-- Try to train a more advanced PFN for a GP with distribution of hyperparameters
-  - check how the PFN works with context data generated from GP with a fixed HP
-  - analyze if the attention learned the correct kernel 
-
-
-## TODO: 4.11.
-- rewrite hand notes into latex notes with explanation of examples from the *GP_test_zone.ipynb file*.
-
-## Selfstudy:
-- done TODO from 21.10. (*GP_test_zone.ipynb file*).
-- made notes about hyperparaametres estimations, Type II ML e.t.c.
-- studied "Transformers Can Do Bayesian Inference".
-
-## TODO: 21.10.
-- hyperparameter selection/posterior
-- select N (e.g. N=8) points from a step function and evaluate GPs of many hyperparameters
-- compute marginal likelihood (2.30) on a grid of (l,sigma) and plot their posterior
-- run black-box optimization to find maximum marginal likelihood of the hyperparameters
-- perform a sensitivity study on the increasing number of observations
-
-## TODO: 6.10.
-- try GP on toy problem., e.g. a step function
-
-
+  - Does prediction at points far from measurement converge to the prior?
+  - Is the variance underestimated?
+- Analyze relations in [background/PFN-GP.md](background/PFN-GP.md)
+  - Visualize weights of y, attention vs kernel
+- Train more advanced PFN for GP with distribution of hyperparameters
+  - Check if PFN generalizes across different GPs
+  - Analyze if attention learned the correct kernel
