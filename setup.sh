@@ -5,7 +5,7 @@
 set -e
 
 echo "=== Installing Python dependencies ==="
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 
 echo ""
 echo "=== Cloning and installing PFNs ==="
@@ -15,7 +15,7 @@ if [ -d "PFNs" ]; then
 else
     git clone https://github.com/automl/PFNs.git
 fi
-cd PFNs && pip install -e . -q && cd ..
+cd PFNs && python3 -m pip install -e . -q && cd ..
 
 echo ""
 echo "=== Setup complete ==="
