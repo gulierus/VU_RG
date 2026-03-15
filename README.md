@@ -14,6 +14,10 @@ Výzkumný projekt: Jak Prior-Fitted Networks (PFN) aproximují inferenci Gausso
 - Vizuální porovnání predikcí PFN vs GP pro různé lengthscale v jednom řádku grafů
 - Zopakovat experimenty konvergence a vlivu kontextu pro tři různé lengthscale (0.1, 0.3, 0.7)
 
+### Experiment: PFN inference na reálné GP realizaci (pro všechny modely)
+
+Vygenerovat kompletní GP realizaci s mnoha body (ground truth = skutečné samplované hodnoty `y`), PFN dát pouze malou podmnožinu těchto bodů a měřit jak dobře PFN odhadne zbývající skutečné hodnoty. Na rozdíl od stávajícího Experimentu 5 (kde ground truth = GP posteriorní střední hodnota) jde zde o predikci skutečných nasamplovaných `y`, což je těžší úkol — zahrnuje i šum a náhodnost realizace. Spustit pro všechny tři modely (20 epoch, 100 epoch, random HP).
+
 ## Struktura repozitáře
 
 ```
