@@ -42,3 +42,6 @@ env/
 .vscode/
 .idea/
 
+# Claude Code
+CLAUDE.md
+
