@@ -2,6 +2,18 @@
 
 Výzkumný projekt: Jak Prior-Fitted Networks (PFN) aproximují inferenci Gaussovských procesů.
 
+## TODO
+
+### Experimenty s modelem trénovaným na distribuci hyperparametrů
+
+- Ověřit, zda PFN rozpozná správný lengthscale — porovnat MSE s GP se správnými vs špatnými HP
+- Zjistit, kolik context pointů stačí pro identifikaci hyperparametrů
+- Porovnat PFN vs Type-II ML (přesnost + rychlost inference)
+- Otestovat chování mimo trénovaný rozsah HP (OOD lengthscale)
+- Vizualizovat attention matice pro různé lengthscale — ověřit zda krátký LS → lokálnější attention
+- Vizuální porovnání predikcí PFN vs GP pro různé lengthscale v jednom řádku grafů
+- Zopakovat experimenty konvergence a vlivu kontextu pro tři různé lengthscale (0.1, 0.3, 0.7)
+
 ## Struktura repozitáře
 
 ```
