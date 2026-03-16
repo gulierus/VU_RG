@@ -41,6 +41,7 @@ env/
 # IDE
 .vscode/
 .idea/
+*.code-workspace
 
 # Claude Code
 CLAUDE.md
