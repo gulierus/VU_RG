@@ -35,24 +35,6 @@ VU_RG/
 └── setup.sh
 ```
 
-## Quickstart
-
-```bash
-# 1. Naklonuj repozitář
-git clone <repo-url> && cd VU_RG
-
-# 2. Nainstaluj závislosti a PFNs
-bash setup.sh
-
-# 3. Spusť Jupyter z rootu projektu (důležité pro správné cesty k modelům)
-jupyter notebook
-```
-
-## Workflow
-
-1. **Trénování:** `train/PFN_TRAIN_SETUP.ipynb` — natrénuje PFN na GP prioru, uloží model do `models/`
-2. **Experimenty:** `experiments/HOW_PFN_APPROX_GP_KERNEL_*.ipynb` — načte model a spustí analýzu
-
 ## Experimenty (shrnutí)
 
 | Experiment | Popis |
