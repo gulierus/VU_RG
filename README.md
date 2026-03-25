@@ -2,7 +2,10 @@
 
 Výzkumný projekt: Jak Prior-Fitted Networks (PFN) aproximují inferenci Gaussovských procesů.
 
-## TODO
+## TODO 3
+- done experiments mentioned in backgrounds
+  
+## TODO 2
 
 ### Experimenty s modelem trénovaným na distribuci hyperparametrů
 
@@ -46,7 +49,7 @@ VU_RG/
 | 5 | Vliv velikosti kontextu na MSE |
 | 6 | Analýza jedné attention hlavy — NW hypotéza |
 
-## TODO
+## TODO 1
 
 - Finish the experiments with GP with fixed hyperparameter
   - Does prediction at points far from measurement converge to the prior?
