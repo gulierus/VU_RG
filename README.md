@@ -3,7 +3,7 @@
 Výzkumný projekt: Jak Prior-Fitted Networks (PFN) aproximují inferenci Gaussovských procesů.
 
 ## TODO 3
-- done experiments mentioned in backgrounds
+- Done experiments mentioned in backgrounds
   
 ## TODO 2
 
