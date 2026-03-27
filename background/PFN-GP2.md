@@ -50,7 +50,7 @@ The first term ($t=0$) gives $\hat{f}^{(1)}(x_*) = \eta \sum_j k(x_*, X_j) Y_j$ 
 
 **How many terms (layers) are needed?** The series reaches error $\varepsilon$ in $O(\kappa \log 1/\varepsilon)$ steps, where the **condition number** is:
 
-$$\kappa = \frac{\lambda_{\max}(K) + \sigma^2}{\sigma^2}$$
+$$\kappa = \frac{\lambda_{\max}(K) + \sigma^2}{\lambda_{\min}(K) + \sigma^2}$$
 
 | Setting | $\ell$ | $\sigma^2$ | $\kappa$ | Layers needed |
 |---------|--------|------------|----------|---------------|
@@ -62,6 +62,11 @@ A 6-layer model is a practical compromise over a distribution of hyperparameters
 **Important caveat.** The Neumann series picture is exact under *linear* attention (no softmax). With softmax, the denominator couples all points and the one-step = one-gradient-step correspondence breaks. The real network has freedom to deviate from this picture — the question is whether it does, and in which direction.
 
 > **Reading.** von Oswald et al. (2022), *Transformers Learn In-Context by Gradient Descent*, arXiv:2212.07677. Read Sections 1–3 for the precise hand-construction of a linear-attention transformer implementing gradient descent. Akyürek et al. (2023), *What Learning Algorithm is In-Context Learning?*, ICLR 2023 (arXiv:2211.15661) provides empirical evidence that trained (not hand-constructed) transformers implement similar algorithms.
+
+
+Nás by zajímalo, jestli opravdu existuje korelace mezi složitostí problému a počtem vrstev v PFN.
+Platí totiž, že transformer umí napodobit gradient descent, tudíž je schopen řešit stejné problémy, které by mohl teoreticky vyřešit  GD, s tím, že jedna vrstva by měla odpovídat jednomu kroku GD.
+Zkusit vzít různé modely s fixními hyperparametry a podívat se, jestli opravdu dělají něco jako Nuemannova řada. 
 
 ---
 
