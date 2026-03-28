@@ -67,6 +67,7 @@ A 6-layer model is a practical compromise over a distribution of hyperparameters
 Nás by zajímalo, jestli opravdu existuje korelace mezi složitostí problému a počtem vrstev v PFN.
 Platí totiž, že transformer umí napodobit gradient descent, tudíž je schopen řešit stejné problémy, které by mohl teoreticky vyřešit  GD, s tím, že jedna vrstva by měla odpovídat jednomu kroku GD.
 Zkusit vzít různé modely s fixními hyperparametry a podívat se, jestli opravdu dělají něco jako Nuemannova řada. 
+Podívat se, jestli bias klesá a pro špatně podmíněné matice.
 
 ---
 
