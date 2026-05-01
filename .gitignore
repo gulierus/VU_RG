@@ -6,7 +6,7 @@
 *.fls
 *.synctex.gz
 *.tex
-
+*.png
 # Python
 __pycache__/
 *.pyc
@@ -41,4 +41,9 @@ env/
 
 # Claude Code
 CLAUDE.md
+
+# Generated background scripts and data
+background/collect_stats.py
+background/extract_figures.py
+background/stats_averaged.json
 

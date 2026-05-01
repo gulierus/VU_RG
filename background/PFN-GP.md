@@ -15,9 +15,9 @@ Where:
 * $y$ are the target values.
 
 **The Intuition:** This formula calculates the similarity between the new point and known points, weighs them by the inverse covariance (interaction between known points), and multiplies by the target values.
+****
 
-
-
+***
 ### 2. The Transformer Attention Perspective
 Now look at the core equation of the Transformer's attention mechanism:
 
