@@ -1,9 +1,9 @@
 \chapter{Problematika výběru modelů}
 
 V této kapitole uvedeme čtenáře do problematiky výběru modelu.
-Ukážeme si zde jaké různé přistupy výběru modelu při modelování dat existují, jaké potíže se s tím vážou a lze-li tyto potíže elegantně vyřešit. 
+Ukážeme si zde jaké různé přístupy výběru modelu při modelování dat existují, jaké potíže se s tím vážou a lze-li tyto potíže elegantně vyřešit. 
 V praxi se často setkáváme se situacemi, kdy musíme pro daná data zvolit nejvhodnější model z několika kandidátů.
-Například při analýze časových řad můžeme mít několik různých modelů, které by mohly popsat pozorovaná data, a potřebujeme rozhodnout, který z konkrétní model z funkčního prostoru je nejvhodnější.    
+Například při analýze časových řad můžeme mít několik různých modelů, které by mohly popsat pozorovaná data, a potřebujeme rozhodnout, který konkrétní model z funkčního prostoru je nejvhodnější.    
 Dnes existuje celá řada metod, jak tento konkrétní model určit, jak najít vhodné parametry modelu, ovšem všechny tyto metody jsou zpravidla dost výpočetně náročné.
 Avšak se to změnilo s příchodem prudkého rozvoje neuronových sítí a hlubokého učení.
 O Neuronových sítích víme, že to je dobrý aproximační nástroj a ukázalo se totiž, že abychom mohli co nejefektivněji aproximovat hledaný model pro naše data, lze použít architekturu Transformer, která, jak se postupem času dozvíme, je nejpřesnějším a nejrychlejším řešením tohoto problému.
@@ -21,7 +21,7 @@ V tomto okamžiku před námi stojí několik otázek:
   \item Jak moc složitý model zvolit, aby dobře fitoval trénovací data, ale zároveň dobře generalizoval na nová data
 \end{itemize}
 Nakonec z toho vyplývá i formulace daného problému: proces výběru modelu je proces systematického výběru optimálního modelu.
-Během tohoto procesu se vzniká i základní trade-off dilema. 
+Během tohoto procesu vzniká i základní trade-off dilema. 
 Zvolíme-li příliš jednoduchý model, nebude schopen zachytit strukturu dat a bude mít špatný fit i špatnou generalizaci (underfitting).
 Naopak zvolíme-li příliš složitý model, bude perfektně fitovat (interpolovat) trénovací data, ale bude špatně generalizovat na nová data (overfitting).
 Cílem je najít optimální model z těchto hledisek.
@@ -39,7 +39,7 @@ Posledním přístupem jsou informační kritéria, jako je Akaike Information C
 Tyto metody poskytují rychlou a jednoduchou aproximaci marginal likelihood, která penalizuje složitost modelu.
 Nás avšak bude v této práci nejvíce zajímat Bayesovský přístup, protože nám poskytuje nejvíce principů pro výběr modelu a je základem pro náš další postup.
 
-\section{\textbf{Bayesův} přístup k výběru modelu}
+\section{Bayesův přístup k výběru modelu}
 
 Zde ukážeme \textbf{Bayesův} princip při výběru modelu.
 Je zvykem použít hierarchický princip při zavádění Bayesovského výběru modelu [Rasmussen].
@@ -99,12 +99,12 @@ anebo na druhé úrovni hierarchie:
   \label{eq:normalizační_konst_2_uroven}
 \end{equation} 
 
-Tyto integrály je nutné aproximovat numericky pomocí takových metod jako Markov chain Monte Carlo (MCMC) nebo pokročilejším No-U-Turn Sampler (NUTS), pokud chceme odhadnou integrál z nenormalizovaných hustot pravděpodobnostní, jako je integrál (\ref{eq:normalizační_konst_2_uroven}), nebo např. Type II maximum likelihood (Type II – MLE), chceme-li v odhadnout pouze posteriorní pravděpodobnost pro hyperparametry modelu, což spočívá v Laplaceově aproximaci integrálu (\ref{eq:normalizační_konst_1_uroven}) a následné maximalizaci $P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$.
+Tyto integrály je nutné aproximovat numericky pomocí takových metod jako Markov chain Monte Carlo (MCMC) nebo pokročilejším No-U-Turn Sampler (NUTS), pokud chceme odhadnou integrál z nenormalizovaných hustot pravděpodobnostní, jako je integrál (\ref{eq:normalizační_konst_2_uroven}), nebo např. Type II maximum likelihood (Type II – MLE), chceme-li odhadnout pouze posteriorní pravděpodobnost pro hyperparametry modelu, což spočívá v Laplaceově aproximaci integrálu (\ref{eq:normalizační_konst_1_uroven}) a následné maximalizaci $P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$.
 Všechny tyto metody jsou však dost výpočetně náročné a může trvat značné množství času, než se podaří najít vhodný model pro daná data.
 Jedním z účelů této práce je ukázat, jak lze tyto pravděpodobnostní hustoty efektivně aproximovat pomocí úplně nového postupu, a to pomocí architektury Transformer.
 
 \section{GP regrese}
-Zde si ukážeme, jak aplikovat Bayesovský přístup výběru modelu na konkrétním příkladě, což bude prokládání dat pro nelineární regresi pomocí Gaussovských procesu (dále jen GP).
+Zde si ukážeme, jak aplikovat Bayesovský přístup výběru modelu na konkrétním příkladě, což bude prokládání dat pro nelineární regresi pomocí Gaussovských procesů (dále jen GP).
 Dále si ukážeme i základní metody pro hledání vhodného modelu, o kterých jsme zmínili v předchozí sekci, a to jsou Type II – MLE a MCMC. 
 Avšak předtím zadefinujeme základní pojmy GP regresi.
 \par
@@ -139,7 +139,7 @@ Potom se skrz funkční prostor vah a kovarianční matice $\Sigma$ ukáže, že
 \begin{equation}
   k(\mathbf{x}, \mathbf{x'}) = \phi(\mathbf{x})^T \Sigma \phi(\mathbf{x'}),
 \end{equation}
-kde $\phi(\mathbf{x})^T \Sigma \phi(\mathbf{x'})$ je součin v prostoru vah s kovarianční matici dvou různých vstupu.
+kde $\phi(\mathbf{x})^T \Sigma \phi(\mathbf{x'})$ je součin v prostoru vah s kovarianční maticí dvou různých vstupů.
 
 Nakonec platí, že Gaussovský process je plně definován svou střední funkcí $m(\mathbf{x})$ a kovarianční funkcí $k(\mathbf{x}, \mathbf{x'})$.
 Střední funkci a kovarianční funkci tohoto procesu definujeme jako:
@@ -161,13 +161,13 @@ Pak existuje spousta dalších kernelů, jako je Matérn kernel, Periodic kernel
 RBF kernel má řadu výhod: je hladký, nekonečně diferencovatelný a má tendenci dobře aproximovat širokou škálu funkcí.
 Současně platí, že každý datový bod můžeme představit jako střed Gaussovského rozdělení.
 Z předchozí myšlenky plyne i velmi intuitivní myšlenka o tom, jak funguje GP regrese: každý datový bod přispívá k predikci nového bodu podle své vzdálenosti od něj, přičemž váha tohoto přispění je určena kovarianční funkcí (jádrem).
-Tím pádem, čím blíž je nějaký bod k jinému bodu, tím větší vliv na něj má: body blízko sebe mají hodnotu blízkou $1$, Vzdálené body mají hodnotu blízkou $0$ a funguje to jako "měřítko podobnosti" mezi body.
+Tím pádem, čím blíž je nějaký bod k jinému bodu, tím větší vliv na něj má: body blízko sebe mají hodnotu blízkou $1$, vzdálené body mají hodnotu blízkou $0$ a funguje to jako "měřítko podobnosti" mezi body.
 Pokud bychom tedy chtěli predikovat např. počasí, tak je jasno, že pokud před $5$ hodinami bylo $-6$ stupňů Celsia, před dvěma hodinami $-4$ stupňů Celsia a před hodinou $-5$ stupně Celsia, tak je zjevné, že tyto hodnoty budou mít vliv na predikci počasí za hodinu a ta teplota bude někde mezi $-6$ a $-4$ stupňů Celsia a určitě nestoupne nebo neklesne o víc než $5$ hodnot.
 \par
 
 \section{Výběr modelu pro GP regresi}
 V předchozí kapitole jsme si avšak ukázali, že hledat matematické modely, které přesně popisují data, není vůbec jednoduché nebo dokonce nemožné a je potřeba použít různé metody při hledání vhodného modelu.
-Hlavní potíží je výpočet integrálů, které se objevovali při sestavování Bayesovské hierarchie.
+Hlavní potíží je výpočet integrálů, které se objevovaly při sestavování Bayesovské hierarchie.
 Zde si ukážeme tři přístupy: nejprve obecný rámec variační inference, poté Type II – MLE jako jeho speciální případ a nakonec MCMC jako alternativní metodu.
 
 \subsection{Variační inference}
@@ -213,13 +213,13 @@ Pak posteriorní rozdělení odhadujeme takto:
 \par
 
 Principem tohoto přístupu je, že na základě napozorovaných dat hledáme hyperparametry pro náš model, se kterými on popisuje naše data co nejlépe pro dané modely.
-Tato metoda ale má řádu nyvýhod.
+Tato metoda ale má řadu nevýhod.
 Náš odhad totiž skončí v lokálním maximu a nemusí vždy dosáhnout optimálních hodnot.
 To samozřejmě vynucuje nás zkoušet různé startovní body, zkoumat citlivost odhadu a patrně ladit parametry hledání.
 To už nemluvě o ne úplně jednoduchých výpočtech, které také vyžadují jisté množství výkonu a času.
 \par
 
-Ze statistiky víme, že jedním ze způsobu, jak najít ML odhad, je použit logaritmickou transformaci a pak najít maximum této funkce.
+Ze statistiky víme, že jedním ze způsobů, jak najít ML odhad, je použít logaritmickou transformaci a pak najít maximum této funkce.
 Ukážeme to na konkrétním příkladě a pro to použijeme již definovaný v kapitole (reference) Gaussovský proces s RBF kernelem.
 Zkusme tedy rozepsat výraz $\log P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta})$ (člen $\mathcal{H}_i$ můžeme vynechat pro lepší čitelnost).
 Vzpomeňme si, že při definici Gaussovského procesu jsme použili vícerozměrnou Gaussovskou hustotu \ref{eq:vicerozmernyGauss}.
@@ -238,12 +238,12 @@ Chceme-li najít extrém této funkce, musíme tento výraz derivovat podle hype
     &= \frac{1}{2} \operatorname{tr}\left(\left(\boldsymbol{\alpha}\boldsymbol{\alpha}^\top - K_y^{-1}\right)\frac{\partial K_y}{\partial\theta_j}\right),
 \end{align}
 kde $\boldsymbol{\alpha} = K_y^{-1}\mathbf{y}$.
-zde je dokonce vidět, proč tento model není optimální z výpočetního hlediska. 
+Zde je dokonce vidět, proč tento model není optimální z výpočetního hlediska. 
 Je totiž známo, že najít inverzní matici je dost náročná operace.
 Pro standardní algoritmy platí, že jejich složitost je $\mathcal{O}(n^3)$, kde $n$ je velikost matice.
-V praxi je ovšem $n$ často nabývá dost velkých hodnot.
+V praxi ovšem $n$ nabývá dost velkých hodnot.
 Avšak lze vyhnout výpočtu přímé inverze, místo toho se může použít např. Choleského rozklad, který \textbf{tento} výpočet může usnadnit.
-Máme-li spočítanou inverzi, pak je složitost zbylých výpočtů je $\mathcal{O}(n^2)$.
+Máme-li spočítanou inverzi, pak je složitost zbylých výpočtů $\mathcal{O}(n^2)$.
 Další nevýhodou je to, že nemusíme spadnout do globálního optima a skončit v lokálním optimu, což opět vyžaduje větší pozornost.
 
 Type II – MLE obrazky a rozepsat členy toho logaritmu.
@@ -253,7 +253,7 @@ Type II – MLE obrazky a rozepsat členy toho logaritmu.
 Další metodou je Markov Chain Monte Carlo (MCMC).
 Ta je založena na teorii Markovských procesů.
 Její princip spočívá v tom, že se snažíme náhodným vzorkováním z rozdělení aproximovat integrál, který neumíme vyřešit analyticky.
-konkrétně už jsme si říkali, že integrály \ref{eq:normalizační_konst_1_uroven} a \ref{eq:normalizační_konst_2_uroven} nemusíme umět spočítat kvůli jejich příliš velké dimenze nebo kvůli tomu, že tyto hustoty nemusí být vlastní.
+Konkrétně už jsme si říkali, že integrály \ref{eq:normalizační_konst_1_uroven} a \ref{eq:normalizační_konst_2_uroven} nemusíme umět spočítat kvůli jejich příliš velké dimenze nebo kvůli tomu, že tyto hustoty nemusí být vlastní.
 A tak místo přímého výpočtu budeme postupně generovat vzorky z těchto rozdělení a postupně zjistíme alespoň hrubou představu o skutečně podobě těchto rozdělení, dokonce můžeme i aproximovat jakékoliv statistiky tohoto rozdělení.
 Dalším podstatným bodem je to, že MCMC je založeno na tzv. Markovových řetězcích což je posloupnost náhodných veličin, pro kterou platí $p(\theta_{t+1}|\theta_t, \theta_{t-1}, \dots , \theta_0) = p(\theta_{t+1}|\theta_t)$, kde $\theta_i$ pro $i \in \{1, \dots, T\}$ značí vzorky generované z MCMC.
 Klíčovým požadavkem je, aby řetězec:
@@ -261,7 +261,7 @@ Klíčovým požadavkem je, aby řetězec:
   \item byl ergodický, tj. ireducibilní a aperiodický,
   \item měl stacionární rozdělení $\pi(\theta)$.
 \end{enumerate}
-Pak vzorky konvergují k $\pi(\theta)$ a můžeme použit pro odhady: 
+Pak vzorky konvergují k $\pi(\theta)$ a můžeme použít pro odhady: 
 \[
 \lim_{T \to \infty} \frac{1}{T} \sum_{t=1}^{T} f(\theta_t) = \mathbb{E}_{\pi}[f(\theta)],
 \]
@@ -299,7 +299,7 @@ Rovněž si musíme uvědomit, že částice má tendenci se pohybovat po hladin
 Hamiltonian Monte Carlo avšak má dva hyperparametry, které je těžké nastavit:
 \begin{itemize}
     \item délka kroku $\epsilon$ (step size)
-    \item Počet kroků $L$ (trajectory length)
+    \item počet kroků $L$ (trajectory length)
 \end{itemize}
 
 NUTS řeší oba problémy tím, že automaticky volí délky trajektorie.

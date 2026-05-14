@@ -1,18 +1,18 @@
 \section{Teoretické statistické vlastnosti PFN}
-V této sekci uvedeme dosud známe statistické vlastnosti PFN, které publikoval Nagler v článku (REFERENCEnagler).
+V této sekci uvedeme dosud známé statistické vlastnosti PFN, které publikoval Nagler v článku (REFERENCEnagler).
 V okamžiku, kdy již máme natrénovaný model, dává smysl prozkoumat jeho statistické vlastnosti a ptat se, proč a jak fungují jeho prediktivní a aproximační schopnosti.
-Muller ve své práci ukázal empirická pozorování, která ale  nepodpořil teoretickým zdůvodněním.
-To se avšak podařilo Naglerovi, který dokázal vybudovat teoretický základ pro PFN a řadně odůvodnit, proč a jak architektura PFN dává dobré výsledky při Bayesovské inference.
+Muller ve své práci ukázal empirická pozorování, která ale nepodpořil teoretickým zdůvodněním.
+To se avšak podařilo Naglerovi, který dokázal vybudovat teoretický základ pro PFN a řádně odůvodnit, proč a jak architektura PFN dává dobré výsledky při Bayesovské inference.
 Nagler ve své práci používá určitý formalismus pro zavedení celého problému, na kterém pak buduje samotnou teorii.
 My tento formalismus v této práci zachováme.
 
 \subsection{Statistický model}
 Uvažujme klasifikační úlohu, která se skládá ze tříd $Y \in \mathcal{Y}$ a příznaků $X \in \mathcal{X} \subseteq \mathbb{R}^d$.
-Předpokládejme dále, že máme iid data $D_n = (Y_i, X_i)_{i=1}^n$ pochazející z nějaké teoretického ale neznámého rozdělení $p_0$.
+Předpokládejme dále, že máme iid data $D_n = (Y_i, X_i)_{i=1}^n$ pocházející z nějakého teoretického, avšak neznámého rozdělení $p_0$.
 Naším cílem je predikovat toto podmíněné rozdělení na základě dostupných dat: $$p_0(y \mid x) = P(Y = y \mid X = x).$$
-Z hlediska Baysevského neparametrického odhadování můžene na $p_0$ nahlížet jako na realizaci náhodného parametru $p \in \mathcal{P}$, jde $\mathcal{P}$ je prostor podmíněných pravděpodobnostních rozdělení nad $\mathcal{Y} \times \mathcal{X}$.
+Z hlediska Baysevského neparametrického odhadování můžeme na $p_0$ nahlížet jako na realizaci náhodného parametru $p \in \mathcal{P}$, kde $\mathcal{P}$ je prostor podmíněných pravděpodobnostních rozdělení nad $\mathcal{Y} \times \mathcal{X}$.
 Tento parametr má rozdělení $\Pi$, které budeme říkat prior.
-Prior bude vyjadřovat naše přesvědčení o tom, jaké modely $p$ jsou pravděpodobnější pro dány problém ještě předtím než uvidíme data.
+Prior bude vyjadřovat naše přesvědčení o tom, jaké modely $p$ jsou pravděpodobnější pro daný problém ještě předtím než uvidíme data.
 Formálně celý proces, ze kterého pocházejí data lze zapsat takto:
 \begin{enumerate}
     \item Vygeneruj $p \sim \Pi$.
@@ -24,10 +24,10 @@ Tento mechanismus definuje sdílené rozdělení nad $(D_n \cup (Y, X), p)$ pro 
 Skutečné rozdělení $p_0$ je ta realizace $p$, ze které skutečně pocházejí naše data, zpravidla je $p_0$ neznámá.
 \par   
 
-Pro každé $n$ poskytuje výše popsaný statistický model dobře definovanou sdružené rozdělení n-tice $(D_n \cup (Y, X), p)$. 
+Pro každé $n$ poskytuje výše popsaný statistický model dobře definované sdružené rozdělení n-tice $(D_n \cup (Y, X), p)$. 
 Na základě tohoto modelu lze $p_0(y \mid x)$ aproximovat pomocí posterior predictive distribution (PPD):
 $$\pi(y \mid x, D_n) = P(Y = y \mid X = x, D_n),$$
-kterou jsem již zmíňovali v předchozí sekci, uveďme její definici ještě jednou i zde a se zařazením do kontextu.
+kterou jsme již zmiňovali v předchozí sekci, uveďme její definici ještě jednou i zde a se zařazením do kontextu.
 Tím vzniká celá rodina PPD indexovaná $n$. 
 Pokud prior $\Pi$ faktorizuje nezávisle pro marginální složky $p(y \mid x)$ a $p(x)$, tj. rozdělení příznaků a rozdělení tříd jsou v prioru nezávislé, pak lze PPD dále zapsat jako:
 \begin{equation}
@@ -35,7 +35,7 @@ Pokud prior $\Pi$ faktorizuje nezávisle pro marginální složky $p(y \mid x)$ 
 \label{def:PPD}
 \end{equation}
 
-kde $\Pi(\cdot \mid D_n)$ je tzv. \textit{posterio}, což je podmíněné rozdělení $p$ dané pozorovanými daty $D_n$, získaná Bayesovým pravidlem. 
+kde $\Pi(\cdot \mid D_n)$ je tzv. \textit{posterior}, což je podmíněné rozdělení $p$ dané pozorovanými daty $D_n$, získaná Bayesovým pravidlem. 
 Tento integrál říká v zásadě relativně jednoduchou věc: průměrujeme $$p(y \mid x)$$ přes všechna možná $p$ vážená jejich posteriorní pravděpodobností, pak modely $p$, které jsou konzistentní s $D_n$ dostanou větší váhu.
 Podmínka faktorizace prioru je spíše technická.
 Platí–li podmínka, pak když jsme viděli data $D_n$, říkají nám něco o $p(y \mid x)$, ale $x$–ová souřadnice testovacího bodu sáma o sobě nic neříká o $p(y \mid x)$.
@@ -57,14 +57,14 @@ Každé $q \in \mathcal{Q}$ je tedy funkce, která dostane $n$ trénovacích pá
 \label{theorem:prior_je_max}
 \end{theorem}
 Jinými slovy PPD $\pi$ maximalizuje očekávanou podmíněnou log-likelihood přes všechny možné prediktory z $\mathcal{Q}$. 
-To znemená, že to je nejlepší možný prediktor za daného prioru $\Pi$.
+To znamená, že to je nejlepší možný prediktor za daného prioru $\Pi$.
 
 Dále navíc maximalizaci výrazu $\mathbb{E}_\Pi[\log q(Y \mid X, D_n)]$ lze ekvivalentně chápat jako minimalizaci očekávané KL divergence
 $$\mathbb{E}\!\left[\mathrm{KL}\!\left(q(\cdot \mid X, D_n) \,\Big\|\, \pi(\cdot \mid X, D_n)\right)\right].$$
 PPD $\pi$ je tedy KL-optimálním prediktorem v $\mathcal{Q}$.
 
 Abychom PPD aproximovali v praxi, natrénujeme model $q_\theta$, kde $\theta \in \Theta$ jsou parametry (např. váhy neuronové sítě). 
-To znamenám, že pro každou hodnotu $\theta$ existuje celá rodina funkcí:
+To znamená, že pro každou hodnotu $\theta$ existuje celá rodina funkcí:
 
 $$\left\{q_{\theta} : (\mathcal{Y} \times \mathcal{X})^{n+1} \to [0,1],\; n \in \mathbb{N}\right\},$$
 ale závislost na $n$ v notaci explicitně neuvádíme. 
@@ -88,7 +88,7 @@ Empirická verze optimalizačního problému pak je:
 \end{equation}
 
 Přesnost $\hat{\theta}$ jako aproximace $\theta^*$ závisí na počtu Monte Carlo vzorků $m$.
-Ale důležite je, že se dá ukázat $\hat{\theta} = \theta^* + O_p(m^{-1/2})$.
+Ale důležité je, že se dá ukázat $\hat{\theta} = \theta^* + O_p(m^{-1/2})$.
 Z toho plyne, že konvergence $\hat{\theta} \to \theta^*$ je v praxi zaručena.
 
 Nagler (2023) ukazuje, že pokud je trénovací loss NLL (negative log-likelihood, viz Fáze 8) a model má dostatečnou kapacitu, optimální řešení konverguje k Bayesovské posteriorní prediktivní distribuci. To znamená, že správně natrénovaný PFN je teoreticky ekvivalentní analytickému GP posterioru.
@@ -128,8 +128,8 @@ To platí, za určitých podmínek.
 \label{theorem:PPDcanLearn}
 \end{theorem}
 
-První podmínka v této větě požaduje, aby v supportu prioru existoval jednoznačná KL-optimální aproximace $p^*$ pravého modelu $p_0$ a KL divergence $p^*$ vůči $p_0$ je konečná.
-Druhá podmínka je technickým požadavkem na to, aby prior nepřiděloval příliš velkou hmotnost oblastem daleko od $p^*$, prior nesmí být příliš rozptýlený v nežádoucích oblastech suport.
+První podmínka v této větě požaduje, aby v supportu prioru existovala jednoznačná KL-optimální aproximace $p^*$ pravého modelu $p_0$ a KL divergence $p^*$ vůči $p_0$ je konečná.
+Druhá podmínka je technickým požadavkem na to, aby prior nepřiděloval příliš velkou hmotnost oblastem daleko od $p^*$, prior nesmí být příliš rozptýlený v nežádoucích oblastech supportu.
 Sama o sobě věta tvrdí, jak se PPD učí.
 Konkrétně, že se učí tím lépe, čím víc dat máme, a snaží se naučit co nejlepší aproximaci $p_0$ dosažitelnou v $\mathcal{P}$.
 Pokud $p_0 \in \mathcal{P}$ (prior obsahuje pravý model): $p^* = p_0$ a PPD konverguje přímo k $p_0$.
@@ -180,9 +180,9 @@ Malé $N_j$ nutí model k jednoduchým predikcím, velké $N_j$ k složitým.
 \par 
 
 \subsection{Učení PFN In–Context}
-V předchozí sekci jsme ukázali podstatnou vlastnost PPD, a to že se se zvětšujícím se datasetem, PPD se přibližuje ke skutečné distribuce.
+V předchozí sekci jsme ukázali podstatnou vlastnost PPD, a to, že se se zvětšujícím se datasetem PPD přibližuje ke skutečné distribuci.
 Následně jsme ukázali, že PFN je pouhou aproximací PPD, jejíž kvalita závisí na určitých faktorech, a nelze s jistotou tvrdit, že pro něj platí stejné vlastnosti jako pro PPD a nelze na něj přímo aplikovat větu \ref{theorem:PPDcanLearn}.
-Ukazuje se, že PFN se pořad může chovat jako PPD a zachovat její některé klíčové vlastnosti, jako např. již zmíněné tvrzení.
+Ukazuje se, že PFN se pořád může chovat jako PPD a zachovat její některé klíčové vlastnosti, jako např. již zmíněné tvrzení.
 Avšak v praxi to není tak jednoduché a jednoznačné.
 PFN se dokáže přiblížit k $p^*(y \mid x)$, a to i při relativně malém množství dat ($n \leq 1000$).
 Navíc se zachovává i to, že ani nemusíme pro tuto vlastnost najít perfektní prior.
@@ -204,7 +204,7 @@ Již jsme řekli, že empiricky chyba predikce klesá spolu se zvětšujícím s
 Takže zkusme najít které strukturální aspekty PFN by to mohli vysvětlit.
 \par 
 
-Obecně ze struktury transformeru plyne, že jsou invariantní vůči permutacím vstupních dat (tj. symetrické), což je mimochdem jednou z výhod pro architekturu PFN dataset $D_n$ je ze své podstaty množina, ne sekvence, takže permutační invariance je přesně ta vlastnost, kterou chceme pro i.i.d. vzorky.
+Obecně ze struktury transformeru plyne, že jsou invariantní vůči permutacím vstupních dat (tj. symetrické), což je mimochodem jednou z výhod pro architekturu PFN dataset $D_n$ je ze své podstaty množina, ne sekvence, takže permutační invariance je přesně ta vlastnost, kterou chceme pro i.i.d. vzorky.
 \begin{theorem}
     Nechť $f : (\mathcal{Y} \times \mathcal{X})^n \to \mathcal{P}_{\mathcal{Y}|\mathcal{X}}$ je libovolný prediktor. Pak existuje jeho symetrizovaná verze $\tilde{f}$ taková, že pro každé pravděpodobnostní míry $P$:
 \begin{equation}
@@ -237,14 +237,14 @@ To nám umožňuje vyslovit tvrzení, které ukazuje, proč rozptyl během učen
     \end{equation}
 \end{theorem}
 Jinými slovy rozptyl postupně mizí s počtem dat $n$.
-Tak dostáváme, že halvním pramenem chyby při inference ne bias, kterého se už jen tak nezbavíme.
+Tak dostáváme, že hlavním pramenem chyby při inferenci není bias, kterého se už jen tak nezbavíme.
 \par   
 
 Ze vztahu \ref{Bias_Variance} je vidět, že bias je určen chováním posloupností $\mathbb{E}[q_\theta(y \mid x, D_n)]$.
 Je logické, že bychom mohli přepodkládat (nebo očekávat), že platí i tento vztah: 
 $$\mathbb{E}[q_\theta(y \mid x, D_n)] \xrightarrow{n \to \infty} \bar{q}_\theta(y \mid x),$$
 kde $\bar{q}_\theta(. \mid .)$ je jakýsi zprůměrovaný prediktor, jehož konkrétní architekturu neznáme.
-Ale co můžeme říct s jistotou, tak že chování biasu hodně závisí ne oné architektuře, jak ukazuje Nagler ve svém článku (REFERENCE), může růst, klesat, anebo být celou dobu konstantní.
+Ale co můžeme říct s jistotou, tak že chování biasu hodně závisí na oné architektuře, jak ukazuje Nagler ve svém článku (REFERENCE), může růst, klesat, anebo být celou dobu konstantní.
 Co je avšak v naších sílách – vyslovit nutnou podmínku pro mizení biasu. 
 Má–li prediktor $q_\theta(. \mid ., D_n)$ mizející bias na dostatečně bohaté třídě funkcí, pak nutně musí být lokální.
 Lokální zde znamená, že např. k $q_\theta(y \mid x, D_n)$ by měly přispívat (asymptoticky) pouze vzorky $(Y_i, X_i) \in D_n$ s $X_i$ blízko $x$.
@@ -323,7 +323,7 @@ s vysokou pravděpodobností.
 \end{theorem}
 
 Velmi podobnou větu jsme již viděli v předchozí sekci.
-Dokonce tvrdí skoro stejné: rozptyl mizí bez nezávisle na parametru $\theta$.
+Dokonce tvrdí skoro stejné: rozptyl mizí nezávisle na parametru $\theta$.
 Jde o strukturální vlastnost architektury, nikoliv výsledek tréninku. 
 Důvodem je, že attention mechanismus nutně přiděluje každému vzorku váhu řádu $1/n$, takže vliv libovolného jednotlivého vzorku klesá s $n$.
 V případě biasu jsme již říkali, že ta situace je horší. 
@@ -344,12 +344,12 @@ V tomto kontextu se zavádí jako asymptotická variace attention mechanismu.
 Tato funkce $g_h(s)$ zvyšuje pravděpodobnost těm hodnotám $s$, které se nejvíce podobají vektoru $v$ ve smyslu $v^\top W^{(h)}_q s$, a snižuje pro zbylé body.
 Jinými slovy ten složitý vzoreček na obrázku ukazuje teoretickou situaci, co by se stalo, kdyby měl Transformer k dispozici nekonečně mnoho vzorků. 
 Už nerozděluje váhy mezi jednotlivými datovými body, ale vezme celou spojitou distribuci dat a "vychýlí" ji celou směrem k té informaci, na kterou zrovna potřebuje upřít pozornost.
-Více formálně to znamená, že Každá attention hlava $h$ tak hodnotí určitý aspekt neznámé distribuce $p_0$ (charakterizovaný maticí $W^{(h)}_q$). 
+Více formálně to znamená, že každá attention hlava $h$ tak hodnotí určitý aspekt neznámé distribuce $p_0$ (charakterizovaný maticí $W^{(h)}_q$). 
 Pokud jsou matice $(W^{(h)}_q)_{h=1}^H$ dobře nastaveny, tyto jednotlivé pohledy rozlišují různé hodnoty příznaků.
 \par   
 
 Avšak $g_h$ lokalizuje prediktor pouze do jisté míry.
-Ačkoli zvyšuje váhu vzorků podobných $v$, ale ne v smyslu věty \ref{theorem:lokalizace}.
+Ačkoli zvyšuje váhu vzorků podobných $v$, ale ne ve smyslu věty \ref{theorem:lokalizace}.
 Vzorky vzdálené od $x$ stále nenulově přispívají, protože SoftMax nikdy nevytváří přesně nulové váhy. 
 Přepsání příznaků vzdálených vzorků proto vždy predikci změní, a tak lokalita podle \ref{theorem:lokalizace} není splněna. 
 Proto plyne, že bias transformeru obecně nemůže úplně zmizet.
@@ -366,7 +366,7 @@ Všechny tyto manipulační součástky tak dávají velký prostor pro manévr 
 
 Dále lze různě upravovat strukturu PFN během inference či tréninku pro zlepšení lokality.
 Naším účelem je tedy nějakým způsobem donutit transformer se dívat na jednotlivé body co nejvíc lokálně a neuvažovat pro bod $x$ příliš vzdálené hodnoty.
-Jedním z přímočarých způsobů he \textit{post–hoc lokalizace}, kterou navrhuje Nagler.
+Jedním z přímočarých způsobů je \textit{post–hoc lokalizace}, kterou navrhuje Nagler.
 Pro predikci labelu v testovacím bodě $x$:
 \begin{enumerate}
     \item Sestrojí se redukovaná trénovací množina $D_n(x)$ odstraněním všech vzorků kromě $k_n$ nejbližších sousedů bodu $x$ z $D_n$.
