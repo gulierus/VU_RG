@@ -1,0 +1,210 @@
+\section{Hloubka jako iterace řešiče: PFN versus gradientní sestup}
+\label{sec:hloubka-reseni}
+
+Předchozí sekce ukázala, \emph{co} jednotlivé vrstvy dělají – rané čtou labely, střední porovnávají vstupní vzdálenosti – a že hloubka odstraňuje ireducibilní bias jednovrstvého modelu.
+Zůstává však hlubší otázka: \emph{proč} vlastně přidávání vrstev pomáhá a co odpovídá jedné vrstvě z~hlediska výpočtu, který GP inference vyžaduje.
+GP posterior mean totiž není nic jiného než řešení lineární soustavy
+$$\mu(x^*) = k(x^*, X)\,\alpha, \qquad \alpha = (K + \sigma^2 I)^{-1} y,$$
+tedy inverze matice $K + \sigma^2 I$.
+Tato inverze se dá řešit \textbf{iterativně}, a přirozeně se proto nabízí hypotéza, že hloubka transformeru odpovídá počtu iterací takového řešiče.
+V~této sekci tuto hypotézu kvantitativně testujeme.
+\par
+
+Nejjednodušším iterativním řešičem je gradientní sestup na kvadratické ztrátě $\tfrac{1}{2}\alpha^\top (K+\sigma^2 I)\alpha - y^\top\alpha$, jehož iterace zní
+$$\alpha^{(0)} = 0, \qquad \alpha^{(t+1)} = \alpha^{(t)} + \eta\bigl(y - (K+\sigma^2 I)\,\alpha^{(t)}\bigr).$$
+Rychlost jeho konvergence řídí \textbf{podmíněnost} soustavy
+$$\kappa = \frac{\lambda_{\max}(K) + \sigma^2}{\lambda_{\min}(K) + \sigma^2},$$
+kde $\lambda_{\max}, \lambda_{\min}$ jsou krajní vlastní čísla kernelové matice $K$.
+Obyčejný gradientní sestup potřebuje k~dané přesnosti řádově $\mathcal{O}(\kappa)$ kroků; čím hůře je soustava podmíněná, tím víc iterací.
+Odtud plyne testovatelná predikce: \emph{pokud každá vrstva PFN odpovídá jednomu kroku iterativního řešiče, měly by hůře podmíněné úlohy (větší $\kappa$) vyžadovat více vrstev.}
+\par
+
+K~ověření této predikce potřebujeme kontrolovaně měnit $\kappa$, aniž bychom měnili cokoli jiného.
+Toho dosáhneme přes šum $\sigma^2$: protože numericky $\lambda_{\min}(K) \approx 0$, platí $\kappa \approx 1 + \lambda_{\max}(K)/\sigma^2$, takže samotný šum nastavuje podmíněnost prakticky přímo.
+Pracujeme proto se \textbf{dvěma sadami} pěti modelů ($1$, $2$, $4$, $6$ a $8$ vrstev), které se liší \emph{výhradně} šumem, na němž byly trénovány i testovány:
+režim \textbf{Easy} ($\ell = 0{,}3$, $\sigma^2 = 0{,}5$) a režim \textbf{Hard} ($\ell = 0{,}3$, $\sigma^2 = 0{,}1$).
+Na rozdíl od předchozích sekcí, kde jsme používali jediný model trénovaný na náhodných hyperparametrech, je zde každá sada trénována \emph{přesně na svých testovacích hyperparametrech} – měříme tedy in-distribution výkon, nikoli generalizaci.
+Všech pět hloubek v~každé sadě sdílí identický $300$-epochový rozpočet, takže trend v~hloubce zde není konfundovaný nevyrovnaným tréninkem.
+Výslednou podmíněnost obou režimů shrnuje tabulka~\ref{tab:ch2_kappa}.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{Režim} & \textbf{$\ell$} & \textbf{$\sigma^2$} & \textbf{$\kappa$ ($n{=}40$)} & \textbf{$\rho = \tfrac{\kappa-1}{\kappa+1}$} \\
+\hline
+Easy & $0{,}3$ & $0{,}5$ & $\approx 50$  & $\approx 0{,}96$ \\
+Hard & $0{,}3$ & $0{,}1$ & $\approx 245$ & $\approx 0{,}99$ \\
+\hline
+\end{tabular}
+\caption{Podmíněnost obou režimů, průměr přes $50$ instancí při $n = 40$. Snížení šumu z~$0{,}5$ na $0{,}1$ zhoršuje podmíněnost přibližně pětinásobně. Veličina $\rho$ je worst-case kontrakce gradientního sestupu za jeden krok (v~$\alpha$-prostoru), ke~které se vrátíme v~oddílu~\ref{subsec:ch2-gd}.}
+\label{tab:ch2_kappa}
+\end{table}
+
+\subsection{Hloubka snižuje chybu, ale ne jako obyčejná Neumannova řada}
+\label{subsec:ch2-neumann}
+
+Nejprve ověříme základní předpoklad – že hloubka vůbec zlepšuje aproximaci – a porovnáme empirický pokles chyby s~teoretickou křivkou obyčejného iterativního řešiče.
+Pro každý model a každou hloubku měříme na $200$ sdílených instancích ($n_{\text{ctx}} = 40$, $n_{\text{test}} = 10$) \textbf{normalizované MSE}
+$$\text{nMSE} = \frac{\text{MSE}(\hat\mu_{\text{PFN}},\, \mu_{\text{GP}})}{\text{var}(\mu_{\text{GP}})},$$
+tedy chybu predikce PFN vůči přesnému GP posterioru, dělenou rozptylem \emph{cíle} (GP posterior mean přes testovací body).
+Za normalizační jmenovatel bereme záměrně $\text{var}(\mu_{\text{GP}})$, a nikoli $\text{var}(y)$: pozorované hodnoty $y$ obsahují šum, který posterior mean nikdy neobsahuje, a normalizace šumem by tak uměle obracela pořadí obou režimů.
+Empirické hodnoty spolu s~worst-case Neumannovou křivkou $\rho^L$ zachycuje obrázek~\ref{fig:ch2_neumann}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\linewidth]{figures/GP2_exp2_neumann/fig_exp2_norm_mse_neumann.png}
+    \caption{Normalizované MSE jako funkce hloubky $L$ pro oba režimy (plné čáry, chybové úsečky $\pm 1$ směrodatná chyba) proti teoretické worst-case Neumannově konvergenci $\rho^L$ (přerušované čáry). Chyba prudce klesá s~hloubkou – u~Easy z~$0{,}10$ na $0{,}004$ (asi $25\times$), u~Hard z~$0{,}046$ na $0{,}005$ – a hlavní zisk se odehrává mezi jednou a čtyřmi vrstvami. Empirický pokles je ovšem \emph{mnohem rychlejší} než teoretická křivka: už $2$–$4$ vrstvy dosáhnou přesnosti, kterou by worst-case Neumannova řada nedala ani po desítkách kroků.}
+    \label{fig:ch2_neumann}
+\end{figure}
+
+Z~obrázku plynou dvě pozorování.
+Za prvé, hloubka skutečně a výrazně zlepšuje aproximaci: normalizované MSE klesá u~obou režimů zhruba o~řád a půl, přičemž naprostá většina zisku připadá na~přechod z~jedné na~čtyři vrstvy, načež se pokles sytí.
+Za druhé – a to je důležité – \textbf{empirický pokles je řádově rychlejší než teoretická Neumannova křivka} $\rho^L$.
+Zatímco worst-case teorie s~$\rho \approx 0{,}96$ (Easy), resp.\ $0{,}99$ (Hard) předpovídá jen pozvolný pokles, PFN se přiblíží GP posterioru už za dvě až čtyři vrstvy.
+Naivní srovnání „vrstva $=$ jeden krok Neumannovy řady“ tedy \emph{neplatí} – buď dělá jedna vrstva mnohem víc než jeden krok, nebo řešič, který PFN implementuje, není obyčejný gradientní sestup.
+Rozlišit mezi těmito možnostmi vyžaduje férovější srovnávací základnu, kterou zavádíme v~oddílu~\ref{subsec:ch2-gd}.
+\par
+
+\subsection{Rozklad chyby: hloubka odbourává bias i varianci}
+\label{subsec:ch2-neumann-decomp}
+
+Než přejdeme ke~gradientnímu sestupu, rozložíme chybu podobně jako v~oddílu~\ref{subsec:ch2-bias-variance}, abychom viděli, \emph{kterou} složku chyby hloubka snižuje.
+Pro každý model měříme MSE vůči GP posterioru při rostoucím kontextu $n \in \{5, 10, 20, 40, 80, 120\}$ a proložíme model $\text{MSE}(n) = \text{bias}^2 + c/n$, kde $\text{bias}^2$ je ireducibilní chyba (asymptota pro $n \to \infty$) a $c/n$ variance klesající s~daty.
+Odhadnuté koeficienty pro oba režimy shrnuje tabulka~\ref{tab:ch2_decomp_gd}, proložení je na obrázku~\ref{fig:ch2_decomp_gd}.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lcc|cc}
+\hline
+& \multicolumn{2}{c|}{\textbf{Easy} ($\sigma^2 = 0{,}5$)} & \multicolumn{2}{c}{\textbf{Hard} ($\sigma^2 = 0{,}1$)} \\
+\textbf{Model} & $\text{bias}^2$ & $c$ & $\text{bias}^2$ & $c$ \\
+\hline
+$1$ vrstva & $0{,}00784$ & $0{,}105$ & $0{,}00674$ & $0{,}045$ \\
+$2$ vrstvy & $0{,}00124$ & $0{,}040$ & $0{,}00117$ & $0{,}042$ \\
+$4$ vrstvy & $0{,}00085$ & $0{,}011$ & $0{,}00152$ & $0{,}005$ \\
+$6$ vrstev & $0{,}00071$ & $0{,}008$ & $0{,}00084$ & $0{,}005$ \\
+$8$ vrstev & $0{,}00059$ & $0{,}007$ & $0{,}00113$ & $0{,}001$ \\
+\hline
+\end{tabular}
+\caption{Rozklad MSE $= \text{bias}^2 + c/n$ vůči GP posterioru pro oba režimy. V~obou případech obě složky s~hloubkou klesají: ireducibilní bias jednovrstvého modelu ($\approx 0{,}007$–$0{,}008$) padá zhruba o~řád, varianční člen $c$ ještě výrazněji. Zlepšení se sytí kolem čtyř vrstev.}
+\label{tab:ch2_decomp_gd}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.49\linewidth]{figures/GP2_exp2_neumann/fig_exp2_mse_decomp_easy.png}
+    \hfill
+    \includegraphics[width=0.49\linewidth]{figures/GP2_exp2_neumann/fig_exp2_mse_decomp_hard.png}
+    \caption{Rozklad MSE $= \text{bias}^2 + c/n$ pro režim Easy (vlevo) a Hard (vpravo). Body jsou naměřené MSE (chybové úsečky $\pm 1$ std), přerušované křivky proložení. S~rostoucí hloubkou se křivky posouvají dolů – jednovrstvý model má nejvyšší asymptotu i nejpomalejší pokles, hluboké modely klesají prakticky k~nule.}
+    \label{fig:ch2_decomp_gd}
+\end{figure}
+
+Obraz je konzistentní s~náhodným modelem z~oddílu~\ref{subsec:ch2-bias-variance}: největší skok nastává mezi jednou a dvěma vrstvami (bias $\approx 0{,}007 \to 0{,}001$), načež se zlepšování sytí.
+Hloubka tedy neodstraňuje jen ireducibilní bias, ale zrychluje i konvergenci vzhledem k~množství dat.
+Kolik iterací obyčejného řešiče to ale odpovídá, z~tohoto rozkladu ještě nevyčteme – k~tomu potřebujeme řešič skutečně spustit.
+\par
+
+\subsection{Férová srovnávací základna: skutečný gradientní sestup}
+\label{subsec:ch2-gd}
+
+Zdánlivý rozpor z~oddílu~\ref{subsec:ch2-neumann} – že PFN „konverguje rychleji, než Neumannova řada dovoluje“ – má prozaickou příčinu: \textbf{srovnávali jsme dvě různé veličiny}.
+Worst-case míra $\rho = (\kappa-1)/(\kappa+1)$ popisuje kontrakci chyby v~\emph{$\alpha$-prostoru}, tedy jak rychle konverguje samotný vektor koeficientů $\alpha$.
+My ale měříme chybu v~\emph{predikčním prostoru}, tedy pro $\mu(x^*) = k(x^*, X)\,\alpha$.
+A tyto dva prostory nejsou totéž: predikce je kernelově vážená kombinace $\alpha$, která tlumí právě ty komponenty s~malými vlastními čísly, kde gradientní sestup konverguje nejpomaleji.
+Srovnávat empirickou predikční chybu s~worst-case křivkou $\rho^L$ je proto nefér – penalizuje řešič za chyby, které se do predikce skoro nepromítnou.
+\par
+
+Férová základna vyžaduje spustit \textbf{skutečný gradientní sestup na týchž datech} a měřit jeho chybu \emph{ve~stejném predikčním prostoru} jako u~PFN.
+Pro každou instanci proto iterujeme výše uvedenou rovnici s~optimálním fixním krokem $\eta = 2/(\lambda_{\max} + \lambda_{\min})$, po každém kroku $t$ zrekonstruujeme predikci $\mu_{\text{GD}}^{(t)}(x^*) = k(x^*, X)\,\alpha^{(t)}$ a měříme $\text{MSE}(\mu_{\text{GD}}^{(t)}, \mu_{\text{GP}})/\text{var}(\mu_{\text{GP}})$ – tedy přesně tu metriku, kterou u~PFN vynášíme proti hloubce.
+Výsledek srovnání je na obrázku~\ref{fig:ch2_gd_baseline}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/GP2_exp2_neumann/fig_exp2_gd_baseline.png}
+    \caption{PFN versus skutečný gradientní sestup, obojí v~predikčním prostoru, pro Easy (vlevo) a Hard (vpravo). Modrá: normalizované MSE PFN proti hloubce $L$. Červená: normalizované MSE gradientního sestupu proti počtu kroků $t$ (tytéž osy). Tečkovaná čára značí triviální predikci konstantním průměrem (nMSE $= 1$). PFN je hluboko pod triviální úrovní už při jedné vrstvě, zatímco skutečný gradientní sestup zůstává \emph{nad} triviální predikcí i po osmi krocích – v~predikčním prostoru je tedy genuinně pomalý.}
+    \label{fig:ch2_gd_baseline}
+\end{figure}
+
+Obrázek dává jednoznačnou odpověď: reálný gradientní sestup je \textbf{i v~predikčním prostoru pomalý}.
+Jeho normalizované MSE zůstává po prvních osm kroků \emph{nad} hodnotou $1$, tj.\ hůř než triviální predikce konstantním průměrem – zatímco PFN je pod touto hranicí už s~jedinou vrstvou.
+Rozpor z~předchozího oddílu se tím vysvětluje a zároveň obrací: nebyl to řešič, kdo byl nefér zvýhodněn, ale PFN, který skutečný gradientní sestup výrazně předčí.
+Abychom rozdíl vyčíslili, pro každou hloubku $L$ dopočítáme, kolik kroků gradientního sestupu by dalo tutéž chybu jako $L$-vrstvý PFN (tabulka~\ref{tab:ch2_gd_steps}).
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{ccc}
+\hline
+\textbf{PFN hloubka $L$} & \textbf{$\sim$ GD kroků, Easy ($\kappa \approx 50$)} & \textbf{$\sim$ GD kroků, Hard ($\kappa \approx 245$)} \\
+\hline
+$1$ & $51$ & $271$ \\
+$4$ & $87$ & $402$ \\
+$8$ & $91$ & $408$ \\
+\hline
+\end{tabular}
+\caption{Efektivní počet kroků gradientního sestupu, který dosáhne téže predikční chyby jako $L$-vrstvý PFN. Už jediná vrstva odpovídá desítkám kroků; osm vrstev v~režimu Hard odpovídá zhruba $400$ krokům. Počet potřebných kroků navíc silně roste s~podmíněností $\kappa$.}
+\label{tab:ch2_gd_steps}
+\end{table}
+
+Tabulka ukazuje dvě věci najednou.
+Zaprvé, \textbf{jedna vrstva odpovídá řádově desítkám kroků} obyčejného gradientního sestupu ($51$ v~Easy, $271$ v~Hard) – naivní hypotéza „vrstva $=$ jeden krok“ je tedy vyvrácena o~celé dva řády.
+Zadruhé, a to je klíčové, počet potřebných kroků \textbf{prudce roste s~podmíněností}: z~$\approx 90$ (Easy) na $\approx 400$ (Hard) při přechodu $\kappa$ z~$50$ na $245$, přesně jak $\mathcal{O}(\kappa)$ chování gradientního sestupu předpovídá.
+Naproti tomu PFN dosahuje srovnatelné přesnosti \emph{stejnými osmi vrstvami} v~obou režimech.
+Tuto asymetrii – GD škáluje s~$\kappa$, PFN nikoli – prozkoumáme přes tři režimy v~následujícím oddílu.
+\par
+
+\subsection{$\kappa$-necitlivost: podpis preconditioned řešiče}
+\label{subsec:ch2-kappa}
+
+Rozhodující rozdíl mezi PFN a gradientním sestupem je jejich závislost na~podmíněnosti.
+Abychom ji vykreslili co nejostřeji, přidáme \textbf{třetí, silně špatně podmíněný režim} $\sigma^2 = 0{,}01$ (vlastní sada modelů trénovaná na téže konfiguraci), který posouvá $\kappa$ na~zhruba $2400$.
+Pro každý ze~tří režimů zafixujeme cílovou přesnost na~úrovni, kterou dosáhne osmivrstvý PFN, a změříme, kolik kroků gradientního sestupu ji dá.
+Výsledek shrnuje tabulka~\ref{tab:ch2_kappa_scaling} a obrázek~\ref{fig:ch2_kappa_scaling}.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lccc}
+\hline
+\textbf{Režim} & \textbf{$\kappa$} & \textbf{PFN nMSE ($L{=}8$)} & \textbf{$\sim$ GD kroků ($L{=}8$)} \\
+\hline
+$\sigma^2 = 0{,}5$  & $50$   & $0{,}0040$  & $91$ \\
+$\sigma^2 = 0{,}1$  & $245$  & $0{,}0049$  & $408$ \\
+$\sigma^2 = 0{,}01$ & $2424$ & $0{,}00066$ & $5723$ \\
+\hline
+\end{tabular}
+\caption{Škálování s~podmíněností přes tři režimy. Počet kroků gradientního sestupu roste zhruba lineárně s~$\kappa$ ($91 \to 408 \to 5723$, tedy $\approx 2\kappa$), zatímco osmivrstvý PFN dosahuje srovnatelné (v~nejhůř podmíněném režimu dokonce \emph{nejlepší}) přesnosti stále stejnými osmi vrstvami.}
+\label{tab:ch2_kappa_scaling}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/GP2_exp2_neumann/fig_exp2_kappa_scaling.png}
+    \caption{Počet kroků gradientního sestupu na~úroveň osmivrstvého PFN (červená) jako funkce podmíněnosti $\kappa$, v~log-log měřítku, přes tři režimy. Tečkovaná čára značí referenční sklon $\mathcal{O}(\kappa)$. Gradientní sestup škáluje lineárně s~$\kappa$ ($91 \to 408 \to 5723$), zatímco hloubka PFN (modrá) zůstává konstantních $8$ vrstev napříč celým rozsahem podmíněnosti. PFN je vůči $\kappa$ prakticky necitlivý.}
+    \label{fig:ch2_kappa_scaling}
+\end{figure}
+
+Výsledek je jednoznačný.
+Počet kroků gradientního sestupu roste \textbf{zhruba lineárně s~$\kappa$} ($91 \to 408 \to 5723$ při $\kappa = 50 \to 245 \to 2424$), přesně jak $\mathcal{O}(\kappa)$ konvergence obyčejného řešiče předpovídá.
+\textbf{PFN je naproti tomu vůči podmíněnosti prakticky necitlivý}: týchž osm vrstev stačí ve~všech třech režimech a v~nejhůř podmíněném z~nich ($\kappa \approx 2400$) je dokonce nejpřesnější.
+Doplňme, že tuto $\kappa$-necitlivost nese \emph{mezirežimová} osa; regrese chyby proti podmíněnosti \emph{uvnitř} jednoho režimu žádný signál nedává ($|r| \lesssim 0{,}1$), protože při fixních hyperparametrech se $\kappa$ mezi instancemi mění jen konečně-vzorkovým rozptylem bodů $x$.
+\par
+
+Kombinace \emph{$\kappa$-necitlivosti} a \emph{rychlosti mnohonásobně převyšující gradientní sestup} je charakteristickým podpisem \textbf{naučeného preconditioned nebo druhořádového (Newtonovského) řešiče}, nikoli obyčejného gradientního sestupu.
+Preconditioning – vynásobení soustavy vhodnou maticí, která srovná spektrum a sníží efektivní podmíněnost – je totiž právě ten mechanismus, který činí konvergenci na~$\kappa$ necitlivou.
+Toto pozorování má oporu v~teorii in-context učení: Ahn et al.\ (2023) dokázali, že globální optimum jednovrstvého lineárního transformeru implementuje jeden krok \emph{preconditioned} gradientního sestupu, jehož preconditioner se adaptuje na~rozdělení vstupu; von Oswald et al.\ (2023) ukázali totéž pro $L$ vrstev jako $L$ iterací; a Fu et al.\ (2023) empiricky i teoreticky doložili, že transformery dosahují \emph{druhořádové} konvergence a fungují i na~špatně podmíněných datech, kde gradientní sestup selhává.
+Naše měření je tak přímým kvantitativním potvrzením tohoto obrazu na~úloze GP regrese.
+\par
+
+\subsection{Shrnutí: hloubka jako preconditioned iterace}
+\label{subsec:ch2-reseni-shrnuti}
+
+Tato sekce testovala hypotézu, že hloubka PFN odpovídá počtu iterací řešiče invertujícího $K + \sigma^2 I$.
+\par
+
+Hloubka skutečně a výrazně zlepšuje aproximaci GP posterioru – normalizované MSE klesá o~řád a půl a rozklad chyby ukazuje, že mizí jak ireducibilní bias, tak varianční člen (s~nasycením kolem čtyř vrstev).
+Naivní verze hypotézy „vrstva $=$ jeden krok Neumannovy řady“ však \textbf{neplatí}: férová srovnávací základna – skutečný gradientní sestup měřený ve~stejném predikčním prostoru – ukázala, že jediná vrstva odpovídá desítkám kroků a osm vrstev v~režimu Hard zhruba čtyřem stům.
+\par
+
+Rozhodujícím pozorováním je \textbf{$\kappa$-necitlivost}: napříč třemi řády podmíněnosti ($\kappa$ od $50$ po $2400$) potřebuje gradientní sestup lineárně rostoucí počet kroků ($91 \to 5723$), zatímco PFN si vystačí se~stále stejnými osmi vrstvami.
+Kombinace této necitlivosti a nadstandardní rychlosti je podpisem naučeného \emph{preconditioned} či druhořádového řešiče – přesně toho, co teorie in-context učení pro transformery předpovídá.
+Vágní tvrzení „PFN dělá něco složitějšího než gradientní sestup“ se tak mění na~konkrétní: PFN implementuje $\kappa$-necitlivou iteraci, v~níž jedna vrstva vykoná řádově tolik práce jako desítky kroků obyčejného gradientního sestupu.

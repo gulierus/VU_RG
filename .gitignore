@@ -1,3 +1,4 @@
+# LaTeX: verzujeme POUZE zdrojové .tex; vše ostatní (build artefakty, PDF, obrázky) je generované
 *.aux
 *.log
 *.out
@@ -5,7 +6,9 @@
 *.fdb_latexmk
 *.fls
 *.synctex.gz
-*.tex
+*.pre
+*.pdf
+*.eps
 *.png
 # Python
 __pycache__/
