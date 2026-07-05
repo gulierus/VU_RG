@@ -1,8 +1,9 @@
 # PFNs and amortized inference for image segmentation — a survey
 
-*A possible real-world application of your project (bias–variance and internal-representation
-analysis of PFNs as GP approximators): where amortized / in-context inference already lives
-in image segmentation, what is genuinely open, and how your results plug in.*
+*A possible real-world application of your project (analysis of how PFNs approximate GP
+inference — attention structure, kernel comparison, and uncertainty calibration): where
+amortized / in-context inference already lives in image segmentation, what is genuinely
+open, and how your results plug in.*
 
 ---
 
@@ -14,10 +15,10 @@ in image segmentation, what is genuinely open, and how your results plug in.*
   for pixels.
 - **But nobody has trained a literal PFN for segmentation** — synthetic draws from an
   explicit prior → posterior-predictive density. That is genuine white space.
-- **Your "attention = kernel smoother over the support set" framing is *not* novel by
-  itself** — it has two independent precedents. Your contribution has to be the
-  *diagnostic* you bring on top of it (bias–variance, calibration under shift), which
-  *is* open.
+- **Your transferable asset is your uncertainty-calibration result, not "attention is a
+  kernel smoother."** Your own experiments show the PFN does *more* than smoothing (full
+  GP inference), yet its uncertainty is shape-right/scale-wrong. That calibration finding
+  is what lifts to segmentation.
 
 ## 2. The landscape you'd be entering
 
@@ -26,9 +27,8 @@ Two lineages, converging on one paper.
 **In-context (set-based) segmentation** — your amortization idea, for images:
 - **UniverSeg** (Butoi et al., ICCV 2023) — query image + support set of image/label
   pairs → mask, no fine-tuning; a "CrossBlock" exchanges features between query and each
-  support entry. Performance rises with support-set size and then plateaus. *This plateau
-  is literally your Experiment 5 (context size → error) in 2D* — the same context-size
-  saturation seen in PFN regression.
+  support entry. Performance rises with support-set size and then plateaus — the same
+  context-size saturation you measured in Experiment 5 (MSE↓ with more context points).
 - **SegGPT** (Wang et al., ICCV 2023) — decoder-only transformer, "paint the mask in
   context" from a prompt image+mask; ≈56 mIoU one-shot on COCO-20i.
 - SEEM, Painter — related promptable / in-context segmenters.
@@ -45,35 +45,52 @@ Two lineages, converging on one paper.
   set defines the task *and* the model emits a diverse *set* of candidate masks. This is
   the closest thing that exists to "amortized-Bayesian in-context segmentation." Crucially
   it is **still not a PFN**: its spread comes from a best-candidate training loss, not a
-  calibrated predictive density. That gap is your opening.
+  calibrated predictive density. Whether that spread is *calibrated* is exactly the
+  question your methods answer — see §4.
 
-## 3. Why your "attention = kernel smoother over the support set" is prior art
+## 3. What your experiments actually established (and why it matters here)
 
-Be honest about this up front — a reviewer will know both of these:
-- **Tsai et al. 2019, "Transformer Dissection"** already proved, in general, that
-  attention *is* a Nadaraya–Watson kernel smoother (kernel score = query–key similarity) —
-  the same lens the PFN-as-GP analysis uses.
-- **Few-shot segmentation** already matches query↔support with correlation/prototype
-  kernels (Hypercorrelation Squeeze / HSNet, Min et al. ICCV 2021; prototype networks).
+Be precise about your own findings — they are stronger and more specific than a generic
+"attention = kernel smoother" claim, and they set up the segmentation angle:
 
-So "the segmentation transformer's attention is a kernel smoother over the support set"
-would be *re-deriving* known results. Don't pitch that as the contribution.
+- **The PFN performs full GP inference, not kernel smoothing.** MSE(PFN, GP) ≈ 10⁻⁵ vs
+  MSE(Nadaraya–Watson, GP) ≈ 10⁻² — four orders of magnitude. The "single attention head ≈
+  NW estimator" hypothesis is **refuted**; the model learns an implicit, non-RBF kernel
+  (attention–RBF correlation only 0.04–0.65) and captures the K⁻¹ (decorrelation) effect
+  that separates GP from NW.
+- **Interpretability depends on training.** The undertrained model decomposes into
+  readable steps (NW-like early layers + a final-layer correction); the fully-trained model
+  distributes the computation and is not decomposable — the accuracy is higher, the story
+  less legible.
+- **Uncertainty is shape-right, scale-wrong.** The PFN gets *where* to be uncertain nearly
+  perfectly (PFN–GP σ shape correlation 0.94 → 0.99 with more training) but the *scale* is
+  off: inflated baseline and a compressed dynamic range (far/near σ ratio ≈ 50% of the GP's),
+  and this gap **persists in the fully-trained model** — likely a BarDistribution
+  discretization limit and/or a train-distribution coverage gap.
+
+**Why the naive framing is a trap.** "The segmentation transformer's attention is a kernel
+smoother over the support set" is (a) *prior art* — Tsai et al. 2019 ("Transformer
+Dissection") proved attention is a Nadaraya–Watson smoother in general, and few-shot
+segmentation already matches query↔support via correlation/prototype kernels (HSNet, Min et
+al. ICCV 2021); and (b) *empirically incomplete* — your own results show a competent PFN
+does strictly more than smoothing. So don't pitch "attention = smoother." Pitch the
+calibration/bias-variance characterization, which is genuinely yours.
 
 ## 4. What IS open — your actual angle
 
-Your two skills answer questions nobody has answered for in-context segmenters:
+Your uncertainty result answers questions nobody has answered for in-context segmenters:
 
-**(a) Does the amortized mask posterior collapse toward a prior under support-set shift?**
-Your Experiment 1 result — "the mean reverts to the prior far from data, and the variance
-is under-estimated" — lifts directly. For UniverSeg/Tyche: shrink the support set, push it
-out-of-distribution (unseen anatomy/modality), and measure whether predictions regress to
-a majority/prior mask and whether uncertainty stays calibrated. This is your
-bias-toward-prior finding, in 2D, on a real model.
+**(a) Is the shape-right/scale-wrong calibration failure a general property of amortized
+in-context models?** You showed it for PFN-as-GP in 1-D. Test the same on UniverSeg/Tyche:
+does the segmenter know *where* it is uncertain (high σ on ambiguous boundaries / far from
+any support example) while getting the *magnitude* wrong — and does the miscalibration grow
+as the support set shrinks or goes out-of-distribution (unseen anatomy/modality)? This is
+your Experiment 1 finding, in 2-D, on a real model.
 
-**(b) Is the uncertainty calibrated, and how does it split into bias vs variance?**
-Tyche's diversity ≠ calibration. Bring a proper diagnostic toolkit (below) and a
-bias/variance decomposition of the mask posterior as a function of support-set size and
-shift.
+**(b) Does the segmenter do full posterior inference, or only support-set smoothing?**
+Your PFN-vs-NW result gives you the tool to ask whether Tyche's mask distribution is a
+genuine calibrated posterior or merely diverse candidates around a smoothed mean — the
+segmentation analogue of your "full GP vs NW" separation.
 
 **(c) [most ambitious] Train a real PFN segmenter.** Define an explicit prior over
 segmentation tasks, train posterior-predictive, and compare its calibration to
@@ -83,38 +100,39 @@ genuine "PFN for segmentation" first.
 ## 5. The diagnostic toolkit (what "calibration / bias–variance analysis" concretely means)
 
 These are the measurements to run on any amortized/in-context segmenter — self-contained,
-no new architecture needed:
+and a direct generalization of the metrics you already used in 1-D:
 
-1. **Error-awareness.** Spearman correlation between the model's per-pixel (or per-region)
-   uncertainty σ and its actual error |μ − y| — "does the model know where it errs?"
-2. **Full-density NLL**, computed separately *inside* vs *outside* the ambiguous / hard
-   region — rewards a calibrated mean+variance, not just accuracy.
-3. **Posterior fidelity vs a reference.** Where a reference posterior exists (multiple
-   human graders, or a GP/oracle on a synthetic prior), measure ρ(model-mean, oracle-mean)
-   and — the key plot — how that fidelity **decays** as the task hardens, the dimension
-   grows, or the support set shrinks. This is the direct measurement of *amortization
-   bias* (collapse toward a stationary prior).
-4. **Coverage + recalibration.** Empirical vs nominal interval coverage; then a single-
+1. **Uncertainty shape vs scale.** Separate the two the way you did for PFN-vs-GP σ:
+   correlation of the model's σ with the actual error map (does it know *where*), and the
+   ratio of far-from-support to near-support σ against a reference (does it know *how much*).
+2. **Error-awareness.** Spearman correlation between per-pixel/per-region σ and actual
+   error |μ − y|.
+3. **Coverage + recalibration.** Empirical vs nominal interval coverage; then a single-
    parameter σ-scaling fix (scale factor κ = std of standardized residuals; κ > 1 ⇒
-   overconfident) — both a diagnostic and a cheap correction.
+   overconfident, κ < 1 ⇒ underconfident) — both a diagnostic and a cheap correction, and
+   the natural remedy for a shape-right/scale-wrong model like yours.
+4. **Full-density NLL**, computed separately *inside* vs *outside* the ambiguous / hard
+   region — rewards a calibrated mean+variance, not just accuracy.
 5. **Epistemic vs aleatoric split.** Separate reducible uncertainty (more/closer support
-   examples lower it) from irreducible ambiguity (inherent grader disagreement) — this is
-   the bias–variance story in uncertainty form.
+   examples lower it) from irreducible ambiguity (inherent grader disagreement).
 
 ## 6. Concrete first experiment (low-risk, high-signal)
 
 Take a **pretrained UniverSeg or Tyche** (public weights), no training needed:
 1. Sweep support-set size and support-set OOD-ness; plot Dice **and** the toolkit metrics
    (§5) against both.
-2. Overlay: does the predicted mask move toward the dataset-prior / majority mask as the
-   support degrades? (your "convergence to prior" result).
-3. Read the CrossBlock / SetBlock attention as a kernel smoother over support pixels — and
-   show *where* it stops being a faithful smoother under shift (the mechanism, not the
-   equivalence).
+2. Track the **shape-vs-scale** split: does the model stay shape-right (σ high on true
+   error regions) while scale drifts as the support degrades — the 2-D echo of your
+   Experiment 1?
+3. Test the **smoothing-vs-inference** question: compare the segmenter's mask to a simple
+   support-set label smoother (a prototype/correlation baseline). Where the segmenter beats
+   it is where it is doing "more than smoothing" — the segmentation analogue of your
+   PFN-vs-NW four-orders result.
 
-Deliverable: "in-context segmenters inherit the PFN prior-collapse and mis-calibration
-failure modes; here is the bias–variance account." Reuses your existing notebooks almost
-verbatim and needs no new segmentation infrastructure.
+Deliverable: "in-context segmenters inherit the PFN shape-right/scale-wrong calibration
+failure and it worsens under support-set shift; here is the bias–variance account and a
+σ-scaling fix." Reuses your existing analysis notebooks almost verbatim; no new
+segmentation infrastructure.
 
 ## 7. Honest ranking
 
@@ -122,10 +140,11 @@ verbatim and needs no new segmentation infrastructure.
 |---|---|---|---|---|
 | Diagnose pretrained UniverSeg/Tyche (§6) | high | none | medium–high | low |
 | Train a real PFN segmenter (§4c) | medium | high | high | high |
-| "Attention = smoother" alone | high | none | **none (prior art)** | — |
+| "Attention = smoother" claim | — | none | **none — prior art *and* refuted by your own data** | — |
 
-Start at §6. It turns your GP-approximation thesis into a real-image result in weeks, and
-it de-risks the more ambitious PFN-segmenter idea by first showing the failure mode exists.
+Start at §6. It turns your GP-approximation calibration result into a real-image finding in
+weeks, and it de-risks the more ambitious PFN-segmenter idea by first showing the failure
+mode exists.
 
 ## References
 
