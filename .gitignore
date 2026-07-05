@@ -49,3 +49,5 @@ CLAUDE.md
 background/collect_stats.py
 background/extract_figures.py
 background/stats_averaged.json
+background/variant_a_results.json
+background/variant_a_results.npz

@@ -185,14 +185,14 @@ Odhadnuté koeficienty jsou v~tabulce~\ref{tab:ch2_bias_variance}, proložení p
 \hline
 \textbf{Model} & \textbf{$\text{bias}^2$} & \textbf{$c$ (variance)} & \textbf{Interpretace} \\
 \hline
-$1$ vrstva & $0{,}00482$ & $0{,}092$ & bias signifikantní \\
-$2$ vrstvy & $\approx 0$ & $0{,}053$ & bias nesignifikantní \\
-$4$ vrstvy & $\approx 0$ & $0{,}028$ & bias nesignifikantní \\
-$6$ vrstev & $\approx 0$ & $0{,}021$ & bias nesignifikantní \\
-$8$ vrstev & $\approx 0$ & $0{,}022$ & bias nesignifikantní \\
+$1$ vrstva & $0{,}00484$ & $0{,}108$ & bias signifikantní \\
+$2$ vrstvy & $-0{,}00121$ & $0{,}061$ & bias nesignifikantní \\
+$4$ vrstvy & $-0{,}00098$ & $0{,}039$ & bias nesignifikantní \\
+$6$ vrstev & $-0{,}00053$ & $0{,}025$ & bias nesignifikantní \\
+$8$ vrstev & $-0{,}00065$ & $0{,}026$ & bias nesignifikantní \\
 \hline
 \end{tabular}
-\caption{Rozklad MSE vůči GP posterioru na $\text{bias}^2 + c/n$. Jednovrstvý model má jako jediný signifikantně nenulový $\text{bias}^2$; od dvou vrstev výše je ireducibilní chyba prakticky nulová a hloubka už jen snižuje varianční člen $c$.}
+\caption{Rozklad MSE vůči GP posterioru na $\text{bias}^2 + c/n$. Jednovrstvý model má jako jediný signifikantně nenulový $\text{bias}^2$; od dvou vrstev výše je ireducibilní chyba statisticky neodlišitelná od nuly a hloubka už jen snižuje varianční člen $c$. Mírně \emph{záporné} odhady $\text{bias}^2$ u~hlubších modelů jsou artefaktem neváhovaného proložení – asymptota $\text{MSE}(n\to\infty)$ nemůže být fyzikálně záporná, takže tyto hodnoty prakticky znamenají nulový ireducibilní bias.}
 \label{tab:ch2_bias_variance}
 \end{table}
 
@@ -204,16 +204,16 @@ $8$ vrstev & $\approx 0$ & $0{,}022$ & bias nesignifikantní \\
 \end{figure}
 
 Rozklad odhaluje dvě věci.
-Za prvé, \textbf{jednovrstvý model má jako jediný signifikantně nenulový $\text{bias}^2 = 0{,}00482$}.
+Za prvé, \textbf{jednovrstvý model má jako jediný signifikantně nenulový $\text{bias}^2 = 0{,}00484$}.
 To je přímé empirické potvrzení Naglerova teoretického výsledku: jedna vrstva nestačí k~asymptotickému přiblížení GP posterioru, a proto v~ní zůstává ireducibilní chyba, kterou nelze odstranit žádným množstvím kontextových dat.
 Od dvou vrstev výše je $\text{bias}^2 \approx 0$ – dvě vrstvy už stačí k~tomu, aby model při dostatku dat GP posterior dohnal libovolně přesně.
 \par
 
 Za druhé, hloubka nad rámec odstranění biasu působí především na \textbf{varianční člen $c$}, který monotónně klesá:
-$$c_{1L} = 0{,}092 \;>\; c_{2L} = 0{,}053 \;>\; c_{4L} = 0{,}028 \;\approx\; c_{6L} = 0{,}021 \;\approx\; c_{8L} = 0{,}022.$$
+$$c_{1L} = 0{,}108 \;>\; c_{2L} = 0{,}061 \;>\; c_{4L} = 0{,}039 \;>\; c_{6L} = 0{,}025 \;\approx\; c_{8L} = 0{,}026.$$
 Přidání vrstev tedy zrychluje konvergenci – hlubší model dosáhne téže přesnosti z~menšího kontextu.
-Zlepšení se však sytí: mezi čtyřmi a osmi vrstvami se $c$ prakticky nemění.
-Z~praktického hlediska to znamená, že přibližně čtyři vrstvy představují bod, za kterým už další prohlubování sítě nepřináší téměř žádný zisk v~přesnosti.
+Zlepšení se však sytí: mezi šesti a osmi vrstvami se $c$ prakticky nemění.
+Z~praktického hlediska to znamená, že přibližně šest vrstev představuje bod, za kterým už další prohlubování sítě nepřináší téměř žádný zisk v~přesnosti.
 
 \subsection{Shrnutí: co se která vrstva naučila}
 \label{subsec:ch2-shrnuti}
@@ -228,7 +228,7 @@ Zároveň však platí, že \textit{žádná} vrstva nedělá čistý kernel smo
 Head-knockout tento popisný obraz doplnil \textbf{kauzálně}: kauzálně důležité hlavy se koncentrují do raných vrstev, jednovrstvý model je nejkřehčí (odebrání hlavy zhorší predikci až $147\times$ baseline), a i v~hlubokých modelech nese odebrání jediné hlavy $7$ až $21$ násobek vlastní baseline chyby – žádná hlava tedy není bezvýznamná, jen individuálně nekritická.
 \par
 
-Rozklad chyby vysvětlil, \textbf{proč modelu jedna vrstva nestačí}: jednovrstvý model má jako jediný nenulový $\text{bias}^2 = 0{,}0048$, zatímco od dvou vrstev výše je ireducibilní chyba nulová a hloubka už jen snižuje varianční člen (do nasycení kolem čtyř vrstev).
+Rozklad chyby vysvětlil, \textbf{proč modelu jedna vrstva nestačí}: jednovrstvý model má jako jediný nenulový $\text{bias}^2 = 0{,}0048$, zatímco od dvou vrstev výše je ireducibilní chyba nulová a hloubka už jen snižuje varianční člen (do nasycení kolem šesti vrstev).
 Doplňkový test navíc ukázal, že identifikace korelační délky \textbf{neprobíhá} triviálním naladěním šířky attention v~první vrstvě (efektivní bandwidth vrstvy $0$ je vůči $\ell$ plochá), ale je rozprostřena hlouběji v~síti.
 \par
 

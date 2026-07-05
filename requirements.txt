@@ -8,6 +8,11 @@ scikit-learn>=1.3.0
 #   git clone https://github.com/automl/PFNs.git
 #   cd PFNs && pip install -e .
 
+# Varianta A (segmentace, experiments/Experiment_A_UniverSeg_segmentation.ipynb) — instaluj zvlášť:
+#   pip install git+https://github.com/JJGO/UniverSeg.git   # zmražený in-context segmenter
+#   pip install scipy nibabel                                # boundary band + OASIS (nifti)
+# Data se stahují automaticky do /tmp (WBC z github, OASIS z surfer.nmr.mgh.harvard.edu).
+
 # Optional: for examples only
 # tabpfn>=0.1.9
 # pymc>=5.0.0
