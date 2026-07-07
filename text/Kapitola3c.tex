@@ -11,7 +11,7 @@ Analýzu provádíme na rodině pěti modelů, které se liší \textit{pouze} p
 Všechny sdílejí identickou architekturu s modely z~předchozích sekcí ($8$ attention hlav, dimenze embeddingu $512$, dimenze skryté vrstvy dopředné sítě $1024$, \lstinline|features_per_group=1| a výstupní \texttt{Full\-Support\-Bar\-Distribution} s~$1000$ biny) a všechny byly trénovány na téže distribuci hyperparametrů jako náhodný model:
 $$\ell \sim \mathcal{U}(0{,}05,\, 1{,}0), \qquad \text{outputscale} \sim \text{LogNormal}(0,\, 0{,}5), \qquad \sigma^2 \sim 10^{\mathcal{U}(-3,\,-1)}.$$
 Počet parametrů roste s~hloubkou od $3{,}65$ milionu u~jednovrstvého modelu po $14{,}14$ milionu u~šestivrstvého.
-Jednovrstvý model konvergoval již za $100$ epoch, hlubší modely byly trénovány $300$ epoch.
+Jednovrstvý model konvergoval již za $100$ epoch, dvou- a čtyřvrstvý byly trénovány $300$ epoch a nejhlubší šesti- a osmivrstvý $500$ epoch.
 Tato kontrolovaná řada nám umožňuje sledovat, jak se vnitřní strategie transformeru proměňuje s~přidáváním vrstev.
 \par
 
@@ -47,17 +47,17 @@ Přehled kernelových korelací zprůměrovaných přes hlavy shrnuje tabulka~\r
 \hline
 \textbf{Vrstva} & \textbf{1 vrstva} & \textbf{2 vrstvy} & \textbf{4 vrstvy} & \textbf{6 vrstev} & \textbf{8 vrstev} \\
 \hline
-$0$ & $\mathbf{0{,}480}$ & $0{,}168$ & $0{,}074$ & $0{,}004$ & $-0{,}099$ \\
-$1$ & — & $\mathbf{0{,}819}$ & $\mathbf{0{,}887}$ & $0{,}610$ & $0{,}563$ \\
-$2$ & — & — & $0{,}828$ & $\mathbf{0{,}826}$ & $\mathbf{0{,}873}$ \\
-$3$ & — & — & $0{,}270$ & $0{,}817$ & $0{,}765$ \\
-$4$ & — & — & — & $0{,}740$ & $0{,}773$ \\
-$5$ & — & — & — & $0{,}416$ & $0{,}544$ \\
-$6$ & — & — & — & — & $0{,}530$ \\
-$7$ & — & — & — & — & $0{,}296$ \\
+$0$ & $\mathbf{0{,}473}$ & $0{,}165$ & $0{,}075$ & $-0{,}065$ & $-0{,}094$ \\
+$1$ & — & $\mathbf{0{,}813}$ & $\mathbf{0{,}885}$ & $0{,}660$ & $0{,}567$ \\
+$2$ & — & — & $0{,}826$ & $\mathbf{0{,}814}$ & $\mathbf{0{,}872}$ \\
+$3$ & — & — & $0{,}275$ & $0{,}663$ & $0{,}763$ \\
+$4$ & — & — & — & $0{,}478$ & $0{,}771$ \\
+$5$ & — & — & — & $0{,}316$ & $0{,}550$ \\
+$6$ & — & — & — & — & $0{,}532$ \\
+$7$ & — & — & — & — & $0{,}293$ \\
 \hline
 \end{tabular}
-\caption{Spearmanova korelace attention vah s~RBF/NW kernelem, zprůměrovaná přes $8$ hlav dané vrstvy a přes $200$ instancí. Pomlčka značí, že daná vrstva u~mělčího modelu neexistuje. Tučně je vyznačeno maximum ve~sloupci. Ve~vrstvě $0$ je kernelová korelace vždy nízká (u~$8$ vrstev dokonce mírně záporná), zatímco ve~středních vrstvách skáče přes $0{,}8$.}
+\caption{Spearmanova korelace attention vah s~RBF/NW kernelem, zprůměrovaná přes $8$ hlav dané vrstvy a přes $200$ instancí. Pomlčka značí, že daná vrstva u~mělčího modelu neexistuje. Tučně je vyznačeno maximum ve~sloupci. Ve~vrstvě $0$ je kernelová korelace vždy nízká (u~$6$ i $8$ vrstev dokonce mírně záporná), zatímco ve~středních vrstvách skáče přes $0{,}8$.}
 \label{tab:ch2_corr_overview}
 \end{table}
 
@@ -69,7 +69,7 @@ $7$ & — & — & — & — & $0{,}296$ \\
 \end{figure}
 
 Z~tabulky i obrázku vystupuje jasný a napříč modely stabilní vzorec.
-\textbf{Vrstva 0} má u~všech vícevrstvých modelů nejvyšší labelovou korelaci ($|\text{corr}| = 0{,}22$ až $0{,}47$) a zároveň nejnižší kernelovou korelaci ($-0{,}10$ až $0{,}17$); u~osmivrstvého modelu je kernelová korelace první vrstvy dokonce mírně \textit{záporná}.
+\textbf{Vrstva 0} má u~všech vícevrstvých modelů nejvyšší labelovou korelaci ($|\text{corr}| = 0{,}22$ až $0{,}47$) a zároveň nejnižší kernelovou korelaci ($-0{,}10$ až $0{,}17$); u~šesti- i osmivrstvého modelu je kernelová korelace první vrstvy dokonce mírně \textit{záporná}.
 První vrstva tedy primárně \emph{čte labely} – shromažďuje informaci o~pozorovaných hodnotách, nikoli o~geometrii vstupů.
 \textbf{Střední vrstvy} obraz obracejí: kernelová korelace vyskočí na $0{,}61$ až $0{,}89$ a labelová klesne na $0{,}01$ až $0{,}08$.
 To je právě to \emph{kernel-like} chování, které bychom u~GP inference čekali – hlava porovnává vzdálenosti ve~vstupním prostoru.
@@ -77,7 +77,7 @@ To je právě to \emph{kernel-like} chování, které bychom u~GP inference ček
 \par
 
 Zvláštní pozornost si zaslouží \textbf{jednovrstvý model}.
-Jeho jediná vrstva má kernelovou korelaci $0{,}480$ – nejvyšší hodnotu v~celém sloupci vrstvy $0$ napříč modely.
+Jeho jediná vrstva má kernelovou korelaci $0{,}473$ – nejvyšší hodnotu v~celém sloupci vrstvy $0$ napříč modely.
 To dává smysl: když má model k~dispozici jen jednu vrstvu, nemůže si dovolit ji „utratit“ na pouhé čtení labelů, musí v~ní stihnout jak label reading, tak kernelové porovnání současně.
 Teprve s~přibývající hloubkou si model může dovolit specializaci, kde první vrstva labely jen posbírá a kernelovou práci deleguje na vrstvy pozdější.
 Tuto specializaci na úrovni jednotlivých hlav ilustruje obrázek~\ref{fig:ch2_perhead}: hlavy uvnitř téže vrstvy nejsou zaměnitelné, každá pokrývá poněkud jiný aspekt vstupu.
@@ -135,32 +135,32 @@ Test provádíme na $50$ instancích s~kontextem $n_{\text{ctx}} = 40$ a graf po
 \hline
 \textbf{Model} & \textbf{Nejdůležitější (vrstva, hlava)} & \textbf{baseline MSE} & \textbf{max rel $\Delta$MSE} \\
 \hline
-$1$ vrstva & $(0,\, 7)$ & $0{,}01254$ & $\mathbf{147\times}$ \\
-$2$ vrstvy & $(1,\, 5)$ & $0{,}00118$ & $21{,}4\times$ \\
-$4$ vrstvy & $(1,\, 4)$ & $0{,}00015$ & $7{,}4\times$ \\
-$6$ vrstev & $(2,\, 4)$ & $0{,}00195$ & $0{,}5\times$ \\
-$8$ vrstev & $(1,\, 6)$ & $0{,}00008$ & $11{,}2\times$ \\
+$1$ vrstva & $(0,\, 1)$ & $0{,}00957$ & $\mathbf{44{,}9\times}$ \\
+$2$ vrstvy & $(1,\, 5)$ & $0{,}00051$ & $24{,}6\times$ \\
+$4$ vrstvy & $(1,\, 4)$ & $0{,}00012$ & $9{,}9\times$ \\
+$6$ vrstev & $(1,\, 2)$ & $0{,}00005$ & $17{,}7\times$ \\
+$8$ vrstev & $(1,\, 6)$ & $0{,}00006$ & $14{,}6\times$ \\
 \hline
 \end{tabular}
-\caption{Kauzální důležitost hlav podle head-knockoutu, měřená \textbf{relativně} k~baseline chybě modelu. Uvedena je nejdůležitější hlava každého modelu, jeho baseline MSE vůči GP a maximální relativní zhoršení po vynulování té hlavy (např. $147\times$ znamená $147$násobek baseline chyby). Průměr přes $50$ instancí, $n_{\text{ctx}} = 40$.}
+\caption{Kauzální důležitost hlav podle head-knockoutu, měřená \textbf{relativně} k~baseline chybě modelu. Uvedena je nejdůležitější hlava každého modelu, jeho baseline MSE vůči GP a maximální relativní zhoršení po vynulování té hlavy (např. $44{,}9\times$ znamená $44{,}9$násobek baseline chyby). Agregujeme \textbf{mediánem} přes $50$ instancí (robustní vůči vzácným patologickým instancím, které by průměr rozkolísaly), $n_{\text{ctx}} = 40$.}
 \label{tab:ch2_knockout}
 \end{table}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figures/ch2_label_kernel/fig_ch2_head_knockout_delta_mse.png}
-    \caption{Head-knockout pro všech pět modelů, \textbf{per-model barevná škála}. Každá teplotní mapa zobrazuje \emph{relativní} zhoršení $\text{rel}=(\text{MSE}_{\text{knockout}}-\text{MSE}_{\text{full}})/\text{MSE}_{\text{full}}$ (světlejší $=$ důležitější) po vynulování hlavy na dané pozici (vrstva $\times$ hlava). Kauzálně důležité hlavy se koncentrují do \textbf{raných vrstev} (vrstva $0$–$1$) napříč všemi modely. Jednovrstvý model je nejkřehčí (až $147\times$ baseline), ale i hluboké modely nesou odebrání hlavy $7$–$21\times$ vlastní baseline chyby. Šestivrstvý model je výjimka (jen $0{,}5\times$, viz text).}
+    \caption{Head-knockout pro všech pět modelů, \textbf{per-model barevná škála}. Každá teplotní mapa zobrazuje \emph{relativní} zhoršení $\text{rel}=(\text{MSE}_{\text{knockout}}-\text{MSE}_{\text{full}})/\text{MSE}_{\text{full}}$ (světlejší $=$ důležitější) po vynulování hlavy na dané pozici (vrstva $\times$ hlava). Kauzálně důležité hlavy se koncentrují do \textbf{raných vrstev} (vrstva $0$–$1$) napříč všemi modely. Jednovrstvý model je nejkřehčí (až $44{,}9\times$ baseline), ale i hluboké modely nesou odebrání jediné hlavy $10$ až $25\times$ vlastní baseline chyby.}
     \label{fig:ch2_knockout}
 \end{figure}
 
 Obrázek odhaluje jasnou strukturu: \textbf{kauzálně důležité hlavy se koncentrují do raných vrstev} – dominantní hlava je u~každého modelu ve~vrstvě $0$ nebo $1$.
 To kauzálně potvrzuje hypotézu o~dělbě práce z~korelační analýzy: první vrstvy nesou hlavní výpočetní zátěž.
-V~absolutních číslech hluboké modely knockout „ustojí“ (zůstávají blízko GP), avšak \textbf{relativně k~vlastní baseline chybě} zhorší odebrání jediné hlavy predikci pořád o~$7$ až $21$ násobek – hlavy tedy \emph{nejsou} bezvýznamné, jen individuálně nekritické.
-Jednovrstvý model je nejkřehčí ($147\times$): s~jedinou vrstvou nese každá z~jejích osmi hlav nezastupitelný díl celého výpočtu.
+V~absolutních číslech hluboké modely knockout „ustojí“ (zůstávají blízko GP), avšak \textbf{relativně k~vlastní baseline chybě} zhorší odebrání jediné hlavy predikci napříč všemi hloubkami o~$10$ až $25$ násobek – hlavy tedy \emph{nejsou} bezvýznamné, jen individuálně nekritické.
+Jednovrstvý model je nejkřehčí ($44{,}9\times$): s~jedinou vrstvou nese každá z~jejích osmi hlav nezastupitelný díl celého výpočtu.
 \par
 
-Výjimkou je \textbf{šestivrstvý model}, u~něhož je maximální relativní zhoršení jen $0{,}5\times$ a u~části hlav dokonce záporné – vynulování hlavy predikci mírně \emph{zlepší}.
-Spolu s~jeho nezvykle vysokou baseline chybou ($0{,}00195$, vyšší než u~čtyř- i osmivrstvého modelu) to naznačuje, že tento konkrétní checkpoint je oproti ostatním hloubkám slabší, zřejmě méně dotrénovaný, a proto svou kapacitu plně nevyužívá.
+Poznamenejme, že relativní zhoršení agregujeme \emph{mediánem} přes instance, nikoli průměrem.
+Střední kvadratická chyba PFN vůči GP posterioru je totiž na typické instanci nepatrná (řádově $10^{-4}$), ale na několika málo patologických realizacích může být o~řády vyšší; průměr by tak byl zcela ovládnut těmito outliery a napříč modely by kolísal o~dva řády už při pouhé změně náhodného semínka. Medián tuto křehkost odstraňuje a dává stabilní, mezi modely srovnatelný obraz.
 \par
 
 Podstatné je, že tento kauzální obraz korelační analýza \textit{ukázat nemohla}.
@@ -185,10 +185,10 @@ Odhadnuté koeficienty jsou v~tabulce~\ref{tab:ch2_bias_variance}, proložení p
 \hline
 \textbf{Model} & \textbf{$\text{bias}^2$} & \textbf{$c$ (variance)} & \textbf{Interpretace} \\
 \hline
-$1$ vrstva & $0{,}00484$ & $0{,}108$ & bias signifikantní \\
-$2$ vrstvy & $-0{,}00121$ & $0{,}061$ & bias nesignifikantní \\
-$4$ vrstvy & $-0{,}00098$ & $0{,}039$ & bias nesignifikantní \\
-$6$ vrstev & $-0{,}00053$ & $0{,}025$ & bias nesignifikantní \\
+$1$ vrstva & $0{,}00476$ & $0{,}097$ & bias signifikantní \\
+$2$ vrstvy & $-0{,}00152$ & $0{,}068$ & bias nesignifikantní \\
+$4$ vrstvy & $-0{,}00089$ & $0{,}035$ & bias nesignifikantní \\
+$6$ vrstev & $-0{,}00076$ & $0{,}029$ & bias nesignifikantní \\
 $8$ vrstev & $-0{,}00065$ & $0{,}026$ & bias nesignifikantní \\
 \hline
 \end{tabular}
@@ -204,13 +204,13 @@ $8$ vrstev & $-0{,}00065$ & $0{,}026$ & bias nesignifikantní \\
 \end{figure}
 
 Rozklad odhaluje dvě věci.
-Za prvé, \textbf{jednovrstvý model má jako jediný signifikantně nenulový $\text{bias}^2 = 0{,}00484$}.
+Za prvé, \textbf{jednovrstvý model má jako jediný signifikantně nenulový $\text{bias}^2 = 0{,}00476$}.
 To je přímé empirické potvrzení Naglerova teoretického výsledku: jedna vrstva nestačí k~asymptotickému přiblížení GP posterioru, a proto v~ní zůstává ireducibilní chyba, kterou nelze odstranit žádným množstvím kontextových dat.
 Od dvou vrstev výše je $\text{bias}^2 \approx 0$ – dvě vrstvy už stačí k~tomu, aby model při dostatku dat GP posterior dohnal libovolně přesně.
 \par
 
 Za druhé, hloubka nad rámec odstranění biasu působí především na \textbf{varianční člen $c$}, který monotónně klesá:
-$$c_{1L} = 0{,}108 \;>\; c_{2L} = 0{,}061 \;>\; c_{4L} = 0{,}039 \;>\; c_{6L} = 0{,}025 \;\approx\; c_{8L} = 0{,}026.$$
+$$c_{1L} = 0{,}097 \;>\; c_{2L} = 0{,}068 \;>\; c_{4L} = 0{,}035 \;>\; c_{6L} = 0{,}029 \;>\; c_{8L} = 0{,}026.$$
 Přidání vrstev tedy zrychluje konvergenci – hlubší model dosáhne téže přesnosti z~menšího kontextu.
 Zlepšení se však sytí: mezi šesti a osmi vrstvami se $c$ prakticky nemění.
 Z~praktického hlediska to znamená, že přibližně šest vrstev představuje bod, za kterým už další prohlubování sítě nepřináší téměř žádný zisk v~přesnosti.
@@ -225,7 +225,7 @@ Korelační analýza (pod Spearmanem) ukázala čistou \textbf{specializaci vrst
 Zároveň však platí, že \textit{žádná} vrstva nedělá čistý kernel smoothing – v~každém kroku se míchá informace o~$X$ i o~$Y$, přesně jak předpovídá Naglerova věta o~softmax attention.
 \par
 
-Head-knockout tento popisný obraz doplnil \textbf{kauzálně}: kauzálně důležité hlavy se koncentrují do raných vrstev, jednovrstvý model je nejkřehčí (odebrání hlavy zhorší predikci až $147\times$ baseline), a i v~hlubokých modelech nese odebrání jediné hlavy $7$ až $21$ násobek vlastní baseline chyby – žádná hlava tedy není bezvýznamná, jen individuálně nekritická.
+Head-knockout tento popisný obraz doplnil \textbf{kauzálně}: kauzálně důležité hlavy se koncentrují do raných vrstev, jednovrstvý model je nejkřehčí (odebrání hlavy zhorší predikci až $44{,}9\times$ baseline), a i v~hlubokých modelech nese odebrání jediné hlavy $10$ až $25$ násobek vlastní baseline chyby – žádná hlava tedy není bezvýznamná, jen individuálně nekritická.
 \par
 
 Rozklad chyby vysvětlil, \textbf{proč modelu jedna vrstva nestačí}: jednovrstvý model má jako jediný nenulový $\text{bias}^2 = 0{,}0048$, zatímco od dvou vrstev výše je ireducibilní chyba nulová a hloubka už jen snižuje varianční člen (do nasycení kolem šesti vrstev).
