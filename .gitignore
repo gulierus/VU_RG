@@ -8,6 +8,7 @@
 *.synctex.gz
 *.pre
 *.pdf
+!text/VU_RG.pdf
 *.eps
 *.png
 # Python
