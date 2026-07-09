@@ -44,7 +44,7 @@ Nás avšak bude v této práci nejvíce zajímat Bayesovský přístup, protož
 \section{Bayesův přístup k výběru modelu}
 \label{sec:bayes-vyber}
 
-Zde ukážeme \textbf{Bayesův} princip při výběru modelu.
+Zde ukážeme \textit{Bayesův} princip při výběru modelu.
 Je zvykem použít hierarchický princip při zavádění Bayesovského výběru modelu [Rasmussen].
 \par
 
@@ -63,7 +63,7 @@ Potom podle Bayesovy věty platí:
 \begin{equation}
   P(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = \frac{P( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) P(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)}{P(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)},     
 \end{equation}
-kde $P( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je pravděpodobnost \textbf{výstupních} dat \textbf{$\mathbf{y}$ podmíněná vstupními daty $\mathbf{X}$,} parametrům modelu $\mathbf{w}$, hyperparametrům $\boldsymbol{\theta}$ a modelu $\mathcal{H}_i$ (tzv. likelihood), $P(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)$ je apriorní rozdělení parametrů modelu $\mathbf{w}$ vzhledem k hyperparametrům $\boldsymbol{\theta}$ a modelu $\mathcal{H}_i$, a $P(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je tzv. evidence dat.
+kde $P( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je pravděpodobnost výstupních dat $\mathbf{y}$ podmíněná vstupními daty $\mathbf{X}$, parametrům modelu $\mathbf{w}$, hyperparametrům $\boldsymbol{\theta}$ a modelu $\mathcal{H}_i$ (tzv. likelihood), $P(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)$ je apriorní rozdělení parametrů modelu $\mathbf{w}$ vzhledem k hyperparametrům $\boldsymbol{\theta}$ a modelu $\mathcal{H}_i$, a $P(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je tzv. evidence dat.
 \par
 
 Na druhé úrovni hierarchie odhadneme pravděpodobnostní rozdělení hyperparametrů modelu $\boldsymbol{\theta}$ pro daný (fixní) model $\mathcal{H}_i$.
@@ -81,7 +81,7 @@ Opět používáme Bayesovu větu:
 \begin{equation}
   P(\mathcal{H}_i | \mathbf{y}, \mathbf{X}) = \frac{P( \mathbf{y} | \mathbf{X}, \mathcal{H}_i) P(\mathcal{H}_i)}{P(\mathbf{y} |\mathbf{X})},     
 \end{equation}
-kde $P( \mathbf{y} | \mathbf{X}, \mathcal{H}_i)$ je pravděpodobnost dat vzhledem k \textbf{výstupním hodnotám} $\mathbf{y}$ \textbf{podmíněná vstupními daty $\mathbf{X}$} a modelu $\mathcal{H}_i$ (tzv. marginal likelihood), $P(\mathcal{H}_i)$ je apriorní rozdělení modelů $\mathcal{H}_i$, a $P(\mathbf{y} |\mathbf{X})$ je evidence dat.
+kde $P( \mathbf{y} | \mathbf{X}, \mathcal{H}_i)$ je pravděpodobnost dat vzhledem k výstupním hodnotám $\mathbf{y}$ podmíněná vstupními daty $\mathbf{X}$ a modelu $\mathcal{H}_i$ (tzv. marginal likelihood), $P(\mathcal{H}_i)$ je apriorní rozdělení modelů $\mathcal{H}_i$, a $P(\mathbf{y} |\mathbf{X})$ je evidence dat.
 \par
 Celý tento postup nám umožňuje systematicky vyhodnotit různé modely, jejich hyperparametry a parametry na základě pozorovaných dat a vybrat ten, který nejlépe vysvětluje data podle Bayesovského principu.
 Zde je dokonce vidět, proč jsme použili hierarchický přístup - na každé úrovni hierarchie odhadujeme pravděpodobnostní rozdělení na základě předchozí úrovně, což nám umožňuje efektivně zachytit nejistotu na různých úrovních modelování.
@@ -121,12 +121,12 @@ Nejdříve ve zkratce zavedeme pojem GP regresi.
 \par
 
 Zvykem je definovat Gaussovský proces pomocí vícerozměrného normálního rozdělení.
-Mějme tedy vícerozměronou náhodnou veličinu $\mathbf{X} = (X_1, \dots, X_n)$ a nechť $X_i \sim \mathcal{N}(\mu_i, \sigma_i^2)$ pro $\forall i = 1 \dots n$, pak říkáme, že $\mathbf{X}$ má vícerozměrné normální rozdělení s vektorem středních hodnot $\boldsymbol{\mu} = (\mu_1, \dots, \mu_n)$ a kovarianční maticí $\Sigma$, pokud její hustota pravděpodobnosti je dána vztahem:
+Mějme tedy vícerozměronou náhodnou veličinu $\mathbf{X} = (X_1, \dots, X_n)$ a nechť $X_i \sim \mathcal{N}(\mu_i, \sigma_i^2)$ pro $\forall i = 1 \dots n$, pak říkáme, že $\mathbf{X}$ má vícerozměrné normální rozdělení s vektorem středních hodnot $\boldsymbol{\mu} = (\mu_1, \dots, \mu_n)$ a kovarianční maticí $\boldsymbol{\Sigma}$, pokud její hustota pravděpodobnosti je dána vztahem:
 \begin{equation}
-  p(\mathbf{x}) = \frac{1}{(2\pi)^{n/2} |\Sigma|^{1/2}} \exp\left( -\frac{1}{2} (\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu}) \right),
+  p(\mathbf{x}) = \frac{1}{(2\pi)^{n/2} |\boldsymbol{\Sigma}|^{1/2}} \exp\left( -\frac{1}{2} (\mathbf{x} - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu}) \right),
 \label{eq:vicerozmernyGauss}
 \end{equation}
-kde $|\Sigma|$ je determinant matice $\Sigma$\textbf{,} vektor $\mathbf{x}$ \textbf{je} vektor \textbf{realizací}, značíme $\mathbf{X} \sim \mathcal{N}(\boldsymbol{\mu}, \Sigma)$.
+kde $|\boldsymbol{\Sigma}|$ je determinant matice $\boldsymbol{\Sigma}$, vektor $\mathbf{x}$ je vektor realizací, značíme $\mathbf{X} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$.
 \par
 
 Z toho vztahu plyne i definice Gaussovského procesu [Rasmussen]:
@@ -139,11 +139,11 @@ Ta se definuje jako funkce $k: \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}$,
 Je to jistá modifikace kovarianční matice, která je částí klasického vícerozměrného normálního rozdělení, a které vznikne po aplikaci tzv. Kernel triku.
 Máme-li nějaký proces $f(\mathbf{x})$, teď stejný proces chceme zkoumat i pro jiný vstup, tj. nás zajímá $f(\mathbf{x'})$.
 Teď je před námi otázka, jaká je kovariance mezi $f(\mathbf{x})$ a $f(\mathbf{x'})$?
-Potom se skrz funkční prostor vah a kovarianční matice $\Sigma$ ukáže, že kovarianční funkce je definovaná jako:
+Potom se skrz funkční prostor vah a kovarianční matice $\boldsymbol{\Sigma}$ ukáže, že kovarianční funkce je definovaná jako:
 \begin{equation}
-  k(\mathbf{x}, \mathbf{x'}) = \phi(\mathbf{x})^T \Sigma \phi(\mathbf{x'}),
+  k(\mathbf{x}, \mathbf{x'}) = \phi(\mathbf{x})^T \boldsymbol{\Sigma} \phi(\mathbf{x'}),
 \end{equation}
-kde $\phi(\mathbf{x})^T \Sigma \phi(\mathbf{x'})$ je součin v prostoru vah s kovarianční maticí dvou různých vstupů.
+kde $\phi(\mathbf{x})^T \boldsymbol{\Sigma} \phi(\mathbf{x'})$ je součin v prostoru vah s kovarianční maticí dvou různých vstupů.
 
 Nakonec platí, že Gaussovský process je plně definován svou střední funkcí $m(\mathbf{x})$ a kovarianční funkcí $k(\mathbf{x}, \mathbf{x'})$.
 Střední funkci a kovarianční funkci tohoto procesu definujeme jako:
@@ -232,24 +232,24 @@ Zkusme tedy rozepsat výraz $\log P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta
 Vzpomeňme si, že při definici Gaussovského procesu jsme použili vícerozměrnou Gaussovskou hustotu \ref{eq:vicerozmernyGauss}.
 Zlogaritmujeme tento výraz a obdržíme:
 \begin{equation}
-  \log p(\mathbf{y}) = -\frac{1}{2}\mathbf{y}^\top \Sigma^{-1}\mathbf{y} - \frac{1}{2}\log|\Sigma| - \frac{n}{2}\log 2\pi
+  \log p(\mathbf{y}) = -\frac{1}{2}\mathbf{y}^\top \boldsymbol{\Sigma}^{-1}\mathbf{y} - \frac{1}{2}\log|\boldsymbol{\Sigma}| - \frac{n}{2}\log 2\pi
 \end{equation}
-Jediné, co nám tedy zbývá v případě Gaussovského procesu, dosadit za kovarianční matici kernelovou matici $K_y = K(\mathbf{X}, \mathbf{X}) + \sigma_n^2 I$, kde $K(\mathbf{X},\mathbf{X})_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$ a $\sigma_n^2$ je rozptyl šumu, čímž obdržíme:
+Jediné, co nám tedy zbývá v případě Gaussovského procesu, dosadit za kovarianční matici kernelovou matici $\mathbf{K}_y = \mathbf{K}(\mathbf{X}, \mathbf{X}) + \sigma_n^2 \mathbf{I}$, kde $\mathbf{K}(\mathbf{X},\mathbf{X})_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$ a $\sigma_n^2$ je rozptyl šumu, čímž obdržíme:
 \begin{equation}
-  \log P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = -\frac{1}{2}\mathbf{y}^\top K_y^{-1}\mathbf{y} - \frac{1}{2}\log|K_y| - \frac{n}{2}\log 2\pi
+  \log P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = -\frac{1}{2}\mathbf{y}^\top \mathbf{K}_y^{-1}\mathbf{y} - \frac{1}{2}\log|\mathbf{K}_y| - \frac{n}{2}\log 2\pi
 \end{equation}
 Chceme-li najít extrém této funkce, musíme tento výraz derivovat podle hyperparametrů, čímž dostáváme:
 \begin{align}
   \frac{\partial}{\partial\theta_j} \log p(\mathbf{y}|\mathbf{X}, \boldsymbol{\theta})
-    &= \frac{1}{2}\mathbf{y}^\top K_y^{-1}\frac{\partial K_y}{\partial\theta_j}K_y^{-1}\mathbf{y} - \frac{1}{2} \operatorname{tr}\left(K_y^{-1}\frac{\partial K_y}{\partial\theta_j}\right) \nonumber \\
-    &= \frac{1}{2} \operatorname{tr}\left(\left(\boldsymbol{\alpha}\boldsymbol{\alpha}^\top - K_y^{-1}\right)\frac{\partial K_y}{\partial\theta_j}\right),
+    &= \frac{1}{2}\mathbf{y}^\top \mathbf{K}_y^{-1}\frac{\partial \mathbf{K}_y}{\partial\theta_j}\mathbf{K}_y^{-1}\mathbf{y} - \frac{1}{2} \operatorname{tr}\left(\mathbf{K}_y^{-1}\frac{\partial \mathbf{K}_y}{\partial\theta_j}\right) \nonumber \\
+    &= \frac{1}{2} \operatorname{tr}\left(\left(\boldsymbol{\alpha}\boldsymbol{\alpha}^\top - \mathbf{K}_y^{-1}\right)\frac{\partial \mathbf{K}_y}{\partial\theta_j}\right),
 \end{align}
-kde $\boldsymbol{\alpha} = K_y^{-1}\mathbf{y}$.
+kde $\boldsymbol{\alpha} = \mathbf{K}_y^{-1}\mathbf{y}$.
 Zde je dokonce vidět, proč tento model není optimální z výpočetního hlediska. 
 Je totiž známo, že najít inverzní matici je dost náročná operace.
 Pro standardní algoritmy platí, že jejich složitost je $\mathcal{O}(n^3)$, kde $n$ je velikost matice.
 V praxi ovšem $n$ nabývá dost velkých hodnot.
-Avšak lze vyhnout výpočtu přímé inverze, místo toho se může použít např. Choleského rozklad, který \textbf{tento} výpočet může usnadnit.
+Avšak lze vyhnout výpočtu přímé inverze, místo toho se může použít např. Choleského rozklad, který tento výpočet může usnadnit.
 Máme-li spočítanou inverzi, pak je složitost zbylých výpočtů $\mathcal{O}(n^2)$.
 Další nevýhodou je to, že nemusíme spadnout do globálního optima a skončit v lokálním optimu, což opět vyžaduje větší pozornost.
 
@@ -284,11 +284,11 @@ Základní myšlenkou je pohyb v parametrickém prostoru.
 
 Tento proces vnímáme jako fyzikální systém:
 \begin{itemize}
-    \item $\theta$ = poloha částice,
-    \item zavádíme pomocnou momentum proměnnou $r$ (někdy $p$),
+    \item $\boldsymbol{\theta}$ = poloha částice,
+    \item zavádíme pomocnou momentum proměnnou $\mathbf{r}$ (někdy $\mathbf{p}$),
     \item pohyb řídí Hamiltonovy rovnice s energií:
     \[ 
-    H(\theta, r) = -\log p(\theta | \mathcal{D}) + \frac{1}{2}r^T M^{-1} r,
+    H(\boldsymbol{\theta}, \mathbf{r}) = -\log p(\boldsymbol{\theta} | \mathcal{D}) + \frac{1}{2}\mathbf{r}^T \mathbf{M}^{-1} \mathbf{r},
     \]
     kde první člen je potenciální energie (negativní log-posterior) a druhý je kinetická energie.
 \end{itemize}
@@ -298,7 +298,7 @@ Rovněž si musíme uvědomit, že částice má tendenci se pohybovat po hladin
 \begin{algorithm}
 \caption{Hamiltonian Monte Carlo }
 \begin{algorithmic}[1]
-\State Vzorkuj náhodný momentum: $r \sim \mathcal{N}(0, M)$
+\State Vzorkuj náhodný momentum: $\mathbf{r} \sim \mathcal{N}(\mathbf{0}, \mathbf{M})$
 \State Simuluj Hamiltonovy rovnice pomocí leapfrog integrace na $L$ kroků délky $\epsilon$
 \State Metropolis accept/reject krok (zachovává přesnou stacionaritu)
 \end{algorithmic}
@@ -307,12 +307,12 @@ Rovněž si musíme uvědomit, že částice má tendenci se pohybovat po hladin
 Hamiltonian Monte Carlo avšak má dva hyperparametry, které je těžké nastavit:
 \begin{itemize}
     \item délka kroku $\epsilon$ (step size)
-    \item počet kroků $L$ (trajectory length)
+    \item počet kroků $L$ (\emph{trajectory length})
 \end{itemize}
 
 NUTS řeší oba problémy tím, že automaticky volí délky trajektorie.
 To znamená, že pokračuje v simulaci, dokud trajektorie nezačne dělat tzv. \textit{U-turn}, což znamená, že částice se po trajektorii otočí a začne se vracet zpět směrem k místu, odkud vyšla.
-Toto U-turn kritérium lze vyjádřit takto: směr pohybu začne být opačný než směr od startovní pozice, matematicky to znamená $(\boldsymbol{\theta}_{\text{forward}} - \boldsymbol{\theta}_{\text{backward}}) \cdot \mathbf{r}_{\text{forward}} < 0$, kde skalární součin vektoru mezi krajními body trajektorie a momentem je záporný, což signalizuje, že se pohybujeme zpět.
+Toto \emph{U-turn kritérium} lze vyjádřit takto: směr pohybu začne být opačný než směr od startovní pozice, matematicky to znamená $(\boldsymbol{\theta}_{\text{forward}} - \boldsymbol{\theta}_{\text{backward}}) \cdot \mathbf{r}_{\text{forward}} < 0$, kde skalární součin vektoru mezi krajními body trajektorie a momentem je záporný, což signalizuje, že se pohybujeme zpět.
 A tento princip má dobrý smysl, jakmile se částice vrací zpět, už není efektivní pokračovat, znamená to, že jsme plně prozkoumali danou "energetickou hladinu".
 Další kroky by jen ztrácely výpočetní čas tím, že by procházely oblasti, které už jsme navštívili. 
 NUTS tedy automaticky zastaví simulaci v optimálním bodě, když jsme prozkoumali maximum užitečného prostoru, ale ještě před tím než začneme ztrácet efektivitu návratem zpět.

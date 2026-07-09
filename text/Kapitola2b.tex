@@ -198,9 +198,9 @@ V tomto okamžiku je výhodné přepnout se z bayesovského pohledu na frekventi
 Pro libovolnou velikost datasetu $n$ při inferenci nahlížíme na předtrénovaný model $q_{\hat\theta}(y \mid x, \cdot)$ jako na nenatrénovaný frekventistický prediktor pro $p_0(y \mid x)$, což je funkce $(\mathcal{Y} \times \mathcal{X})^n \to \mathcal{P}_{\mathcal{Y}|\mathcal{X}}$, která mapuje dataset $D_n$ na podmíněnou distribuci.
 Parametry $\theta$ jsou pak jen hyperparametry tohoto prediktoru, vyladěné před tréninkem. 
 Prior $\Pi$ a $\Pi_N$ jsou jednoduše distribuce nad úlohami, na kterých chceme, aby prediktor fungoval dobře.
-Dále rozepišme chybu predikce na bias a varianci:
+Dále rozepišme chybu predikce na bias a rozptyl:
 \begin{equation}
-    q_\theta(y \mid x, D_n) - p_0(y \mid x) = \underbrace{q_\theta(y \mid x, D_n) - \mathbb{E}_{D_n \sim p_0^n}[q_\theta(y \mid x, D_n)]}_{\text{variance}} + \underbrace{\mathbb{E}_{D_n \sim p_0^n}[q_\theta(y \mid x, D_n)] - p_0(y \mid x)}_{\text{bias}}.
+    q_\theta(y \mid x, D_n) - p_0(y \mid x) = \underbrace{q_\theta(y \mid x, D_n) - \mathbb{E}_{D_n \sim p_0^n}[q_\theta(y \mid x, D_n)]}_{\text{rozptyl}} + \underbrace{\mathbb{E}_{D_n \sim p_0^n}[q_\theta(y \mid x, D_n)] - p_0(y \mid x)}_{\text{bias}}.
 \label{Bias_Variance}
 \end{equation}
 
@@ -277,7 +277,7 @@ Výsledek postrádá smysl, je-li $\mathcal{P}$ příliš malá.
 I pro bohatou $\mathcal{P}$ jde jen o nutnou, nikoliv postačující podmínku, konstantní prediktor $q_\theta = 1$ je lokální, ale jeho bias se s $n$ nemění.
 Důležitý je ale důsledek pro bias-variance tradeoff: pokud bias mizí pro bohatou $\mathcal{P}$, prediktor může efektivně využít jen $\epsilon_n n = o(n)$ vzorků, takže podmínka \ref{eq:horní_mez_prediktoru} pravděpodobně neplatí pro $\alpha = 1$. 
 Dále se ukáže, že lokalizace je kamenem úrazu pro transformer architekturu PFN.
-Attention váhy $a^{(h)}_j$ jsou výstupem SoftMax, tedy jsou vždy kladné pro všechny vzorky $j$, nikdy přesně nulové. 
+\emph{Attention váhy} $a^{(h)}_j$ jsou výstupem SoftMax, tedy jsou vždy kladné pro všechny vzorky $j$, nikdy přesně nulové. 
 Transformer tedy vždy váží nenulově i vzdálené vzorky. 
 Přepis příznaků vzdálených bodů proto vždy predikci ovlivní, a lokalita ve smyslu věty \ref{theorem:lokalizace} není splněna. 
 Transformer tak garantuje mizení rozptylu, ale nikoli mizení biasu.
@@ -310,10 +310,10 @@ Operace SoftMax, LayerNorm a ReLU jsou definovány jako:
 \end{gather*}
 
 kde $\exp$ a $\max$ působí po složkách.
-První dvě rovnice definují attention mechanismus s $H$ hlavami (Vaswani et al., 2017). 
-Ze součtu $a^{(h)}_1 + \cdots + a^{(h)}_n = 1$ plyne, že attention váhy tvoří pravděpodobnostní distribuci přes trénovací vzorky.
-Myšlenka je, že v každé hlavě attention váhy $a^{(h)}_j$ zdůrazňují konkrétní vzorky $V_j \in D_n$, konkrétně ty, které jsou "podobné" testovacímu vektoru $v$ ve smyslu měřeném skalárním součinem $v^\top W^{(h)}_q V_j$. 
-Každá attention hlava dovoluje jinou definici podobnosti prostřednictvím matice $W^{(h)}_q$.
+První dvě rovnice definují \emph{attention mechanismus} s $H$ hlavami (Vaswani et al., 2017). 
+Ze součtu $a^{(h)}_1 + \cdots + a^{(h)}_n = 1$ plyne, že \emph{attention váhy} tvoří pravděpodobnostní distribuci přes trénovací vzorky.
+Myšlenka je, že v každé hlavě \emph{attention váhy} $a^{(h)}_j$ zdůrazňují konkrétní vzorky $V_j \in D_n$, konkrétně ty, které jsou "podobné" testovacímu vektoru $v$ ve smyslu měřeném skalárním součinem $v^\top W^{(h)}_q V_j$. 
+Každá \emph{attention hlava} dovoluje jinou definici podobnosti prostřednictvím matice $W^{(h)}_q$.
 Intuitivně to funguje takto: transformer si při predikci pro $x$ vyhledá v trénovacích datech vzorky, které považuje za relevantní, a jejich labely agreguje. Různé hlavy mohou sledovat různé aspekty podobnosti, jedna hlava třeba srovnává hodnoty $X_i$ s $x$, jiná sleduje jiný rys vstupních vektorů.
 \par   
 
@@ -330,7 +330,7 @@ s vysokou pravděpodobností.
 Velmi podobnou větu jsme již viděli v předchozí sekci.
 Dokonce tvrdí skoro stejné: rozptyl mizí nezávisle na parametru $\theta$.
 Jde o strukturální vlastnost architektury, nikoliv výsledek tréninku. 
-Důvodem je, že attention mechanismus nutně přiděluje každému vzorku váhu řádu $1/n$, takže vliv libovolného jednotlivého vzorku klesá s $n$.
+Důvodem je, že \emph{attention mechanismus} nutně přiděluje každému vzorku váhu řádu $1/n$, takže vliv libovolného jednotlivého vzorku klesá s $n$.
 V případě biasu jsme již říkali, že ta situace je horší. 
 Bias v případě transformeru totiž silně závisí na volbě $\theta$.
 Označme $\bar{q}_\theta(y \mid x)$ limitní hodnotu predikce pro $n \to \infty$.
@@ -345,11 +345,11 @@ Označme $\bar{q}_\theta(y \mid x)$ limitní hodnotu predikce pro $n \to \infty$
 
 To znamená, že v definici transformeru výše jsme nahradili výraz $u'$ tím novým $\hat{u'}$.
 Navíc v definici $\hat{u'}$ se objevuje tzv. exponentially tilted function (česky exponenciálně vychýlená funkce).
-V tomto kontextu se zavádí jako asymptotická variace attention mechanismu.
+V tomto kontextu se zavádí jako asymptotická variace \emph{attention mechanismu}.
 Tato funkce $g_h(s)$ zvyšuje pravděpodobnost těm hodnotám $s$, které se nejvíce podobají vektoru $v$ ve smyslu $v^\top W^{(h)}_q s$, a snižuje pro zbylé body.
 Jinými slovy ten složitý vzoreček na obrázku ukazuje teoretickou situaci, co by se stalo, kdyby měl Transformer k dispozici nekonečně mnoho vzorků. 
 Už nerozděluje váhy mezi jednotlivými datovými body, ale vezme celou spojitou distribuci dat a "vychýlí" ji celou směrem k té informaci, na kterou zrovna potřebuje upřít pozornost.
-Více formálně to znamená, že každá attention hlava $h$ tak hodnotí určitý aspekt neznámé distribuce $p_0$ (charakterizovaný maticí $W^{(h)}_q$). 
+Více formálně to znamená, že každá \emph{attention hlava} $h$ tak hodnotí určitý aspekt neznámé distribuce $p_0$ (charakterizovaný maticí $W^{(h)}_q$). 
 Pokud jsou matice $(W^{(h)}_q)_{h=1}^H$ dobře nastaveny, tyto jednotlivé pohledy rozlišují různé hodnoty příznaků.
 \par   
 
@@ -358,13 +358,13 @@ Ačkoli zvyšuje váhu vzorků podobných $v$, ale ne ve smyslu věty \ref{theor
 Vzorky vzdálené od $x$ stále nenulově přispívají, protože SoftMax nikdy nevytváří přesně nulové váhy. 
 Přepsání příznaků vzdálených vzorků proto vždy predikci změní, a tak lokalita podle \ref{theorem:lokalizace} není splněna. 
 Proto plyne, že bias transformeru obecně nemůže úplně zmizet.
-Limitní bias $\bar{q}_\theta(y \mid x) - p_0(y \mid x)$ přesto může být malý, pokud síť za attention vrstvou dokáže ze součtu aspektových souhrnů $W^{(h)}_v \mathbb{E}_{V \sim g_h}[V]$ zkonstruovat dobrou aproximaci $p_0$. 
+Limitní bias $\bar{q}_\theta(y \mid x) - p_0(y \mid x)$ přesto může být malý, pokud síť za \emph{attention vrstvou} dokáže ze součtu aspektových souhrnů $W^{(h)}_v \mathbb{E}_{V \sim g_h}[V]$ zkonstruovat dobrou aproximaci $p_0$. 
 Relevance jednotlivých aspektů závisí na pravé distribuci $p_0$.
 Méně relevantní aspekty mohou přispívat méně. 
-Na malých vzorcích ($n = 1$) jsou všechny attention váhy $a^{(h)}_j = 1$, takže všechny aspekty přispívají stejnou měrou. 
+Na malých vzorcích ($n = 1$) jsou všechny \emph{attention váhy} $a^{(h)}_j = 1$, takže všechny aspekty přispívají stejnou měrou. 
 To naznačuje, že bias může klesat v rozsahu velikostí, na které byl $\theta$ natrénován, nikoliv však za jejich hranicí, kde není důvod očekávat pokles biasu.
-Klíčovou roli hraje přítomnost více attention hlav ($H > 1$), spolupráce více hlav může efektivně napodobit mechanismus průměrování modelů.
-Dalším klíčovým nástrojem je větší počet attention vrstev.
+Klíčovou roli hraje přítomnost více \emph{attention hlav} ($H > 1$), spolupráce více hlav může efektivně napodobit mechanismus průměrování modelů.
+Dalším klíčovým nástrojem je větší počet \emph{attention vrstev}.
 Navíc empirické testy ukazují, že na výslednou kvalitu predikce (a zmenšování biasu) hraje neposlední roli samotný trénink a jeho nastavení.
 Všechny tyto manipulační součástky tak dávají velký prostor pro manévr a různé jejich kombinace či nastavení mohou vést k velmi signifikantnímu poklesu biasu.
 \par
@@ -380,4 +380,4 @@ Pro predikci labelu v testovacím bodě $x$:
 
 Omezení na okolí $x$ je ekvivalentní "roztažení" cílové funkce $p(y \mid \cdot)$ v okolí $x$, lokálně hladká funkce se chová přibližně jako konstantní. 
 Konstantní funkce jsou pro $q_\theta$ snazší k aproximaci. 
-Lokalizace tedy zlepšuje bias za cenu mírného zvýšení variance, prediktor pracuje s menší efektivní velikostí datasetu $k_n \ll n$.
+Lokalizace tedy zlepšuje bias za cenu mírného zvýšení rozptylu, prediktor pracuje s menší efektivní velikostí datasetu $k_n \ll n$.

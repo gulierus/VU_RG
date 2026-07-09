@@ -14,7 +14,7 @@ Rovněž prozkoumáme mechanismy pomocí kterých PFN vyhodnocuje vstupní data 
 Nejdříve uvedeme základní analýzu PFN transformeru.
 Zaměříme se zde na to, co přesně děla se vstupními daty, podíváme se, zde se snaží nakopírovat stejné mechanismy jako GP, anebo zda dělá něco jiného.
 Experimenty jsme prováděli na dvou typech modelů.
-Oba sdílí identickou architekturu transformeru: $6$ vrstev, $8$ attention hlav, dimenze embeddingu $512$, dimenze skrytých vrstev dopředné sítě $1024$ a výstupní \texttt{FullSupportBarDistribution} s $1000$ biny, celkem $14{,}14$ milionu parametrů.
+Oba sdílí identickou architekturu transformeru: $6$ vrstev, $8$ \emph{attention hlav}, dimenze embeddingu $512$, dimenze skrytých vrstev dopředné sítě $1024$ a výstupní \texttt{FullSupportBarDistribution} s $1000$ biny, celkem $14{,}14$ milionu parametrů.
 Architektura je nastavena s parametry \lstinline|features_per_group=1| a \lstinline|attention_between_features=False|, tedy přesně tak, jak jsme ji popsali v předchozí kapitole pro případ $1$D regrese.
 Oba modely byly trénovány na syntetických datech vygenerovaných z Gaussovského procesu s RBF kernelem, vstupní prostor $x \in [0, 1]$.
 Liší se však tím, z jakého prioru nad hyperparametry trénovací data pocházela, a tedy i délkou tréninku, neboť pro nefixní hyperparametry model potřebuje více času na učení.
@@ -43,11 +43,11 @@ To znamená, ze model s s náhodně vzorkovanými hyperparametry budeme zkoumat 
 \label{subsec:struktura-attention}
 
 Začneme však s tím, že vykreslíme si jednotlivé vrstvy a podíváme se na vnitřnosti transformeru a jak se jeho vrstvami prochází tok dat.
-Attention matice je přirozené okno do toho, jak transformer interně organizuje informaci.
-Připomínáme, že v naší konfiguraci má model $6$ vrstev a v každé vrstvě $8$ attention hlav, přičemž každá hlava může sledovat jiný aspekt vstupních dat.
+\emph{Attention matice} je přirozené okno do toho, jak transformer interně organizuje informaci.
+Připomínáme, že v naší konfiguraci má model $6$ vrstev a v každé vrstvě $8$ \emph{attention hlav}, přičemž každá hlava může sledovat jiný aspekt vstupních dat.
 Vizualizaci provedeme pro $100$-epoch model na sekvenci délky $120$ bodů: $20$ trénovacích bodů a $100$ testovacích bodů.
-Výsledkem je attention matice tvaru $120 \times 120$, přičemž každý prvek $a_{ij}$ říká, jak moc se bod $i$ (jako \textit{query}) dívá na bod $j$ (jako \textit{key}).
-Každá vrstva přitom neobsahuje jen jednu takovou matici, ale $8$, tj. jednu za každou attention hlavu, protože každá hlava má vlastní naučené váhy.
+Výsledkem je \emph{attention matice} tvaru $120 \times 120$, přičemž každý prvek $a_{ij}$ říká, jak moc se bod $i$ (jako \textit{query}) dívá na bod $j$ (jako \textit{key}).
+Každá vrstva přitom neobsahuje jen jednu takovou matici, ale $8$, tj. jednu za každou \emph{attention hlavu}, protože každá hlava má vlastní naučené váhy.
 Abychom nemuseli sledovat všech $8$ matic zvlášť (pro $6$ vrstev bychom obdrželi $48$ matic), sečteme je po prvcích a vydělíme osmi, čímž z nich uděláme jedinou \emph{průměrnou} matici pro každou vrstvu.
 Prvek $a_{ij}$ v ní pak vyjadřuje, jak moc se bod $i$ dívá na bod $j$ v průměru přes všech $8$ hlav.
 
@@ -55,11 +55,11 @@ Protože víme, které pozice odpovídají trénovacím bodům ($0$–$19$) a kt
 
 \begin{center}
 \begin{tabular}{c|c|c}
- & \textbf{Key: Train} & \textbf{Key: Test} \\
+ & Key: Train & Key: Test \\
 \hline
-\textbf{Query: Train} & Train$\to$Train & Train$\to$Test \\
+Query: Train & Train$\to$Train & Train$\to$Test \\
 \hline
-\textbf{Query: Test}  & Test$\to$Train  & Test$\to$Test  \\
+Query: Test  & Test$\to$Train  & Test$\to$Test  \\
 \end{tabular}
 \end{center}
 
@@ -67,7 +67,7 @@ Kvadrant \textit{Test$\to$Train} je pro nás klíčový, ten nám totiž říká
 Z pohledu GP inference bychom očekávali, že právě tento kvadrant bude dominantní – predikce v novém bodě $x^*$ závisí na pozorovaných párech $(X, y)$, nikoli naopak.
 \par
 
-Na obrázku~\ref{fig:attention_all_layers} je vidět, jak se struktura attention matic vyvíjí přes vrstvy:
+Na obrázku~\ref{fig:attention_all_layers} je vidět, jak se struktura \emph{attention matic} vyvíjí přes vrstvy:
 
 \textbf{Vrstva 0:}
 
@@ -77,36 +77,40 @@ Tuto vrstvu můžeme interpretovat jako \textit{explorativní} fázi, tzn. model
 
 \textbf{Vrstvy 1–4:}
 
-attention postupně řídne – váhy se soustřeďují na méně pozic a zbytek klesá k nule.
+\emph{attention} postupně řídne, váhy se soustřeďují na méně pozic a zbytek klesá k nule.
 Lze tady pozorovat tvorbu určitých struktur ve vzorech: kvadrant \textit{Test$\to$Train} začíná nabývat na intenzitě, zatímco \textit{Train$\to$Test} slábne.
 Tyto prostřední vrstvy zřejmě slouží k internímu zpracování informace, tj. postupnému sestavování reprezentace, ze které bude moci poslední vrstva provést samotnou inferenci.
 
 \textbf{Vrstva 5:}
  
 tato poslední vrstva již vykazuje velmi zřetelný vzor.
-Kvadrant \textit{Test$\to$Train} je jasně dominantní a strukturovaný, zatímco kvadrant \textit{Train$\to$Test} je téměř nulový.
+Kvadrant \textit{Test$\to$Train} je jasně dominantní a strukturovaný, zatímco kvadrant \textit{Train$\to$Test} je skoro nulový.
 Tato asymetrie je přesně to, co bychom čekali od GP inference: testovací body jsou podmíněny trénovacími daty, nikoli naopak.
 \par
 
-Podstatné je, že tuto kauzální asymetrii model \textbf{neměl explicitně zakódovanou} a tudíž vyplynula přirozeně z optimalizace na syntetických GP datech.
-Kdybychom totiž model trénovali na datech bez kauzální struktury, attention mechanismus by zůstal symetrický.
+Podstatné je, že tuto kauzální asymetrii model neměl explicitně zakódovanou a tudíž vyplynula přirozeně z optimalizace na syntetických GP datech.
+Kdybychom totiž model trénovali na datech bez této struktury, \emph{attention mechanismus} by zůstal symetrický.
 Samotná existence asymetrie v poslední vrstvě je tak prvním experimentálním důkazem, že PFN provádí Bayesovskou inferenci a nikoliv pouhý \emph{pattern matching}, neboli učení příkladu nazpaměť.
 \par
 
-Na maticích na obrázku~\ref{fig:attention_all_layers} si lze všimnout ještě jednoho nápadného jevu: \textbf{svislých pruhů}.
-Některé \textit{key} pozice (sloupce) dostávají vysokou attention od téměř \emph{všech} query pozic, nezávisle na tom, kde daný query bod leží – ve~vrstvě $0$ jsou nejostřejší, v~hlubších vrstvách obvykle přetrvává jeden reziduální (v~naší realizaci nápadně kolem \textit{key} pozice $75$).
-Jde o~tzv.\ \textbf{attention sink}, mechanismus dobře popsaný u~velkých jazykových modelů (Xiao et al., 2023).
-Vzniká ze dvou důvodů. Za prvé, softmax nutí každý řádek matice sečíst na jedničku; když query bod nemá žádný silně relevantní klíč – typicky v~raných vrstvách, než se vybudují informativní reprezentace, nebo u~bodů daleko od kontextu – zbytková attention masa se „vylije“ na několik fixních výchozích pozic, které se stanou svislými pruhy. Za druhé, body s~extrémní hodnotou $Y_j$ nebo okrajovým $X_j$ mají po zakódování encoderem embedding s~větší normou, a tedy větší pre-softmax skóre vůči všem query.
+Na maticích na obrázku~\ref{fig:attention_all_layers} si lze všimnout ještě jednoho nápadného jevu, konkrétně svislých pruhů.
+Některé \textit{key} pozice (sloupce) dostávají vysokou \emph{attention} od téměř všech \emph{query} pozic, nezávisle na tom, kde daný \emph{query} bod leží.
+Ve~vrstvě $0$ jsou nejostřejší, v~hlubších vrstvách obvykle přetrvává jeden reziduální (v~naší realizaci nápadně kolem \textit{key} pozice $75$).
+Jde o~tzv.\ \textit{attention sink}, mechanismus dobře popsaný u~velkých jazykových modelů (Xiao et al., 2023).
+Vzniká ze dvou důvodů.
+Za prvé, softmax nutí každý řádek matice sečíst na jedničku – každý \textit{query} bod tedy \emph{musí} svou \emph{attention} někam rozdělit, i když pro něj žádný klíč není opravdu relevantní (typicky v~raných vrstvách, než se vybudují informativní reprezentace, nebo u~bodů daleko od dat).
+Přebytek \emph{attention} se pak „vylije“ na několik stále stejných pozic, které tak vytvoří svislé pruhy.
+Za druhé, body s~netypickou hodnotou (extrémní $Y_j$ nebo okrajové $X_j$) dostanou po zakódování větší embedding, a tím i vyšší skóre od všech ostatních bodů – přitahují proto \emph{attention} bez ohledu na to, odkud se \textit{query} dívá.
 \par
 
-Pro naši otázku je podstatné, že tyto pruhy jsou \textbf{query-nezávislé}: Nadaraya-Watsonův ani RBF estimátor by je nikdy nevytvořil, protože jejich váhy jsou lokální a závisejí na poloze query bodu $x^*$.
-Svislý pruh naopak znamená „všechny query se dívají na tentýž bod bez ohledu na svou polohu“ – část attention rozpočtu tedy jde na normalizační sink, nikoli na kernelové porovnávání.
-Existence pruhů je tak dalším nepřímým dokladem, že PFN attention \emph{není} prostý kernel smoothing.
+Pro naši otázku je podstatné, že tyto pruhy jsou \textit{query-nezávislé}: Nadaraya-Watsonův ani RBF estimátor by je nikdy nevytvořil, protože jejich váhy jsou lokální a závisejí na poloze query bodu $x^*$.
+Svislý pruh naopak znamená „všechny \emph{query} se dívají na tentýž bod bez ohledu na svou polohu“, část \emph{attention rozpočtu} tedy jde na \emph{normalizační sink}, nikoli na kernelové porovnávání.
+Tímto se dá říct, že existence pruhů je tak dalším nepřímým dokladem, že PFN \emph{attention} není prostý kernel smoothing.
 
 \begin{figure}[p]
     \centering
     \includegraphics[width=\linewidth]{figures/GP1_big_model/fig_big_03_attention_all_layers.png}
-    \caption{Attention matice pro všech $6$ vrstev 100-epoch modelu (průměr přes $8$ hlav) pro jednu konkrétní GP realizaci. Osa $x$: \textit{key} pozice (na které body se díváme), osa $y$: \textit{query} pozice (které body se dívají). Cyánová čára odděluje trénovací ($0$–$19$) a testovací ($20$–$119$) pozice. Světlejší barva odpovídá vyšší attention váze. Přesné hodnoty vah závisí na konkrétních vstupních datech, kvalitativní vzor (vrstva 0 distribuovaná $\to$ vrstva 5 s dominantním \textit{Test$\to$Train} blokem) je však stabilní.}
+    \caption{\emph{Attention matice} pro všech $6$ vrstev 100-epoch modelu (průměr přes $8$ hlav) pro jednu konkrétní GP realizaci. Osa $x$: \textit{key} pozice (na které body se díváme), osa $y$: \textit{query} pozice (které body se dívají). Cyánová čára odděluje trénovací ($0$–$19$) a testovací ($20$–$119$) pozice. Světlejší barva odpovídá vyšší \emph{attention váze}. Přesné hodnoty vah závisí na konkrétních vstupních datech, kvalitativní vzor (vrstva 0 distribuovaná $\to$ vrstva 5 s dominantním \textit{Test$\to$Train} blokem) je však stabilní.}
     \label{fig:attention_all_layers}
 \end{figure}
 
@@ -120,9 +124,9 @@ Jde konkrétně o tři formule, jejichž vzájemný vztah je jádrem naší anal
 \textbf{Posteriorní střední hodnota GP:}
 
 Po pozorování kontextových párů $(X, y)$ je posteriorní střední hodnota Gaussovského procesu v novém bodě $x^*$ dána vztahem:
-$$\mu(x^*) = k(x^*, X)\bigl[K(X,X) + \sigma^2 I\bigr]^{-1} y,$$
-kde $K(X,X)_{ij} = k(x_i, x_j)$ je kernelová matice a $\sigma^2$ je variance šumu.
-Klíčovou roli hraje inverze $[K + \sigma^2 I]^{-1}$, která \textit{dekore\-luje} blízké trénovací body.
+$$\mu(x^*) = k(x^*, \mathbf{X})\bigl[\mathbf{K}(\mathbf{X},\mathbf{X}) + \sigma^2 \mathbf{I}\bigr]^{-1} \mathbf{y},$$
+kde $\mathbf{K}(\mathbf{X},\mathbf{X})_{ij} = k(x_i, x_j)$ je kernelová matice a $\sigma^2$ je rozptyl šumu.
+Klíčovou roli hraje inverze $[\mathbf{K} + \sigma^2 \mathbf{I}]^{-1}$, která \textit{dekoreluje} blízké trénovací body.
 Body, které si jsou podobné, si vzájemně „konkurují“ a jejich kumulativní vliv je potlačen.
 
 \textbf{Nadaraya-Watsonův estimátor:}
@@ -133,16 +137,18 @@ NW se od GP liší právě absencí inverze kernelové matice.
 Tento model je až moc velkým zjednodušením, pokud bychom ho chtěli použít pro odhad GP.
 Ten implicitně předpokládá, že trénovací body jsou vzájemně nekorelované.
 Blízké body proto dostávají neúměrně velkou kumulativní váhu a predikce jsou pak příliš hladké.
+Současně je ale velmi přirozenou alternativou, jak hledat GP.
+Právě proto dále budeme zkoumat, zda se transformer nenaučil jenom tuto jednoduchou cestu.
 
-\textbf{Attention mechanismus transformeru:}
+\textbf{\emph{Attention mechanismus} transformeru:}
 
-Tento mechanismums jsem již zmiňovali v \ref{sec:pfn-architektura}, kde jsme popisovali vnitřní strukturu PFN transformeru.
-Attention v PFN počítá pro každý testovací bod $x^*$ váhovanou kombinaci hodnot z trénovacích bodů:
-$$\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V, \quad Q = XW_Q,\; K = XW_K,\; V = XW_V.$$
+Tento mechanismums jsme již zmiňovali v \ref{sec:pfn-architektura}, kde jsme popisovali vnitřní strukturu PFN transformeru.
+\emph{Attention} v PFN počítá pro každý testovací bod $x^*$ váhovanou kombinaci hodnot z trénovacích bodů:
+$$\text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{softmax}\!\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right)\mathbf{V}, \quad \mathbf{Q} = \mathbf{X}\mathbf{W}_Q,\; \mathbf{K} = \mathbf{X}\mathbf{W}_K,\; \mathbf{V} = \mathbf{X}\mathbf{W}_V.$$
 Výsledná kernelová matice \textit{závisí na datech}:
-$$\text{Kernel}_{\text{attn}}(X) = \text{softmax}\!\left(\frac{X W_Q W_K^\top X^\top}{\sqrt{d_k}}\right).$$
+$$\text{Kernel}_{\text{attn}}(\mathbf{X}) = \text{softmax}\!\left(\frac{\mathbf{X} \mathbf{W}_Q \mathbf{W}_K^\top \mathbf{X}^\top}{\sqrt{d_k}}\right).$$
 Na rozdíl od fixního RBF kernelu se tato matice plně adaptuje na konkrétní vstupní sekvenci.
-Matice vah $W_Q, W_K$ jsou naučeny z dat a mohou kódovat libovolnou strategii podobnosti.
+Matice vah $\mathbf{W}_Q, \mathbf{W}_K$ jsou naučeny z dat a mohou kódovat libovolnou strategii podobnosti.
 
 Klíčová otázka, kterou budeme v následujících experimentech testovat, pak zní: \textit{odpovídají attention váhy PFN normalizovaným RBF vahám, nebo se model naučil odlišnou strategii?}
 A pokud odlišnou, jak moc se jeho výstup blíží skutečnému GP posterioru oproti triviálnímu NW estimátoru?
@@ -151,23 +157,23 @@ A pokud odlišnou, jak moc se jeho výstup blíží skutečnému GP posterioru o
 \label{subsec:pfn-vs-rbf}
 
 V této sekci se zaměříme, zda se PFN transformer snaží napodobit chování RBF kernelu, a proto ho tak dobře aproximuje, anebo dělá něco jiného.
-Konkrétně pro každý testovací bod $x^*$ porovnáme attention váhy $a_i$ z poslední vrstvy (průměr přes $8$ hlav) s normalizovanými RBF vahami:
+Konkrétně pro každý testovací bod $x^*$ porovnáme \emph{attention váhy} $a_i$ z poslední vrstvy (průměr přes $8$ hlav) s normalizovanými RBF vahami:
 $$w_i = \frac{k(x^*, x_i)}{\sum_j k(x^*, x_j)}.$$
-Experiment provedeme pro 100-epoch model na $n_{\text{ctx}} = 20$ trénovacích bodech a $100$ testovacích bodech, průměrem přes $5$ nezávislých seedů.
+Experiment provedeme pro fixní model na $n_{\text{ctx}} = 20$ trénovacích bodech a $100$ testovacích bodech, průměrem přes $5$ nezávislých \emph{seedů}.
 \par
 
-Každá metrika je průměrována přes $5$ nezávislých seedů, přičemž pro každý seed je vygenerována jedna GP sekvence délky $100$ (prvních $20$ bodů jako kontext, všech $100$ jako testovací body).
+Každá metrika je průměrována přes $5$ nezávislých \emph{seedů}, přičemž pro každý \emph{seed} je vygenerována jedna GP sekvence délky $100$ (prvních $20$ bodů jako kontext, všech $100$ jako testovací body).
 MSE je počítáno jako střední kvadratická odchylka mezi střední hodnotou predikce PFN a analytickým GP posteriorem přes všech $100$ testovacích bodů.
-Korelace attention vs.\ RBF je pro každý testovací bod $x^*$ spočítána jako Pearsonova korelace mezi attention vahami poslední vrstvy (průměr přes $8$ hlav) a normalizovanými RBF vahami $\exp(-d^2/2\ell^2)$, zprůměrovaná přes všechny testovací body.
-Jako referenční baseline zahrnujeme rovněž Nadaraya-Watsonův estimátor: \textrm{MSE(NW, GP)} měří jeho odchylku od analytického GP posterioru a slouží jako dolní mez kvality nejjednoduššího kernel smoothingu.
-\textrm{MSE(PFN, NW)} pak kvantifikuje, o kolik se predikce PFN od NW liší, pokud $\textrm{MSE(PFN, NW)} \approx \textrm{MSE(NW, GP)}$, znamená to, že PFN a NW predikují zcela odlišné hodnoty, a tedy že PFN neprovádí prostý kernel smoothing.
+Korelace \emph{attention} vs.\ RBF je pro každý testovací bod $x^*$ spočítána jako Pearsonova korelace mezi \emph{attention vahami} poslední vrstvy (průměr přes $8$ hlav) a normalizovanými RBF vahami $\exp(-d^2/2\ell^2)$, zprůměrovaná přes všechny testovací body.
+Jako referenční baseline zahrnujeme rovněž Nadaraya-Watsonův estimátor: \textrm{MSE(NW, GP)} měří jeho odchylku od analytického GP posterioru a slouží jako dolní mez kvality nejjednoduššího \emph{kernel smoothingu}.
+\textrm{MSE(PFN, NW)} pak kvantifikuje, o kolik se predikce PFN od NW liší, pokud $\textrm{MSE(PFN, NW)} \approx \textrm{MSE(NW, GP)}$, znamená to, že PFN a NW predikují zcela odlišné hodnoty, a tedy že PFN neprovádí prostý \emph{kernel smoothing}.
 Naměřené hodnoty jsou shrnuty v tabulce~\ref{tab:exp3}.
 
 \begin{table}[htbp]
 \centering
 \begin{tabular}{lc}
 \hline
-\textbf{Metrika} & \textbf{100-epoch model} \\
+Metrika & 100-epoch model \\
 \hline
 Průměrná korelace Attn vs RBF & $0{,}374 \pm 0{,}270$ \\
 MSE(PFN, GP)  & $0{,}000167 \pm 0{,}000096$ \\
@@ -176,54 +182,56 @@ MSE(PFN, NW)  & $0{,}2092 \pm 0{,}1439$ \\
 Poměr MSE(NW)/MSE(PFN) & ${\sim}1\,256\times$ \\
 \hline
 \end{tabular}
-\caption{Výsledky korelační analýzy attention vah vs.\ RBF kernelu a srovnání přesnosti predikcí. Průměr přes $5$ seedů.}
+\caption{Výsledky korelační analýzy \emph{attention vah} vs.\ RBF kernelu a srovnání přesnosti predikcí. Průměr přes $5$ \emph{seedů}.}
 \label{tab:exp3}
 \end{table}
 
 \begin{figure}[htbp]
     \centering
-    \subcaptionbox{Detail attention vah poslední vrstvy (průměr přes $8$ hlav) pro vybraný testovací bod v porovnání s normalizovanými RBF vahami. Attention je výrazně ostřejší – koncentruje téměř veškerou váhu na nejbližší bod – zatímco RBF distribuuje váhu plynule. Korelace $0{,}374 \pm 0{,}270$.\label{fig:attn_vs_rbf}}[1.0\linewidth]{%
+    \subcaptionbox{Detail \emph{attention vah} poslední vrstvy (průměr přes $8$ hlav) pro vybraný testovací bod v porovnání s normalizovanými RBF vahami. \emph{Attention} je výrazně ostřejší, koncentruje téměř veškerou váhu na nejbližší bod, zatímco RBF distribuuje váhu plynule. Korelace $0{,}374 \pm 0{,}270$.\label{fig:attn_vs_rbf}}[1.0\linewidth]{%
         \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_04_attention_detail.png}}
     \vspace{0.5em}
     \subcaptionbox{Srovnání predikcí PFN, Nadaraya-Watsonova estimátoru a analytického GP posterioru ($n_{\text{ctx}} = 20$). NW systematicky přehlazuje, PFN sleduje GP posterior s MSE $167 \times 10^{-6}$ oproti MSE $0{,}21$ u NW – rozdíl ${\sim}1\,256\times$.\label{fig:pfn_vs_nw}}[1.0\linewidth]{%
         \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_05_nw_comparison.png}}
-    \caption{100-epoch model: porovnání attention vah s RBF kernelem (nahoře) a predikcí PFN, NW a GP (dole).}
+    \caption{Porovnání \emph{attention vah} s RBF kernelem (nahoře) a predikcí PFN, NW a GP (dole).}
 \end{figure}
 \par
 
-Z tabulky~\ref{tab:exp3} vyplývají dvě zásadní pozorování.
-Za prvé, korelace attention vah s RBF kernelem je nízká ($0{,}374 \pm 0{,}270$) a s vysokou variabilitou, což naznačuje, že model \textit{neprovádí} prostý RBF kernel-smoothing.
-Také je zjevné, že attention mechanismus se naučil jinou strategii.
-Jak je vidět na obrázku~\ref{fig:attn_vs_rbf}, attention váhy jsou výrazně ostřejší než RBF, soustřeďují téměř veškerou váhu na nejbližší bod, zatímco RBF ji distribuuje plynule.
+\textbf{Diskuze:}
 
-Za druhé, $\textrm{MSE(PFN, NW)} \approx \textrm{MSE(NW, GP)} \approx 0{,}21$ – vzdálenost mezi PFN a NW je přibližně stejně velká jako vzdálenost NW od GP.
+Z tabulky~\ref{tab:exp3} vyplývají dvě zásadní pozorování.
+Za prvé, korelace \emph{attention vah} s RBF kernelem je nízká ($0{,}374 \pm 0{,}270$) a s vysokou variabilitou, což naznačuje, že model \textit{neprovádí} prostý RBF \emph{kernel smoothing}.
+Také je zjevné, že \emph{attention mechanismus} se naučil jinou strategii.
+Jak je vidět na obrázku~\ref{fig:attn_vs_rbf}, \emph{attention váhy} jsou výrazně ostřejší než RBF, soustřeďují téměř veškerou váhu na nejbližší bod, zatímco RBF ji distribuuje plynule.
+
+Za druhé, $\textrm{MSE(PFN, NW)} \approx \textrm{MSE(NW, GP)} \approx 0{,}21$, vzdálenost mezi PFN a NW je přibližně stejně velká jako vzdálenost NW od GP.
 To znamená, že PFN sedí blízko GP posterioru, zatímco NW stojí daleko od obou.
 Tyto obě metody predikují zcela odlišné hodnoty.
 Dále je vidět, že je PFN o $1\,256\times$ přesnější než NW (poměr $\textrm{MSE(NW,\,GP)} / \textrm{MSE(PFN,\,GP)} = 0{,}2099 / 0{,}000167$).
 \par
 
-Nás by ale mohlo zajímat, proč je attention ostřejší než RBF, tj. proč ty attention váhy jsou rozloženy ne tak hladce a plynule, jako u RBF na obrázku \ref{fig:attn_vs_rbf}.
-Attention hlavy totiž nepotřebují počítat čistou kernelovou podobnost $k(x^*, x_i)$.
-Potřebují vypočítat to, co v kombinaci s ostatními hlavami a FFN vrstvami dá nejlepší aproximaci GP posterioru.
+Nás by ale mohlo zajímat, proč je \emph{attention} ostřejší než RBF, tj. proč ty \emph{attention váhy} jsou rozloženy ne tak hladce a plynule, jako u RBF na obrázku \ref{fig:attn_vs_rbf}.
+\emph{Attention hlavy} totiž nepotřebují počítat čistou kernelovou podobnost $k(x^*, x_i)$.
+Potřebují vypočítat to, co v kombinaci s ostatními hlavami a dopřednou sítí (\emph{feed-forward network}, kterou budeme v celé práci označovat zkratkou FFN) dá nejlepší aproximaci GP posterioru.
 A pro ten může být výhodnější jiná strategie, kde se bod dívá na sousedy s jinou silou, dokonce se ukazuje, že se může dívat na vzdálenější body víc než na svoje blízké sousedy. 
-Na konci pak FFN snáze provede korekci odpovídající efektu $K^{-1}$.
+Na konci pak FFN snáze provede korekci odpovídající efektu $\mathbf{K}^{-1}$.
 \par
 
 \textbf{Metodologická poznámka k této analýze:}
 
-Nízká korelace attention vah s RBF kernelem je platný a hodnotný závěr o chování \textit{jedné komponenty} sítě.
+Nízká korelace \emph{attention vah} s RBF kernelem je platný a hodnotný závěr o chování \textit{jedné komponenty} sítě.
 Existují však důvody, proč z ní nelze přímo usuzovat na celkové chování modelu.
 
-Za prvé, attention není výstupní mechanismus, po něm následuje FFN, residuální spojení a v případě vícevrstvého modelu dalších pět bloků.
-I kdyby attention váhy v poslední vrstvě přesně odpovídaly normalizovaným RBF vahám, výstup PFN by se od NW stále lišil díky korekcím v FFN.
+Za prvé, \emph{attention} není výstupní mechanismus, po něm následuje FFN, residuální spojení a v případě vícevrstvého modelu dalších pět bloků.
+I kdyby \emph{attention váhy} v poslední vrstvě přesně odpovídaly normalizovaným RBF vahám, výstup PFN by se od NW stále lišil díky korekcím v FFN.
 
-Za druhé, GP na rozdíl od RBF nevažuje trénovací body jen podle jejich podobnosti s~$x^*$, ale přes inverzi $K^{-1}$ zohledňuje i to, jak jsou body korelované mezi sebou (blízké body si „konkurují“, vzdálené mohou dostat i zápornou váhu).
-Nízká korelace attention s~čistým RBF je tedy očekávaná – i perfektní GP by ji při tomto srovnání vykazoval.
+Za druhé, GP na rozdíl od RBF neváží trénovací body jen podle jejich podobnosti s~$x^*$, ale přes inverzi $\mathbf{K}^{-1}$ zohledňuje i to, jak jsou body korelované mezi sebou (blízké body si „konkurují“, vzdálené mohou dostat i zápornou váhu).
+Nízká korelace \emph{attention} s~čistým RBF je tedy očekávaná, i perfektní GP by ji při tomto srovnání vykazoval.
 
 \subsection{Jak přesný je PFN na skutečné GP realizaci?}
 \label{subsec:presnost-pfn}
 
-Předchozí experiment porovnával PFN se syntetickým GP posteriorem, tj. modelu jsme předložili trénovací body a srovnávali jeho predikci s analytickým řešením.
+Předchozí experiment porovnával PFN se syntetickým GP posteriorem, tj. modelu jsme předložili trénovací body a srovnávali jsme jeho predikci s analytickým řešením.
 V následující části přistoupíme k přísnějšímu testu.
 Oba modely (PFN i GP oracle) budou predikovat \textit{skutečné šumové hodnoty} GP realizace, kterou neviděly.
 Cílem je zjistit, jak se přesnost PFN vyvíjí s velikostí kontextu $n_{\text{ctx}} \in \{5, 10, 15, 20\}$.
@@ -234,33 +242,33 @@ Z těchto $100$ bodů náhodně vybereme $n_{\text{ctx}}$ jako \textit{trénovac
 Zbývajících $100 - n_{\text{ctx}}$ bodů necháme skryté a slouží jako \textit{testovací cíl}, jejich $x$ předložíme modelu k~predikci, ale jejich pravé $y$-hodnoty mu neprozradíme.
 
 Obě metody nyní pro každý testovací bod vrátí svou predikci $\hat{y}(x)$.
-\textbf{PFN} ji spočítá jedním dopředným průchodem z~kontextu.
-\textbf{GP oracle} je referenční, „ideální“ Gaussovský proces, který má oproti PFN výhodu, že \textit{zná} pravé hyperparametry, ze kterých byla realizace vygenerována $(\ell = 0{,}3,\; \sigma^2 = 10^{-4})$, a z~kontextu spočítá přesný analytický posterior podle vzorce $\mu(x^*) = k(x^*, X)[K(X,X) + \sigma^2 I]^{-1} y$.
+PFN ji spočítá jedním dopředným průchodem z~kontextu.
+GP oracle je referenční, „ideální“ Gaussovský proces, který má oproti PFN výhodu, že \textit{zná} pravé hyperparametry, ze kterých byla realizace vygenerována $(\ell = 0{,}3,\; \sigma^2 = 10^{-4})$, a z~kontextu spočítá přesný analytický posterior podle vzorce $\mu(x^*) = k(x^*, \mathbf{X})[\mathbf{K}(\mathbf{X},\mathbf{X}) + \sigma^2 \mathbf{I}]^{-1} \mathbf{y}$.
 Slouží tedy jako horní hranice toho, čeho lze na daných datech dosáhnout, s~níž PFN porovnáváme.
 
 Kvalitu predikce měříme pomocí MSE zprůměrované přes všechny testovací body dané realizace.
-Abychom výsledek nezáviseli na jedné konkrétní realizaci, celý postup zopakujeme a metriky nakonec zprůměrujeme přes $5$ seedů $\times$ $20$ realizací $=$ $100$ instancí pro každou hodnotu $n_{\text{ctx}}$.
+Abychom výsledek nezáviseli na jedné konkrétní realizaci, celý postup zopakujeme a metriky nakonec zprůměrujeme přes $5$ \emph{seedů} $\times$ $20$ realizací $=$ $100$ instancí pro každou hodnotu $n_{\text{ctx}}$.
 \par
 
 \begin{table}[htbp]
 \centering
 \begin{tabular}{lcc}
 \hline
-$n_{\text{ctx}}$ & \textbf{PFN (100-epoch)} & \textbf{GP oracle} \\
+$n_{\text{ctx}}$ & PFN & GP oracle \\
 \hline
-$5$  & $0{,}0408 \pm 0{,}0698$ & $\mathbf{0{,}0340 \pm 0{,}0635}$ \\
-$10$ & $0{,}0123 \pm 0{,}0349$ & $\mathbf{0{,}0112 \pm 0{,}0360}$ \\
-$15$ & $0{,}0064 \pm 0{,}0271$ & $\mathbf{0{,}0028 \pm 0{,}0036}$ \\
-$20$ & $0{,}0021 \pm 0{,}0025$ & $\mathbf{0{,}0017 \pm 0{,}0011}$ \\
+$5$  & $0{,}0408 \pm 0{,}0698$ & $0{,}0340 \pm 0{,}0635$ \\
+$10$ & $0{,}0123 \pm 0{,}0349$ & $0{,}0112 \pm 0{,}0360$ \\
+$15$ & $0{,}0064 \pm 0{,}0271$ & $0{,}0028 \pm 0{,}0036$ \\
+$20$ & $0{,}0021 \pm 0{,}0025$ & $0{,}0017 \pm 0{,}0011$ \\
 \hline
 \end{tabular}
-\caption{MSE vůči skutečným hodnotám GP realizace jako funkce velikosti kontextu. Průměr přes $100$ instancí ($5$ seedů $\times$ $20$ realizací).}
+\caption{MSE vůči skutečným hodnotám GP realizace jako funkce velikosti kontextu. Průměr přes $100$ instancí ($5$ \emph{seedů} $\times$ $20$ realizací).}
 \label{tab:exp4}
 \end{table}
 
 \begin{figure}[htbp]
     \centering
-    \subcaptionbox{MSE PFN (modrá) a GP oracle (zelená přerušovaná) jako funkce $n_{\text{ctx}}$. Chybové úsečky $= \pm 1$ std přes $20$ realizací. GP oracle mírně vede od $n = 10$, protože zná správné $\ell$.\label{fig:exp4_mse}}[0.82\linewidth]{%
+    \subcaptionbox{MSE PFN (modrá) a GP oracle (zelená přerušovaná) jako funkce $n_{\text{ctx}}$. Chybové úsečky $= \pm 1$ \emph{std} přes $20$ realizací. GP oracle mírně vede od $n = 10$, protože zná správné $\ell$.\label{fig:exp4_mse}}[0.82\linewidth]{%
         \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_06_context_size_mse.png}}
     \vspace{0.5em}
     \subcaptionbox{Vizualizace predikcí pro $n \in \{5, 10, 15, 20\}$. Červené body: kontextová data dostupná modelu; šedé body: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP posterior se správným $\ell$. Všechny řádky vychází ze stejné GP realizace, liší se pouze velikostí kontextu. Od $n = 15$ obě křivky téměř splývají.\label{fig:exp4_grid}}[0.82\linewidth]{%
@@ -278,19 +286,19 @@ To je očekávané: oracle zná přesné hyperparametry a provádí exaktní Bay
 
 Za druhé, rozdíl se zvětšuje se středním $n_{\text{ctx}}$.
 Při $n = 5$ je převaha GP oracle malá ($0{,}034$ vs $0{,}041$); při $n = 15$ již GP dosahuje $0{,}003$ oproti $0{,}006$ u PFN.
-Příčinou je, že s více kontextovými body disponuje GP oracle přesnou inversí kernelové matice $K^{-1}$, zatímco PFN tuto operaci pouze aproximuje.
-Při malém kontextu je $K^{-1}$ málo informativní a obě metody jsou si blízko.
+Příčinou je, že s více kontextovými body disponuje GP oracle přesnou inversí kernelové matice $\mathbf{K}^{-1}$, zatímco PFN tuto operaci pouze aproximuje.
+Při malém kontextu je $\mathbf{K}^{-1}$ málo informativní a obě metody jsou si blízko.
 
 Za třetí, od $n = 20$ se obě metody přibližují: MSE($0{,}0021$ vs $0{,}0017$) jsou si prakticky rovnocenné.
 PFN tedy s dostatečným kontextem konverguje k chování GP oracle, aniž by explicitně invertoval kernelovou matici.
 Toto je jedním z klíčových empirických potvrzení toho, že PFN provádí plnou GP inferenci namísto pouhého kernel smoothingu.
 
-\subsection{Konvergence střední hodnoty a kalibrace variance}
+\subsection{Konvergence střední hodnoty a kalibrace rozptylu}
 \label{subsec:konvergence-variance}
 
 V tomto experimentu ověřujeme, zda PFN správně zachytí nejen střední hodnotu predikce, ale také tvar profilu nejistoty (tzv. \emph{uncertainty}), tedy kde si byl model jistější a kde méně.
 Trénovací data jsou omezena na oblast $x \in [0{,}3,\, 0{,}7]$ ($n_{\text{ctx}} = 20$), testovací body pokrývají celý interval $[0, 1]$ ($n_{\text{test}} = 100$).
-Výsledek experimentu jsme opět dostali tímto způsobem – průměrování přes $5$ realizací $\times$ $5$ seedů $= 25$ instancí celkem.
+Výsledek experimentu jsme opět dostali tímto způsobem – průměrování přes $5$ realizací $\times$ $5$ \emph{seedů} $= 25$ instancí celkem.
 Metriky kalibrace: $\text{Corr}(\hat{\sigma}_{\text{PFN}},\, \sigma_{\text{GP}})$ (korelace směrodatných odchylek) a $\text{MSE}(\hat{\sigma}_{\text{PFN}},\, \sigma_{\text{GP}})$ (absolutní chyba kalibrace).
 Dále uvádíme \textit{ratio far/near}, což je poměr průměrné směrodatné odchylky (\emph{std}) v oblasti extrapolace ($x \in [0,\, 0{,}2] \cup [0{,}8,\, 1]$) ke směrodatné odchylce v centru dat ($x \in [0{,}4,\, 0{,}6]$), který měří, jak výrazně model zvyšuje nejistotu mimo oblast trénovacích dat.
 \par
@@ -303,23 +311,23 @@ Avšak poznamenejme, že pro realizace s vysokou amplitudou ($|m_{\text{train}}|
 \centering
 \begin{tabular}{lc}
 \hline
-\textbf{Metrika} & \textbf{Hodnota} \\
+Metrika & Hodnota \\
 \hline
-Corr(PFN std, GP std) & $\mathbf{0{,}9812 \pm 0{,}0252}$ \\
+Corr(PFN std, GP std) & $0{,}9812 \pm 0{,}0252$ \\
 MSE(PFN std, GP std) & $0{,}00376 \pm 0{,}00911$ \\
-Ratio far/near – PFN & $\mathbf{21{,}3\times \pm 5{,}2\times}$ \\
+Ratio far/near – PFN & $21{,}3\times \pm 5{,}2\times$ \\
 Ratio far/near – GP  & $25{,}9\times \pm 3{,}8\times$ \\
 \hline
 \end{tabular}
-\caption{Experiment 1: kalibrace variance pro 100-epoch model (průměr přes 25 instancí).}
+\caption{Experiment 1: kalibrace rozptylu pro 100-epoch model (průměr přes 25 instancí).}
 \label{tab:exp1}
 \end{table}
 
 \begin{figure}[htbp]
     \centering
-    \subcaptionbox{Srovnání střední hodnoty a variance PFN (modrá) a GP (zelená). Trénovací body v $x \in [0{,}3,\, 0{,}7]$, predikce v celém $[0, 1]$. PFN správně rozpoznává region extrapolace zvýšenou variancí.\label{fig:exp1_uncertainty}}[0.82\linewidth]{%
+    \subcaptionbox{Srovnání střední hodnoty a rozptylu PFN (modrá) a GP (zelená). Trénovací body v $x \in [0{,}3,\, 0{,}7]$, predikce v celém $[0, 1]$. PFN správně rozpoznává region extrapolace zvýšeným rozptylem.\label{fig:exp1_uncertainty}}[0.82\linewidth]{%
         \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_02_uncertainty.png}}
-    \caption{Experiment 1 – 100-epoch model: konvergence střední hodnoty a kalibrace variance.}
+    \caption{Experiment 1 – 100-epoch model: konvergence střední hodnoty a kalibrace rozptylu.}
     \label{fig:exp1_combined}
 \end{figure}
 
@@ -328,7 +336,7 @@ Ratio far/near – GP  & $25{,}9\times \pm 3{,}8\times$ \\
 Korelace $r = 0{,}98$ potvrzuje, že PFN správně identifikuje \textit{tvar} profilu uncertainty tam, kde je nejistota větší a kde menší.
 $\text{MSE}(\hat{\sigma}) = 0{,}0038$ signalizuje, že absolutní kalibrace je přesná.
 \textit{Ratio far/near} u PFN ($21{,}3\times$) dosahuje přibližně $82\,\%$ dynamického rozsahu GP ($25{,}9\times$).
-Z toho usuzujeme, že PFN mírně podhodnocuje míru zvýšení uncertainty v oblasti extrapolace, avšak můžeme tvrdit, že charakter chování je zachován.
+Z toho usuzujeme, že PFN mírně podhodnocuje míru zvýšení \emph{uncertainty} v oblasti extrapolace, avšak můžeme tvrdit, že charakter chování je zachován.
 Toto je zásadní vlastnost.
 Model bez explicitní representace GP posterioru přesto generuje uncertainty, která odpovídá bayesovskému výpočtu.
 
