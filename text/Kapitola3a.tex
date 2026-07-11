@@ -72,7 +72,7 @@ Na obrázku~\ref{fig:attention_all_layers} je vidět, jak se struktura \emph{att
 \begin{figure}[!tb]
     \centering
     \includegraphics[width=\linewidth]{figures/GP1_big_model/fig_big_03_attention_all_layers.png}
-    \caption{\emph{Attention matice} pro všech $6$ vrstev 100-epoch modelu (průměr přes $8$ hlav) pro jednu konkrétní GP realizaci. Osa $x$: \textit{key} pozice (na které body se díváme), osa $y$: \textit{query} pozice (které body se dívají). Cyánová čára odděluje trénovací ($0$–$19$) a testovací ($20$–$119$) pozice. Světlejší barva odpovídá vyšší \emph{attention váze}. Přesné hodnoty vah závisí na konkrétních vstupních datech, kvalitativní vzor (vrstva 0 distribuovaná $\to$ vrstva 5 s dominantním \textit{Test$\to$Train} blokem) je však stabilní.}
+    \caption{\emph{Attention matice} pro všech $6$ vrstev fixního modelu (průměr přes $8$ hlav) pro jednu konkrétní GP realizaci. Osa $x$: \textit{key} pozice (na které body se díváme), osa $y$: \textit{query} pozice (které body se dívají). Cyánová čára odděluje trénovací ($0$–$19$) a testovací ($20$–$119$) pozice. Světlejší barva odpovídá vyšší \emph{attention váze}. Přesné hodnoty vah závisí na konkrétních vstupních datech, kvalitativní vzor (vrstva 0 distribuovaná $\to$ vrstva 5 s dominantním \textit{Test$\to$Train} blokem) je však stabilní.}
     \label{fig:attention_all_layers}
 \end{figure}
 
@@ -173,7 +173,7 @@ Naměřené hodnoty jsou shrnuty v tabulce~\ref{tab:exp3}.
 \centering
 \begin{tabular}{lc}
 \hline
-Metrika & 100-epoch model \\
+Metrika & Fixní model \\
 \hline
 Průměrná korelace Attn vs RBF & $0{,}374 \pm 0{,}270$ \\
 MSE(PFN, GP)  & $0{,}000167 \pm 0{,}000096$ \\
@@ -196,7 +196,7 @@ Jak je vidět na obrázku~\ref{fig:attn_vs_rbf}, \emph{attention váhy} jsou vý
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/GP1_big_model/fig_big_04_attention_detail.png}
-    \caption{Detail \emph{attention vah} poslední vrstvy (průměr přes $8$ hlav) pro vybraný testovací bod v porovnání s normalizovanými RBF vahami. \emph{Attention} je výrazně ostřejší, koncentruje téměř veškerou váhu na nejbližší bod, zatímco RBF distribuuje váhu plynule.}
+    \caption{Detailní rozbor \emph{attention} fixního modelu (průměr přes $8$ hlav). Nahoře: \emph{attention matice} vrstvy $0$ a poslední vrstvy $5$ a výřez bloku \textit{Test$\to$Train} poslední vrstvy. Dole vlevo: \emph{attention váhy} pro vybraný testovací bod v porovnání s normalizovanými RBF vahami; \emph{attention} je výrazně ostřejší, koncentruje téměř veškerou váhu na nejbližší bod, zatímco RBF distribuuje váhu plynule. Dole uprostřed: korelace \emph{attention} s RBF jako funkce polohy testovacího bodu. Dole vpravo: průměrná entropie \emph{attention vah} po vrstvách.}
     \label{fig:attn_vs_rbf}
 \end{figure}
 
@@ -209,7 +209,7 @@ Dále je vidět, že je PFN o $1\,256\times$ přesnější než NW (poměr $\tex
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/GP1_big_model/fig_big_05_nw_comparison.png}
-    \caption{Srovnání predikcí PFN, Nadaraya-Watsonova estimátoru a analytického GP posterioru ($n_{\text{ctx}} = 20$). NW systematicky přehlazuje, zatímco PFN sleduje GP posterior těsně, přesné hodnoty MSE shrnuje tabulka~\ref{tab:exp3}.}
+    \caption{Srovnání predikcí PFN, Nadaraya-Watsonova estimátoru a analytického GP posterioru ($n_{\text{ctx}} = 20$). Nahoře vlevo: predikce všech tří metod na jedné realizaci. Nahoře vpravo: rozdíly predikcí PFN$-$NW a PFN$-$GP. Dole vlevo: NW váhy jako teplotní mapa (kontextový bod $\times$ testovací poloha). Dole vpravo: korelace predikcí PFN s GP a s NW. NW systematicky přehlazuje, zatímco PFN sleduje GP posterior těsně, přesné hodnoty MSE shrnuje tabulka~\ref{tab:exp3}.}
     \label{fig:pfn_vs_nw}
 \end{figure}
 
@@ -271,8 +271,8 @@ $20$ & $0{,}0021 \pm 0{,}0025$ & $0{,}0017 \pm 0{,}0011$ \\
 
 \begin{figure}[!htb]
     \centering
-    \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_06b_context_size_grid.png}
-    \caption{100-epoch model: vizualizace predikcí pro $n \in \{5, 10, 15, 20\}$. Červené body: kontextová data dostupná modelu; šedé body: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP posterior se správným $\ell$. Všechny řádky vychází ze stejné GP realizace, liší se pouze velikostí kontextu. Od $n = 15$ obě křivky téměř splývají.}
+    \includegraphics[width=\linewidth]{figures/GP1_big_model/fig_big_06b_context_size_grid.png}
+    \caption{Vizualizace predikcí (levý sloupec) a \emph{attention} vs RBF (pravý sloupec) pro $n \in \{5, 10, 15, 20\}$. Červené body: kontextová data dostupná modelu; šedé body: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP posterior se správným $\ell$. Všechny řádky vychází ze stejné GP realizace, liší se pouze velikostí kontextu. Od $n = 15$ obě křivky téměř splývají.}
     \label{fig:exp4_combined}
 \end{figure}
 
@@ -300,9 +300,10 @@ Trénovací data jsou omezena na oblast $x \in [0{,}3,\, 0{,}7]$ ($n_{\text{ctx}
 Výsledek experimentu jsme opět dostali tímto způsobem – průměrování přes $5$ realizací $\times$ $5$ \emph{seedů} $= 25$ instancí celkem.
 Metriky kalibrace: $\text{Corr}(\hat{\sigma}_{\text{PFN}},\, \sigma_{\text{GP}})$ (korelace směrodatných odchylek) a $\text{MSE}(\hat{\sigma}_{\text{PFN}},\, \sigma_{\text{GP}})$ (absolutní chyba kalibrace).
 Dále uvádíme \textit{ratio far/near}, což je poměr průměrné směrodatné odchylky (\emph{std}) v oblasti extrapolace ($x \in [0,\, 0{,}2] \cup [0{,}8,\, 1]$) ke směrodatné odchylce v centru dat ($x \in [0{,}4,\, 0{,}6]$), který měří, jak výrazně model zvyšuje nejistotu mimo oblast trénovacích dat.
+Naměřené hodnoty shrnuje tabulka~\ref{tab:exp1}.
 \par
 
-Střední hodnota PFN sleduje GP posterior s vysokou přesností v oblasti s daty.
+Střední hodnota PFN sleduje GP posterior s vysokou přesností v oblasti s daty, jak ukazuje obrázek~\ref{fig:exp1_combined}.
 Mimo trénovací sadu ($x < 0{,}3$, $x > 0{,}8$) PFN správně konverguje k prioru (hodnota~$0$), stejně jako GP.
 Avšak poznamenejme, že pro realizace s vysokou amplitudou ($|m_{\text{train}}| > 1{,}5$), dochází k neúplné konvergenci, GP se v takových případech chová identicky.
 
@@ -318,15 +319,14 @@ Ratio far/near – PFN & $21{,}3\times \pm 5{,}2\times$ \\
 Ratio far/near – GP  & $25{,}9\times \pm 3{,}8\times$ \\
 \hline
 \end{tabular}
-\caption{Experiment 1: kalibrace rozptylu pro 100-epoch model (průměr přes 25 instancí).}
+\caption{Experiment 1: kalibrace rozptylu pro fixní model (průměr přes 25 instancí).}
 \label{tab:exp1}
 \end{table}
 
 \begin{figure}[htbp]
     \centering
-    \subcaptionbox{Srovnání střední hodnoty a rozptylu PFN (modrá) a GP (zelená). Trénovací body v $x \in [0{,}3,\, 0{,}7]$, predikce v celém $[0, 1]$. PFN správně rozpoznává region extrapolace zvýšeným rozptylem.\label{fig:exp1_uncertainty}}[0.82\linewidth]{%
-        \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_02_uncertainty.png}}
-    \caption{Experiment 1 – 100-epoch model: konvergence střední hodnoty a kalibrace rozptylu.}
+    \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_02_uncertainty.png}
+    \caption{Experiment 1 – fixní model: srovnání střední hodnoty a rozptylu PFN (modrá) a GP (zelená). Trénovací body v $x \in [0{,}3,\, 0{,}7]$, predikce v celém $[0, 1]$. PFN správně rozpoznává region extrapolace zvýšeným rozptylem.}
     \label{fig:exp1_combined}
 \end{figure}
 

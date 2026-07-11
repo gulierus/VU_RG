@@ -52,3 +52,7 @@ background/extract_figures.py
 background/stats_averaged.json
 background/variant_a_results.json
 background/variant_a_results.npz
+
+# HELIOS training logs (nechceme v gitu)
+pfn_seg.o*
+*.o[0-9]*

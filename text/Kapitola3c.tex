@@ -110,13 +110,13 @@ Stejnou heterogenitu lze nahlédnout i prostorově.
 Obrázek~\ref{fig:ch2_isoweight} zobrazuje, kam se dívá každá z $8$ hlav jednovrstvého modelu.
 V tomto případě usuzujeme, že je dobré pro čtenáře popsat, co tento obrázek znázorňuje a co znamená.
 Vysvětleme tedy nejprve, jak takový graf vzniká a jak ho číst.
-Zafixujeme jeden testovací bod, v naší realizaci $x^* = 0{,}59$, a ptáme se, mezi které kontextové body daná hlava rozdělí svou \emph{attention váhu} při predikci v tomto bodě.
+Zafixujeme jeden testovací bod, v naší realizaci $x^* = 0{,}54$, a ptáme se, mezi které kontextové body daná hlava rozdělí svou \emph{attention váhu} při predikci v tomto bodě.
 Každý kontextový bod vyneseme do roviny jako jednu tečku, kde vodorovná souřadnice je jeho poloha $X_j$ a svislá souřadnice jeho pozorovaná hodnota $Y_j$.
 Tečku pak obarvíme podle \emph{attention váhy}, kterou tomuto bodu hlava přidělila, tj. čím světlejší tečka, tím větší váha.
 Graf tedy čteme tak, že sledujeme, kde se světlé tečky hromadí.
 Pokud se hromadí ve svislém pruhu kolem $x^*$, hlava vybírá body podle blízkosti ve vstupním prostoru a hodnota $Y_j$ ji nezajímá.
 Pokud se naopak hromadí nahoře nebo dole, hlava vybírá body podle jejich hodnoty $Y_j$, tedy čte \emph{labely}.
-Kdyby tedy hlava prováděla čisté \emph{kernelové porovnání}, viděli bychom svislý pruh kolem $x^* = 0{,}59$ nezávisle na $Y_j$.
+Kdyby tedy hlava prováděla čisté \emph{kernelové porovnání}, viděli bychom svislý pruh kolem $x^* = 0{,}54$ nezávisle na $Y_j$.
 Skutečnost podle tohoto obrázku je ale jiná.
 Hlavy míří na různé oblasti roviny.
 \emph{Head} 2 se dívá na body s nízkým $X$ a vysokým $Y$ (vlevo nahoře), \emph{Head} 1, 3, 5 a 7 naopak na body s vysokým $X$ a nízkým $Y$ (vpravo dole) a několik hlav ($0$, $4$, $6$) degeneruje na jediný bod, může to být právě již zmíněný \emph{attention sink}, který jsme popsali v sekci~\ref{subsec:struktura-attention}.
@@ -129,7 +129,7 @@ Jednotlivé hlavy si vybírají body podle jejich hodnot $Y_j$.
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figures/ch2_label_kernel/fig_ch2_q1_iso_weight_grid.png}
-    \caption{\emph{Iso-weight rozklad} jednovrstvého modelu na $8$ hlav. Pro pevný testovací bod $x^* = 0{,}59$ (modrá přerušovaná čára) je každý kontextový bod vynesen do roviny $(X_j, Y_j)$ a obarven \emph{attention vahou} dané hlavy (světlejší $=$ vyšší). \emph{Kernelové porovnání} by koncentrovalo váhu kolem $x^*$ nezávisle na $Y_j$. Místo toho různé hlavy míří do různých rohů roviny $(X,Y)$, tedy na různé hodnoty $Y_j$, což je přímý vizuální doklad, že \emph{attention} závisí i na \emph{labelu}. Hlavy $0$, $4$, $6$ navíc degenerují na jediný bod (\emph{attention sink}).}
+    \caption{\emph{Iso-weight rozklad} jednovrstvého modelu na $8$ hlav. Pro pevný testovací bod $x^* = 0{,}54$ (modrá přerušovaná čára) je každý kontextový bod vynesen do roviny $(X_j, Y_j)$ a obarven \emph{attention vahou} dané hlavy (světlejší $=$ vyšší). \emph{Kernelové porovnání} by koncentrovalo váhu kolem $x^*$ nezávisle na $Y_j$. Místo toho různé hlavy míří do různých rohů roviny $(X,Y)$, tedy na různé hodnoty $Y_j$, což je přímý vizuální doklad, že \emph{attention} závisí i na \emph{labelu}. Hlavy $0$, $4$, $6$ navíc degenerují na jediný bod (\emph{attention sink}).}
     \label{fig:ch2_isoweight}
 \end{figure}
 
@@ -196,7 +196,7 @@ $8$ vrstev & $(1,\, 6)$ & $0{,}00006$ & $14{,}6\times$ \\
 \label{tab:ch2_knockout}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[!t]
     \centering
     \includegraphics[width=\linewidth]{figures/ch2_label_kernel/fig_ch2_head_knockout_delta_mse.png}
     \caption{\emph{Head-knockout} pro všech pět modelů. Každá teplotní mapa zobrazuje relativní zhoršení $\text{rel}=(\text{MSE}_{\text{knockout}}-\text{MSE}_{\text{full}})/\text{MSE}_{\text{full}}$ (světlejší $=$ důležitější) po vynulování hlavy na dané pozici (vrstva $\times$ hlava). Každý model má vlastní barevnou škálu, jinak by hluboké modely s malou \emph{baseline chybou} byly celé tmavé. Kauzálně důležité hlavy se koncentrují do raných vrstev (vrstva $0$--$1$) napříč všemi modely. Jednovrstvý model je nejkřehčí (až $44{,}9\times$ \emph{baseline}), ale i hluboké modely nesou odebrání jediné hlavy $10$ až $25\times$ vlastní \emph{baseline chyby}.}

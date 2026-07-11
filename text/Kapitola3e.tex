@@ -92,29 +92,36 @@ Nejzajímavější proto budou malé kontexty, kde prior dominuje a ukazuje se, 
 V prvním testu zafixujeme $\ell_{\text{true}} = 0{,}3$ a měníme velikost kontextu $n \in \{5, 10, 20, 40, 64, 100, 128\}$.
 Ptáme se, jak rychle se jednotlivé metody s rostoucím množstvím dat vzpamatují ze špatného prioru.
 Výsledky shrnují tabulky~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n} a obrázek~\ref{fig:exp7_q1}.
-Levý panel obrázku ukazuje MSE jako funkci $n$, pravý panel $\Delta$NLL.
-Tečkovaná čára v pravém panelu značí \emph{oracle}, tedy nulu, ke které se chtějí všechny metody přiblížit.
+Horní panel obrázku ukazuje MSE jako funkci $n$, dolní panel $\Delta$NLL.
+Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které se chtějí všechny metody přiblížit.
 
-\begin{table}[htbp]
-\centering
-\begin{tabular}{cccccc}
-\hline
-$n$ & PFN & GP\_fixed & GP\_ML & GP\_Bayes & GP\_oracle \\
-\hline
-$5$   & $0{,}93699$ & $1{,}18172$ & $0{,}95305$ & $0{,}98592$ & $0{,}79025$ \\
-$10$  & $0{,}72713$ & $1{,}00189$ & $0{,}72144$ & $0{,}73947$ & $0{,}66794$ \\
-$20$  & $0{,}52432$ & $0{,}78485$ & $0{,}55354$ & $0{,}54532$ & $0{,}47545$ \\
-$40$  & $0{,}37256$ & $0{,}62423$ & $0{,}41614$ & $0{,}39967$ & $0{,}35816$ \\
-$64$  & $0{,}25835$ & $0{,}49483$ & $0{,}26753$ & $0{,}26891$ & $0{,}24434$ \\
-$100$ & $0{,}18719$ & $0{,}38220$ & $0{,}18626$ & $0{,}18506$ & $0{,}17135$ \\
-$128$ & $0{,}17385$ & $0{,}41661$ & $0{,}17169$ & $0{,}18200$ & $0{,}16918$ \\
-\hline
-\end{tabular}
-\caption{MSE vůči skutečným hodnotám jako funkce velikosti kontextu $n$ při misspecifikaci kernelu ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí). PFN je pro $n \in \{10, 20, 40\}$ nejlepší ze všech misspecifikovaných metod, pro velká $n$ je s GP\_ML a GP\_Bayes prakticky shodné.}
-\label{tab:exp7_mse_n}
-\end{table}
+\begin{figure}[p]
+    \centering
+    \begin{minipage}{\linewidth}
+    \centering
+    \begin{tabular}{cccccc}
+    \hline
+    $n$ & PFN & GP\_fixed & GP\_ML & GP\_Bayes & GP\_oracle \\
+    \hline
+    $5$   & $0{,}93699$ & $1{,}18172$ & $0{,}95305$ & $0{,}98592$ & $0{,}79025$ \\
+    $10$  & $0{,}72713$ & $1{,}00189$ & $0{,}72144$ & $0{,}73947$ & $0{,}66794$ \\
+    $20$  & $0{,}52432$ & $0{,}78485$ & $0{,}55354$ & $0{,}54532$ & $0{,}47545$ \\
+    $40$  & $0{,}37256$ & $0{,}62423$ & $0{,}41614$ & $0{,}39967$ & $0{,}35816$ \\
+    $64$  & $0{,}25835$ & $0{,}49483$ & $0{,}26753$ & $0{,}26891$ & $0{,}24434$ \\
+    $100$ & $0{,}18719$ & $0{,}38220$ & $0{,}18626$ & $0{,}18506$ & $0{,}17135$ \\
+    $128$ & $0{,}17385$ & $0{,}41661$ & $0{,}17169$ & $0{,}18200$ & $0{,}16918$ \\
+    \hline
+    \end{tabular}
+    \captionof{table}{MSE vůči skutečným hodnotám jako funkce velikosti kontextu $n$ při misspecifikaci kernelu ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí). PFN je pro $n \in \{10, 20, 40\}$ nejlepší ze všech misspecifikovaných metod, pro velká $n$ je s GP\_ML a GP\_Bayes prakticky shodné.}
+    \label{tab:exp7_mse_n}
+    \end{minipage}
+    \vfill
+    \includegraphics[width=0.64\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n.png}
+    \caption{Vliv velikosti kontextu při misspecifikaci kernelu (data z Matérn $2{,}5$, $\ell_{\text{true}} = 0{,}3$). Nahoře: MSE jako funkce $n$, černá tečkovaná čára je \emph{GP\_oracle}. Dole: $\Delta$NLL vůči \emph{oracle}, tečkovaná čára značí nulu (\emph{oracle}). Chybové úsečky $\pm 1$ směrodatná chyba. PFN (modrá) se v MSE drží těsně u \emph{oracle} a v $\Delta$NLL je pro malé a střední kontexty ze všech metod nejníže.}
+    \label{fig:exp7_q1}
+\end{figure}
 
-\begin{table}[htbp]
+\begin{table}[!tb]
 \centering
 \begin{tabular}{ccccc}
 \hline
@@ -132,13 +139,6 @@ $128$ & $+0{,}031$ & $+1{,}174$ & $+0{,}016$ & $+0{,}044$ \\
 \caption{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce velikosti kontextu $n$ ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí, \emph{oracle} má z definice hodnotu $0$). PFN je nejblíže \emph{oracle} pro všechna $n \leq 40$, teprve od $n = 64$ jej mírně porazí GP\_ML.}
 \label{tab:exp7_dnll_n}
 \end{table}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n.png}
-    \caption{Vliv velikosti kontextu při misspecifikaci kernelu (data z Matérn $2{,}5$, $\ell_{\text{true}} = 0{,}3$). Vlevo: MSE jako funkce $n$, černá tečkovaná čára je \emph{GP\_oracle}. Vpravo: $\Delta$NLL vůči \emph{oracle}, tečkovaná čára značí nulu (\emph{oracle}). Chybové úsečky $\pm 1$ směrodatná chyba. PFN (modrá) se v MSE drží těsně u \emph{oracle} a v $\Delta$NLL je pro malé a střední kontexty ze všech metod nejníže.}
-    \label{fig:exp7_q1}
-\end{figure}
 
 \textbf{Diskuze:}
 
@@ -187,31 +187,31 @@ $2{,}00$ & $0{,}14713$ & $0{,}13830$ & $0{,}13038$ & $0{,}12932$ & $0{,}12545$ \
 \label{tab:exp7_mse_ls}
 \end{table}
 
-\begin{table}[htbp]
-\centering
-\begin{tabular}{ccccc}
-\hline
-$\ell_{\text{true}}$ & PFN & GP\_fixed & GP\_ML & GP\_Bayes \\
-\hline
-$0{,}05$ & $+0{,}083$ & $+5{,}544$ & $+0{,}007$ & $+0{,}007$ \\
-$0{,}10$ & $+0{,}098$ & $+5{,}078$ & $+0{,}041$ & $+0{,}058$ \\
-$0{,}20$ & $+0{,}099$ & $+2{,}758$ & $+0{,}148$ & $+0{,}145$ \\
-$0{,}30$ & $+0{,}077$ & $+1{,}231$ & $+0{,}191$ & $+0{,}169$ \\
-$0{,}50$ & $+0{,}057$ & $+0{,}241$ & $+0{,}098$ & $+0{,}058$ \\
-$0{,}70$ & $+0{,}055$ & $+0{,}044$ & $+0{,}052$ & $+0{,}022$ \\
-$1{,}00$ & $+0{,}061$ & $+0{,}005$ & $+0{,}034$ & $+0{,}006$ \\
-$1{,}50$ & $+0{,}085$ & $+0{,}025$ & $+0{,}015$ & $+0{,}007$ \\
-$2{,}00$ & $+0{,}097$ & $+0{,}043$ & $+0{,}020$ & $+0{,}013$ \\
-\hline
-\end{tabular}
-\caption{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce $\ell_{\text{true}}$ ($n = 40$, průměr přes $150$ instancí). Pro střední korelační délky kolem pravé hodnoty $0{,}2$ až $0{,}3$ je nejblíže \emph{oracle} PFN. Pro velmi krátké i dlouhé délky vedou adaptivní metody, $\Delta$NLL PFN však zůstává malé v celém rozsahu, a to i mimo jeho trénovací rozsah $\ell > 1{,}0$.}
-\label{tab:exp7_dnll_ls}
-\end{table}
-
-\begin{figure}[htbp]
+\begin{figure}[p]
     \centering
-    \includegraphics[width=\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q2_mse_vs_ls.png}
-    \caption{Vliv síly misspecifikace ($n = 40$). Vlevo: MSE jako funkce $\ell_{\text{true}}$. Vpravo: $\Delta$NLL vůči \emph{oracle}. Modrý pás značí trénovací rozsah PFN $\ell \in [0{,}05,\, 1{,}0]$. GP\_fixed (oranžová) pro krátké korelační délky selhává v obou metrikách, ostatní metody se s rostoucím $\ell_{\text{true}}$ sbíhají k \emph{oracle}. PFN zůstává blízko \emph{oracle} v celém rozsahu včetně hodnot mimo svůj trénovací rozsah.}
+    \begin{minipage}{\linewidth}
+    \centering
+    \begin{tabular}{ccccc}
+    \hline
+    $\ell_{\text{true}}$ & PFN & GP\_fixed & GP\_ML & GP\_Bayes \\
+    \hline
+    $0{,}05$ & $+0{,}083$ & $+5{,}544$ & $+0{,}007$ & $+0{,}007$ \\
+    $0{,}10$ & $+0{,}098$ & $+5{,}078$ & $+0{,}041$ & $+0{,}058$ \\
+    $0{,}20$ & $+0{,}099$ & $+2{,}758$ & $+0{,}148$ & $+0{,}145$ \\
+    $0{,}30$ & $+0{,}077$ & $+1{,}231$ & $+0{,}191$ & $+0{,}169$ \\
+    $0{,}50$ & $+0{,}057$ & $+0{,}241$ & $+0{,}098$ & $+0{,}058$ \\
+    $0{,}70$ & $+0{,}055$ & $+0{,}044$ & $+0{,}052$ & $+0{,}022$ \\
+    $1{,}00$ & $+0{,}061$ & $+0{,}005$ & $+0{,}034$ & $+0{,}006$ \\
+    $1{,}50$ & $+0{,}085$ & $+0{,}025$ & $+0{,}015$ & $+0{,}007$ \\
+    $2{,}00$ & $+0{,}097$ & $+0{,}043$ & $+0{,}020$ & $+0{,}013$ \\
+    \hline
+    \end{tabular}
+    \captionof{table}{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce $\ell_{\text{true}}$ ($n = 40$, průměr přes $150$ instancí). Pro střední korelační délky kolem pravé hodnoty $0{,}2$ až $0{,}3$ je nejblíže \emph{oracle} PFN. Pro velmi krátké i dlouhé délky vedou adaptivní metody, $\Delta$NLL PFN však zůstává malé v celém rozsahu, a to i mimo jeho trénovací rozsah $\ell > 1{,}0$.}
+    \label{tab:exp7_dnll_ls}
+    \end{minipage}
+    \vfill
+    \includegraphics[width=0.64\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q2_mse_vs_ls.png}
+    \caption{Vliv síly misspecifikace ($n = 40$). Nahoře: MSE jako funkce $\ell_{\text{true}}$. Dole: $\Delta$NLL vůči \emph{oracle}. Modrý pás značí trénovací rozsah PFN $\ell \in [0{,}05,\, 1{,}0]$. GP\_fixed (oranžová) pro krátké korelační délky selhává v obou metrikách, ostatní metody se s rostoucím $\ell_{\text{true}}$ sbíhají k \emph{oracle}. PFN zůstává blízko \emph{oracle} v celém rozsahu včetně hodnot mimo svůj trénovací rozsah.}
     \label{fig:exp7_q2}
 \end{figure}
 
@@ -253,8 +253,10 @@ Hodnota $\text{rel\_MSE} = 1$ by tedy znamenala, že se PFN liší od \emph{orac
 Hodnoty hluboko pod $1$ by znamenaly, že PFN \emph{oracle} prakticky kopíruje.
 Výsledky shrnuje tabulka~\ref{tab:exp7_ood} a obrázek~\ref{fig:exp7_ood}.
 
-\begin{table}[htbp]
-\centering
+\begin{figure}[!htb]
+    \centering
+    \begin{minipage}{\linewidth}
+    \centering
 \begin{tabular}{ccccl}
 \hline
 $\ell$ & $\text{MSE}(\hat\mu_{\text{PFN}},\, \mu_{\text{oracle}})$ & $\text{MSE}(\mu_{\text{oracle}},\, \mathbf{y}_{\text{test}})$ & $\text{rel\_MSE}$ & Stav \\
@@ -274,12 +276,11 @@ $3{,}00$ & $0{,}00197$ & $0{,}01028$ & $0{,}191$ & mimo rozsah \\
 $5{,}00$ & $0{,}00192$ & $0{,}01024$ & $0{,}188$ & mimo rozsah \\
 \hline
 \end{tabular}
-\caption{Chování PFN mimo trénovací rozsah korelační délky (RBF data, $n = 40$, $\sigma^2 = 0{,}01$, průměr přes $200$ instancí). Relativní MSE je odchylka PFN od \emph{oracle} dělená chybou, kterou má sám \emph{oracle} kvůli šumu v datech. Minimum leží uprostřed trénovacího rozsahu a ani mimo rozsah na žádné straně relativní MSE nepřekročí referenční hodnotu $1$.}
+\captionof{table}{Chování PFN mimo trénovací rozsah korelační délky (RBF data, $n = 40$, $\sigma^2 = 0{,}01$, průměr přes $200$ instancí). Relativní MSE je odchylka PFN od \emph{oracle} dělená chybou, kterou má sám \emph{oracle} kvůli šumu v datech. Minimum leží uprostřed trénovacího rozsahu a ani mimo rozsah na žádné straně relativní MSE nepřekročí referenční hodnotu $1$.}
 \label{tab:exp7_ood}
-\end{table}
+    \end{minipage}
+    \vspace{1.5em}
 
-\begin{figure}[htbp]
-    \centering
     \includegraphics[width=0.92\linewidth]{figures/GP2_exp6_hp_identification/fig_exp6_q4_ood.png}
     \caption{Relativní MSE jako funkce pravé korelační délky $\ell$ (logaritmická osa). Zelený pás značí trénovací rozsah $\ell \in [0{,}05,\, 1{,}0]$, zelená tečkovaná čára referenční hodnotu $\text{rel\_MSE} = 1$. Křivka má minimum uprostřed trénovacího rozsahu a mimo něj na obou stranách roste jen pozvolna, referenční hodnotu nikde nepřekročí.}
     \label{fig:exp7_ood}
