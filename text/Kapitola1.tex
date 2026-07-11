@@ -7,8 +7,8 @@ V praxi se často setkáváme se situacemi, kdy musíme pro daná data zvolit ne
 Například při analýze časových řad můžeme mít několik různých modelů, které by mohly popsat pozorovaná data, a potřebujeme rozhodnout, který konkrétní model z funkčního prostoru je nejvhodnější.    
 Dnes existuje celá řada metod, jak tento konkrétní model určit, jak najít vhodné parametry modelu, ovšem všechny tyto metody jsou zpravidla dost výpočetně náročné.
 Avšak se to změnilo s příchodem prudkého rozvoje neuronových sítí a hlubokého učení.
-O Neuronových sítích víme, že to je dobrý aproximační nástroj a ukázalo se totiž, že abychom mohli co nejefektivněji aproximovat hledaný model pro naše data, lze použít architekturu Transformer, která, jak se postupem času dozvíme, je nejpřesnějším a nejrychlejším řešením tohoto problému.
-Zavedeme nejdříve obecnou problematiku výběru modelu, poté Bayesovský princip výběru modelu a nakonec si ukážeme, jak nám v tom může pomoci architektura Transformer.
+O neuronových sítích víme, že to je dobrý aproximační nástroj a ukázalo se totiž, že abychom mohli co nejefektivněji aproximovat hledaný model pro naše data, lze použít architekturu transformer, která, jak se postupem času dozvíme, je nejpřesnějším a nejrychlejším řešením tohoto problému.
+Zavedeme nejdříve obecnou problematiku výběru modelu, poté Bayesovský princip výběru modelu a nakonec si ukážeme, jak nám v tom může pomoci architektura transformer.
 
 \section{Obecný princip hledání modelu}
 \label{sec:obecny-princip}
@@ -30,16 +30,17 @@ Cílem je najít optimální model z těchto hledisek.
 \par
 
 Dnes existuje celá řada přístupů k výběru modelu.
-Jsou to tři hlavní přístupy: Bayesovský přístup (marginal likelihood), cross-validace a informační kritéria (AIC, BIC).
-Cross-validace je praktický a intuitivní přístup, který odhaduje generalizační chybu pomocí validačních dat.
+Jsou to tři hlavní přístupy: Bayesovský přístup (\emph{marginal likelihood}), \emph{cross-validace} a informační kritéria (AIC, BIC).
+\emph{Cross-validace} je praktický a intuitivní přístup, který odhaduje generalizační chybu pomocí validačních dat.
 Jinými slovy, data rozdělíme na několik částí, pro každou část trénujeme model na ostatních datech a testujeme na ní.
-Nakonec průměrujeme chyby přes všechny části a vybereme model s tzv. nejnižší cross-validační chybou [Rasmussen].
-Dalším velmi populárním přístupem je Bayesovský přístup, který spočívá v tom, že spočítáme pravděpodobnost modelu daná daty.
-To znamená, že spočítáme tzv. marginal likelihood, což je pravděpodobnost dat daná modelem, integrovaná přes všechny možné hodnoty parametrů modelu.
-Tento přístup má výhodu v tom, že automaticky penalizuje složité modely a nabízí principiální způsob, jak balancovat fit a složitost modelu.
+Nakonec průměrujeme chyby přes všechny části a vybereme model s nejnižší tzv. \emph{cross-validační} chybou [Rasmussen].
+Dalším velmi populárním přístupem je Bayesovský přístup, který spočívá v tom, že spočítáme pravděpodobnost modelu danou daty.
+To za předpokladu stejných apriorních pravděpodobností modelů znamená, že spočítáme tzv. \emph{marginal likelihood}, což je pravděpodobnost dat daná modelem, integrovaná přes všechny možné hodnoty parametrů modelu.
+Tento přístup má výhodu v tom, že automaticky penalizuje složité modely a nabízí principiální způsob, jak vyvážit \emph{fit} a složitost modelu.
 Posledním přístupem jsou informační kritéria, jako je Akaike Information Criterion (AIC) a Bayesian Information Criterion (BIC).
-Tyto metody poskytují rychlou a jednoduchou aproximaci marginal likelihood, která penalizuje složitost modelu.
-Nás avšak bude v této práci nejvíce zajímat Bayesovský přístup, protože nám poskytuje nejvíce principů pro výběr modelu a je základem pro náš další postup.
+Obě kritéria penalizují složitost modelu, každé však míří jinam.
+BIC je rychlou a jednoduchou aproximací \emph{marginal likelihood}, zatímco AIC cílí na predikční chybu na nových datech, a \emph{marginal likelihood} tedy neaproximuje.
+Nás však bude v této práci nejvíce zajímat Bayesovský přístup, protože nám poskytuje nejvíce principů pro výběr modelu a je základem pro náš další postup.
 
 \section{Bayesův přístup k výběru modelu}
 \label{sec:bayes-vyber}
@@ -104,7 +105,7 @@ anebo na druhé úrovni hierarchie:
 
 Tyto integrály je nutné aproximovat numericky pomocí takových metod jako Markov chain Monte Carlo (MCMC) nebo pokročilejším No-U-Turn Sampler (NUTS), pokud chceme odhadnou integrál z nenormalizovaných hustot pravděpodobnostní, jako je integrál (\ref{eq:normalizační_konst_2_uroven}), nebo např. Type II maximum likelihood (Type II – MLE), chceme-li odhadnout pouze posteriorní pravděpodobnost pro hyperparametry modelu, což spočívá v Laplaceově aproximaci integrálu (\ref{eq:normalizační_konst_1_uroven}) a následné maximalizaci $P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$.
 Všechny tyto metody jsou však dost výpočetně náročné a může trvat značné množství času, než se podaří najít vhodný model pro daná data.
-Jedním z účelů této práce je ukázat, jak lze tyto pravděpodobnostní hustoty efektivně aproximovat pomocí úplně nového postupu, a to pomocí architektury Transformer.
+Jedním z účelů této práce je ukázat, jak lze tyto pravděpodobnostní hustoty efektivně aproximovat pomocí úplně nového postupu, a to pomocí architektury transformer.
 
 \section{GP regrese}
 \label{sec:gp-regrese}
@@ -253,32 +254,17 @@ Avšak lze vyhnout výpočtu přímé inverze, místo toho se může použít na
 Máme-li spočítanou inverzi, pak je složitost zbylých výpočtů $\mathcal{O}(n^2)$.
 Další nevýhodou je to, že nemusíme spadnout do globálního optima a skončit v lokálním optimu, což opět vyžaduje větší pozornost.
 
-Type II – MLE obrazky a rozepsat členy toho logaritmu.
-
-
 \subsection{Markov Chain Monte Carlo}
 \label{subsec:mcmc}
 Další metodou je Markov Chain Monte Carlo (MCMC).
-Ta je založena na teorii Markovských procesů.
-Její princip spočívá v tom, že se snažíme náhodným vzorkováním z rozdělení aproximovat integrál, který neumíme vyřešit analyticky.
-Konkrétně už jsme si říkali, že integrály \ref{eq:normalizační_konst_1_uroven} a \ref{eq:normalizační_konst_2_uroven} nemusíme umět spočítat kvůli jejich příliš velké dimenze nebo kvůli tomu, že tyto hustoty nemusí být vlastní.
-A tak místo přímého výpočtu budeme postupně generovat vzorky z těchto rozdělení a postupně zjistíme alespoň hrubou představu o skutečně podobě těchto rozdělení, dokonce můžeme i aproximovat jakékoliv statistiky tohoto rozdělení.
-Dalším podstatným bodem je to, že MCMC je založeno na tzv. Markovových řetězcích což je posloupnost náhodných veličin, pro kterou platí $p(\theta_{t+1}|\theta_t, \theta_{t-1}, \dots , \theta_0) = p(\theta_{t+1}|\theta_t)$, kde $\theta_i$ pro $i \in \{1, \dots, T\}$ značí vzorky generované z MCMC.
-Klíčovým požadavkem je, aby řetězec:
-\begin{enumerate}
-  \item byl ergodický, tj. ireducibilní a aperiodický,
-  \item měl stacionární rozdělení $\pi(\theta)$.
-\end{enumerate}
-Pak vzorky konvergují k $\pi(\theta)$ a můžeme použít pro odhady: 
-\[
-\lim_{T \to \infty} \frac{1}{T} \sum_{t=1}^{T} f(\theta_t) = \mathbb{E}_{\pi}[f(\theta)],
-\]
-kde $f(.)$ je v tomto případě skutečná hustota.
-Dnes již existuje cela řada různých variant MCMC algoritmů, jsou to např. \textit{Metropolis-Hastings algoritmus}, \textit{Gibbs sampling} nebo modernější \textit{Hamiltonian Monte Carlo}.
-Avšak není účelem této práce rozebírat všechny tyto metody dopodrobna. 
-Nicméně o jedné metody toho řekneme trochu víc, a to je varianta \textit{No U-Turn Sampler} využívající princip Hamiltonian Monte Carlo.
-Tato varianta totiž je velmi užívána a relativně účinná při hledání aposteriorních distribucí. 
-Hamiltonian Monte Carlo řeší problém tím, že využívá gradient aposteriorního rozdělení.
+Její princip spočívá v tom, že integrál, který neumíme vyřešit analyticky, aproximujeme náhodným vzorkováním z příslušného rozdělení.
+Konkrétně už jsme si říkali, že integrály \ref{eq:normalizační_konst_1_uroven} a \ref{eq:normalizační_konst_2_uroven} nemusíme umět spočítat.
+Místo přímého výpočtu proto generujeme posloupnost vzorků, tzv. \textit{Markovův řetězec}, zkonstruovanou tak, aby její rozdělení konvergovalo k cílovému posteriornímu rozdělení.
+Z vygenerovaných vzorků pak můžeme aproximovat samotné rozdělení i libovolné jeho statistiky.
+Existuje celá řada variant MCMC, např. \textit{Metropolis-Hastings algoritmus}, \textit{Gibbs sampling} nebo modernější \textit{Hamiltonian Monte Carlo}.
+Není účelem této práce rozebírat je dopodrobna.
+Podrobněji se zastavíme jen u varianty \textit{No U-Turn Sampler} (NUTS), která staví na Hamiltonian Monte Carlo a při hledání aposteriorních rozdělení patří k nejpoužívanějším.
+Hamiltonian Monte Carlo využívá gradient aposteriorního rozdělení.
 Základní myšlenkou je pohyb v parametrickém prostoru.
 \par
 

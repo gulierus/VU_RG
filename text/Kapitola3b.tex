@@ -116,7 +116,7 @@ Nižší korelace tedy neznamená, že se model vzdaluje od GP.
 Spíše znamená, že se vzdaluje od prosté \emph{kernel-averaging} strategie a nachází lepší a více efektivní reprezentaci.
 U náhodného modelu je tento efekt výraznější, protože model se navíc naučil, že fixní RBF s jedním konkrétním $\ell$ vůbec není univerzálně správný.
 Korelační délku teprve odhaduje z dat, takže se na žádný pevný kernel nemůže spoléhat.
-Obrázek~\ref{fig:rand_attn_detail} potvrzuje podobný kvalitativní obraz jako u fixního modelu: \emph{attention} je ostrý a koncentruje váhu na nejbližší body, zatímco RBF ji rozprostírá více plynule.
+Obrázek~\ref{fig:rand_attn_detail} potvrzuje podobný kvalitativní obraz jako u fixního modelu: \emph{attention} je ostré a koncentruje váhu na nejbližší body, zatímco RBF ji rozprostírá více plynule.
 
 \subsection{Kalibrace rozptylu}
 \label{subsec:kalibrace-variance-random}
@@ -237,7 +237,7 @@ Předchozí experiment ukázal, že přesnost roste s $\ell$, ale ještě přím
 K tomu slouží následující test.
 Data pocházejí z GP se známým $\ell$.
 Modelu předložíme $n_{\text{ctx}} \in \{3, 5, 10, 20, 40, 60\}$ bodů a jeho predikci porovnáme se dvěma referenčními posteriory: se \textit{správným} GP (zná pravé $\ell$) a s \textit{špatným} GP (má výrazně odlišné $\ell_{\text{wrong}}$).
-Klíčová je následující úvaha: pokud PFN identifikoval korelační délku z dat, jeho predikce bude blízko správnému GP a daleko od špatného, tedy poměr MSE(wrong)/MSE(correct) bude velký.
+Klíčová je následující úvaha: pokud PFN identifikovalo korelační délku z dat, jeho predikce bude blízko správnému GP a daleko od špatného, tedy poměr MSE(wrong)/MSE(correct) bude velký.
 Pokud ji neidentifikoval, obě chyby budou podobné a poměr bude blízký jedné.
 Provedeme tento test pro krátké ($\ell = 0{,}1$, $\ell_{\text{wrong}} = 0{,}7$) i střední ($\ell = 0{,}2$, $\ell_{\text{wrong}} = 0{,}05$) korelační délky.
 Výsledky jsou v tabulkách~\ref{tab:rand_hp01} a~\ref{tab:rand_hp02}.
@@ -308,7 +308,7 @@ Dá se říct, že fixní model má korelační délku „zabudovanou“ do vah,
 Zopakujeme nakonec i experiment z předchozí sekce, ve kterém oba modely predikují \textit{skutečné} (šumové) hodnoty neviděné GP realizace, s kontextovými body $n_{\text{ctx}} \in \{5, 10, 15, 20\}$.
 Připomeňme, že \textit{fixní PFN} je model natrénovaný na jediném GP s~pevně danou korelační délkou $\ell = 0{,}3$.
 Tu jsme si řekli, že má „zabudovanou“ a nemusí ji z~dat zjišťovat.
-Naproti tomu \textit{náhodný PFN} byl trénován na celé rodině GP s~různými $\ell$, takže správnou korelační délku musí u~každého vstupu nejprve rozpoznat z~kontextu, a teprve pak predikovat.
+Naproti tomu \textit{náhodné PFN} bylo trénováno na celé rodině GP s~různými $\ell$, takže správnou korelační délku musí u~každého vstupu nejprve rozpoznat z~kontextu, a teprve pak predikovat.
 Tentokrát nás zajímá přímé srovnání obou těchto modelů a \emph{GP oraclu}, který zná správné $\ell = 0{,}3$.
 Výsledky jsou uvedeny v tabulce~\ref{tab:rand_ctx}.
 \par
@@ -317,7 +317,7 @@ Výsledky jsou uvedeny v tabulce~\ref{tab:rand_ctx}.
 \centering
 \begin{tabular}{lccc}
 \hline
-$n_{\text{ctx}}$ & PFN (náhodný) & PFN (fixní) & GP oracle \\
+$n_{\text{ctx}}$ & PFN (náhodné) & PFN (fixní) & GP oracle \\
 \hline
 $5$  & $0{,}0598 \pm 0{,}0958$ & $0{,}0408 \pm 0{,}0698$ & $0{,}0340 \pm 0{,}0635$ \\
 $10$ & $0{,}0188 \pm 0{,}0751$ & $0{,}0123 \pm 0{,}0349$ & $0{,}0112 \pm 0{,}0360$ \\
@@ -332,7 +332,7 @@ $20$ & $0{,}0020 \pm 0{,}0013$ & $0{,}0021 \pm 0{,}0025$ & $0{,}0017 \pm 0{,}001
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.82\linewidth]{figures/GP1_random_model/fig_rand_05_context_size_mse.png}
-    \caption{Náhodný model: MSE PFN (modrá) a GP oracle (zelená přerušovaná) jako funkce $n_{\text{ctx}}$. Rozptyl je větší než u fixního modelu, zejména pro malé $n$, náhodný model musí $\ell$ identifikovat při každé inferenci.}
+    \caption{Náhodný model: MSE PFN (modrá) a \emph{GP oracle} (zelená přerušovaná) jako funkce $n_{\text{ctx}}$. Rozptyl je větší než u fixního modelu, zejména pro malé $n$, náhodný model musí $\ell$ identifikovat při každé inferenci.}
     \label{fig:rand_ctx_mse}
 \end{figure}
 
@@ -350,8 +350,7 @@ Náhodný model tedy s dostatečným kontextem dožene fixní verzi, aniž by kd
     \label{fig:rand_ctx_grid}
 \end{figure}
 
-\clearpage
-\subsection{Shrnutí: co přináší náhodné hyperparametry}
+\subsection{Shrnutí}
 \label{subsec:shrnuti-random-hp}
 
 Přechod od fixního k náhodnému modelu odhalil dvě tváře této architektury.

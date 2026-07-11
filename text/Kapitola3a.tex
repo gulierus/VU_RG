@@ -94,11 +94,11 @@ Samotná existence asymetrie v poslední vrstvě je tak prvním experimentální
 \par
 
 Na maticích na obrázku~\ref{fig:attention_all_layers} si lze všimnout ještě jednoho nápadného jevu, konkrétně svislých pruhů.
-Některé \textit{key} pozice (sloupce) dostávají vysokou \emph{attention} od téměř všech \emph{query} pozic, nezávisle na tom, kde daný \emph{query} bod leží.
+Některé \textit{key} pozice (sloupce) dostávají vysoké \emph{attention} od téměř všech \emph{query} pozic, nezávisle na tom, kde daný \emph{query} bod leží.
 Ve~vrstvě $0$ jsou nejostřejší, v~hlubších vrstvách obvykle přetrvává jeden reziduální (v~naší realizaci nápadně kolem \textit{key} pozice $75$).
 Jde o~tzv.\ \textit{attention sink}, mechanismus dobře popsaný u~velkých jazykových modelů (Xiao et al., 2023).
 Vzniká ze dvou důvodů.
-Za prvé, softmax nutí každý řádek matice sečíst na jedničku – každý \textit{query} bod tedy \emph{musí} svou \emph{attention} někam rozdělit, i když pro něj žádný klíč není opravdu relevantní (typicky v~raných vrstvách, než se vybudují informativní reprezentace, nebo u~bodů daleko od dat).
+Za prvé, softmax nutí každý řádek matice sečíst na jedničku – každý \textit{query} bod tedy \emph{musí} své \emph{attention} někam rozdělit, i když pro něj žádný klíč není opravdu relevantní (typicky v~raných vrstvách, než se vybudují informativní reprezentace, nebo u~bodů daleko od dat).
 Přebytek \emph{attention} se pak „vylije“ na několik stále stejných pozic, které tak vytvoří svislé pruhy.
 Za druhé, body s~netypickou hodnotou (extrémní $Y_j$ nebo okrajové $X_j$) dostanou po zakódování větší embedding, a tím i vyšší skóre od všech ostatních bodů – přitahují proto \emph{attention} bez ohledu na to, odkud se \textit{query} dívá.
 \par
@@ -114,7 +114,6 @@ Tímto se dá říct, že existence pruhů je tak dalším nepřímým dokladem,
     \label{fig:attention_all_layers}
 \end{figure}
 
-\clearpage
 \subsection{Matematický rámec pro srovnávací experimenty}
 \label{subsec:matematicky-ramec}
 
@@ -233,7 +232,7 @@ Nízká korelace \emph{attention} s~čistým RBF je tedy očekávaná, i perfekt
 
 Předchozí experiment porovnával PFN se syntetickým GP posteriorem, tj. modelu jsme předložili trénovací body a srovnávali jsme jeho predikci s analytickým řešením.
 V následující části přistoupíme k přísnějšímu testu.
-Oba modely (PFN i GP oracle) budou predikovat \textit{skutečné šumové hodnoty} GP realizace, kterou neviděly.
+Oba modely (PFN i \emph{GP oracle}) budou predikovat \textit{skutečné šumové hodnoty} GP realizace, kterou neviděly.
 Cílem je zjistit, jak se přesnost PFN vyvíjí s velikostí kontextu $n_{\text{ctx}} \in \{5, 10, 15, 20\}$.
 \par
 
@@ -243,7 +242,7 @@ Zbývajících $100 - n_{\text{ctx}}$ bodů necháme skryté a slouží jako \te
 
 Obě metody nyní pro každý testovací bod vrátí svou predikci $\hat{y}(x)$.
 PFN ji spočítá jedním dopředným průchodem z~kontextu.
-GP oracle je referenční, „ideální“ Gaussovský proces, který má oproti PFN výhodu, že \textit{zná} pravé hyperparametry, ze kterých byla realizace vygenerována $(\ell = 0{,}3,\; \sigma^2 = 10^{-4})$, a z~kontextu spočítá přesný analytický posterior podle vzorce $\mu(x^*) = k(x^*, \mathbf{X})[\mathbf{K}(\mathbf{X},\mathbf{X}) + \sigma^2 \mathbf{I}]^{-1} \mathbf{y}$.
+\emph{GP oracle} je referenční, „ideální“ Gaussovský proces, který má oproti PFN výhodu, že \textit{zná} pravé hyperparametry, ze kterých byla realizace vygenerována $(\ell = 0{,}3,\; \sigma^2 = 10^{-4})$, a z~kontextu spočítá přesný analytický posterior podle vzorce $\mu(x^*) = k(x^*, \mathbf{X})[\mathbf{K}(\mathbf{X},\mathbf{X}) + \sigma^2 \mathbf{I}]^{-1} \mathbf{y}$.
 Slouží tedy jako horní hranice toho, čeho lze na daných datech dosáhnout, s~níž PFN porovnáváme.
 
 Kvalitu predikce měříme pomocí MSE zprůměrované přes všechny testovací body dané realizace.
@@ -268,7 +267,7 @@ $20$ & $0{,}0021 \pm 0{,}0025$ & $0{,}0017 \pm 0{,}0011$ \\
 
 \begin{figure}[htbp]
     \centering
-    \subcaptionbox{MSE PFN (modrá) a GP oracle (zelená přerušovaná) jako funkce $n_{\text{ctx}}$. Chybové úsečky $= \pm 1$ \emph{std} přes $20$ realizací. GP oracle mírně vede od $n = 10$, protože zná správné $\ell$.\label{fig:exp4_mse}}[0.82\linewidth]{%
+    \subcaptionbox{MSE PFN (modrá) a \emph{GP oracle} (zelená přerušovaná) jako funkce $n_{\text{ctx}}$. Chybové úsečky $= \pm 1$ \emph{std} přes $20$ realizací. \emph{GP oracle} mírně vede od $n = 10$, protože zná správné $\ell$.\label{fig:exp4_mse}}[0.82\linewidth]{%
         \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_06_context_size_mse.png}}
     \vspace{0.5em}
     \subcaptionbox{Vizualizace predikcí pro $n \in \{5, 10, 15, 20\}$. Červené body: kontextová data dostupná modelu; šedé body: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP posterior se správným $\ell$. Všechny řádky vychází ze stejné GP realizace, liší se pouze velikostí kontextu. Od $n = 15$ obě křivky téměř splývají.\label{fig:exp4_grid}}[0.82\linewidth]{%
@@ -281,16 +280,16 @@ $20$ & $0{,}0021 \pm 0{,}0025$ & $0{,}0017 \pm 0{,}0011$ \\
 
 Z tabulky~\ref{tab:exp4} a obrázku~\ref{fig:exp4_combined} vyplývají tři pozorování.
 
-Za prvé, GP oracle konzistentně dosahuje nižšího nebo srovnatelného MSE oproti PFN ve všech hodnotách $n_{\text{ctx}}$.
-To je očekávané: oracle zná přesné hyperparametry a provádí exaktní Bayesovskou inferenci, zatímco PFN je pouze aproximace.
+Za prvé, \emph{GP oracle} konzistentně dosahuje nižšího nebo srovnatelného MSE oproti PFN ve všech hodnotách $n_{\text{ctx}}$.
+To je očekávané: \emph{oracle} zná přesné hyperparametry a provádí exaktní Bayesovskou inferenci, zatímco PFN je pouze aproximace.
 
 Za druhé, rozdíl se zvětšuje se středním $n_{\text{ctx}}$.
-Při $n = 5$ je převaha GP oracle malá ($0{,}034$ vs $0{,}041$); při $n = 15$ již GP dosahuje $0{,}003$ oproti $0{,}006$ u PFN.
-Příčinou je, že s více kontextovými body disponuje GP oracle přesnou inversí kernelové matice $\mathbf{K}^{-1}$, zatímco PFN tuto operaci pouze aproximuje.
+Při $n = 5$ je převaha \emph{GP oracle} malá ($0{,}034$ vs $0{,}041$); při $n = 15$ již GP dosahuje $0{,}003$ oproti $0{,}006$ u PFN.
+Příčinou je, že s více kontextovými body disponuje \emph{GP oracle} přesnou inversí kernelové matice $\mathbf{K}^{-1}$, zatímco PFN tuto operaci pouze aproximuje.
 Při malém kontextu je $\mathbf{K}^{-1}$ málo informativní a obě metody jsou si blízko.
 
 Za třetí, od $n = 20$ se obě metody přibližují: MSE($0{,}0021$ vs $0{,}0017$) jsou si prakticky rovnocenné.
-PFN tedy s dostatečným kontextem konverguje k chování GP oracle, aniž by explicitně invertoval kernelovou matici.
+PFN tedy s dostatečným kontextem konverguje k chování \emph{GP oracle}, aniž by explicitně invertovalo kernelovou matici.
 Toto je jedním z klíčových empirických potvrzení toho, že PFN provádí plnou GP inferenci namísto pouhého kernel smoothingu.
 
 \subsection{Konvergence střední hodnoty a kalibrace rozptylu}

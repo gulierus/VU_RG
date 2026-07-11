@@ -144,7 +144,7 @@ Toto tvrzení nám tedy úplně řeší problém hledání správného prioru, n
 My totiž nepotřebujeme perfektní prior, nýbrž aby byl "dostatečně rozumný" ve smyslu předpokladů věty \ref{theorem:PPDcanLearn}, a objem dat postupně ten náš odhad prioru opraví.
 Avšak PPD je ideální teoretický případ.
 Pokud bychom chtěli tyto vlastnosti použít např. u PFN, je zde několik nuancí. 
-PFN je totiž pouze aproximací PPD, jak ukážeme dále, trénovaná na omezených datasetech, a proto tvrzení \ref{theorem:PPDcanLearn} nelze přímo aplikovat. 
+PFN je totiž pouze aproximací PPD, jak ukážeme dále, trénovanou na omezených datasetech, a proto tvrzení \ref{theorem:PPDcanLearn} nelze přímo aplikovat. 
 \par   
 
 Podívejme se podrobněji na to, jak PFN aproximuje PPD.
@@ -285,7 +285,7 @@ Tato pozorování popíšeme podrobněji dále.
 
 \subsection{PFN transformer}
 \label{subsec:pfn-transformer}
-Jelikož tato práce je věnovaná pohledu na PFN skrz architekturu Transformer (Vaswani et al., 2017), dává smysl podívat se na statistické vlastnosti právě této architektury.
+Jelikož tato práce je věnovaná pohledu na PFN skrz architekturu transformer (Vaswani et al., 2017), dává smysl podívat se na statistické vlastnosti právě této architektury.
 Uvažujme tedy opět  pro jednoduchost transformer s jednou vrstvou. 
 Dataset $D_n = \{V_i\}_{i=1}^n$, kde $V_i = (Y_i, X_i) \in \{0,1\} \times \mathbb{R}^d$, a testovací vektor $v = (0, x)$. 
 Síť je definována následujícími operacemi:
@@ -347,7 +347,7 @@ To znamená, že v definici transformeru výše jsme nahradili výraz $u'$ tím 
 Navíc v definici $\hat{u'}$ se objevuje tzv. exponentially tilted function (česky exponenciálně vychýlená funkce).
 V tomto kontextu se zavádí jako asymptotická variace \emph{attention mechanismu}.
 Tato funkce $g_h(s)$ zvyšuje pravděpodobnost těm hodnotám $s$, které se nejvíce podobají vektoru $v$ ve smyslu $v^\top W^{(h)}_q s$, a snižuje pro zbylé body.
-Jinými slovy ten složitý vzoreček na obrázku ukazuje teoretickou situaci, co by se stalo, kdyby měl Transformer k dispozici nekonečně mnoho vzorků. 
+Jinými slovy ten složitý vzoreček na obrázku ukazuje teoretickou situaci, co by se stalo, kdyby měl transformer k dispozici nekonečně mnoho vzorků. 
 Už nerozděluje váhy mezi jednotlivými datovými body, ale vezme celou spojitou distribuci dat a "vychýlí" ji celou směrem k té informaci, na kterou zrovna potřebuje upřít pozornost.
 Více formálně to znamená, že každá \emph{attention hlava} $h$ tak hodnotí určitý aspekt neznámé distribuce $p_0$ (charakterizovaný maticí $W^{(h)}_q$). 
 Pokud jsou matice $(W^{(h)}_q)_{h=1}^H$ dobře nastaveny, tyto jednotlivé pohledy rozlišují různé hodnoty příznaků.
