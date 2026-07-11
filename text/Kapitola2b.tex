@@ -288,14 +288,17 @@ Tato pozorování popíšeme podrobněji dále.
 Jelikož tato práce je věnovaná pohledu na PFN skrz architekturu transformer (Vaswani et al., 2017), dává smysl podívat se na statistické vlastnosti právě této architektury.
 Uvažujme tedy opět  pro jednoduchost transformer s jednou vrstvou. 
 Dataset $D_n = \{V_i\}_{i=1}^n$, kde $V_i = (Y_i, X_i) \in \{0,1\} \times \mathbb{R}^d$, a testovací vektor $v = (0, x)$. 
-Síť je definována následujícími operacemi:
-
+Síť je definována následujícími operacemi.
+Nejprve \emph{attention} část:
 \begin{gather*}
-a_j^{(h)} = \mathrm{SoftMax}\left(v^\top W_q^{(h)}V_1, \dots, v^\top W_q^{(h)}V_n\right)_j, \\[2ex]
-u' = \sum_{h=1}^H \sum_{j=1}^n a_j^{(h)} W_v^{(h)} V_j, \\[2ex]
-u = \mathrm{LayerNorm}(v + u'; \gamma), \\[2ex]
-z' = W_{r,2}\mathrm{ReLU}(W_{r,1}u; \gamma), \\[2ex]
-z = \mathrm{LayerNorm}(u + z'; \gamma), \\[2ex]
+a_j^{(h)} = \mathrm{SoftMax}\left(v^\top W_q^{(h)}V_1, \dots, v^\top W_q^{(h)}V_n\right)_j, \\[1ex]
+u' = \sum_{h=1}^H \sum_{j=1}^n a_j^{(h)} W_v^{(h)} V_j.
+\end{gather*}
+Na ni navazuje dopředná síť s normalizacemi a výstupní vrstvou:
+\begin{gather*}
+u = \mathrm{LayerNorm}(v + u'; \gamma), \\[1ex]
+z' = W_{r,2}\mathrm{ReLU}(W_{r,1}u; \gamma), \\[1ex]
+z = \mathrm{LayerNorm}(u + z'; \gamma), \\[1ex]
 q_\theta(\cdot \mid x, D_n) = \mathrm{SoftMax}(W_o z),
 \end{gather*}
 
@@ -344,8 +347,10 @@ Označme $\bar{q}_\theta(y \mid x)$ limitní hodnotu predikce pro $n \to \infty$
 \end{theorem}
 
 To znamená, že v definici transformeru výše jsme nahradili výraz $u'$ tím novým $\hat{u'}$.
-Navíc v definici $\hat{u'}$ se objevuje tzv. exponentially tilted function (česky exponenciálně vychýlená funkce).
-V tomto kontextu se zavádí jako asymptotická variace \emph{attention mechanismu}.
+Navíc v definici $\hat{u'}$ se objevuje tzv. \emph{exponentially tilted function} (česky exponenciálně vychýlená funkce).
+Jde o standardní transformaci z teorie pravděpodobnosti.
+Původní rozdělení $p_0(s)$ se přenásobí exponenciálním faktorem $\exp(v^\top W^{(h)}_q s)$ a znormuje, čímž se jeho pravděpodobnostní hmota přesune k hodnotám $s$ s velkým skalárním součinem $v^\top W^{(h)}_q s$.
+V tomto kontextu se objevuje proto, že přesně takto se chovají \emph{attention váhy} v limitě nekonečně mnoha vzorků, je tedy asymptotickou variantou \emph{attention mechanismu}.
 Tato funkce $g_h(s)$ zvyšuje pravděpodobnost těm hodnotám $s$, které se nejvíce podobají vektoru $v$ ve smyslu $v^\top W^{(h)}_q s$, a snižuje pro zbylé body.
 Jinými slovy ten složitý vzoreček na obrázku ukazuje teoretickou situaci, co by se stalo, kdyby měl transformer k dispozici nekonečně mnoho vzorků. 
 Už nerozděluje váhy mezi jednotlivými datovými body, ale vezme celou spojitou distribuci dat a "vychýlí" ji celou směrem k té informaci, na kterou zrovna potřebuje upřít pozornost.

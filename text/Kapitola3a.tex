@@ -69,6 +69,14 @@ Z pohledu GP inference bychom očekávali, že právě tento kvadrant bude domin
 
 Na obrázku~\ref{fig:attention_all_layers} je vidět, jak se struktura \emph{attention matic} vyvíjí přes vrstvy:
 
+\begin{figure}[!tb]
+    \centering
+    \includegraphics[width=\linewidth]{figures/GP1_big_model/fig_big_03_attention_all_layers.png}
+    \caption{\emph{Attention matice} pro všech $6$ vrstev 100-epoch modelu (průměr přes $8$ hlav) pro jednu konkrétní GP realizaci. Osa $x$: \textit{key} pozice (na které body se díváme), osa $y$: \textit{query} pozice (které body se dívají). Cyánová čára odděluje trénovací ($0$–$19$) a testovací ($20$–$119$) pozice. Světlejší barva odpovídá vyšší \emph{attention váze}. Přesné hodnoty vah závisí na konkrétních vstupních datech, kvalitativní vzor (vrstva 0 distribuovaná $\to$ vrstva 5 s dominantním \textit{Test$\to$Train} blokem) je však stabilní.}
+    \label{fig:attention_all_layers}
+\end{figure}
+
+
 \textbf{Vrstva 0:}
 
 vykazuje relativně rovnoměrně rozložené váhy.
@@ -106,13 +114,6 @@ Za druhé, body s~netypickou hodnotou (extrémní $Y_j$ nebo okrajové $X_j$) do
 Pro naši otázku je podstatné, že tyto pruhy jsou \textit{query-nezávislé}: Nadaraya-Watsonův ani RBF estimátor by je nikdy nevytvořil, protože jejich váhy jsou lokální a závisejí na poloze query bodu $x^*$.
 Svislý pruh naopak znamená „všechny \emph{query} se dívají na tentýž bod bez ohledu na svou polohu“, část \emph{attention rozpočtu} tedy jde na \emph{normalizační sink}, nikoli na kernelové porovnávání.
 Tímto se dá říct, že existence pruhů je tak dalším nepřímým dokladem, že PFN \emph{attention} není prostý kernel smoothing.
-
-\begin{figure}[p]
-    \centering
-    \includegraphics[width=\linewidth]{figures/GP1_big_model/fig_big_03_attention_all_layers.png}
-    \caption{\emph{Attention matice} pro všech $6$ vrstev 100-epoch modelu (průměr přes $8$ hlav) pro jednu konkrétní GP realizaci. Osa $x$: \textit{key} pozice (na které body se díváme), osa $y$: \textit{query} pozice (které body se dívají). Cyánová čára odděluje trénovací ($0$–$19$) a testovací ($20$–$119$) pozice. Světlejší barva odpovídá vyšší \emph{attention váze}. Přesné hodnoty vah závisí na konkrétních vstupních datech, kvalitativní vzor (vrstva 0 distribuovaná $\to$ vrstva 5 s dominantním \textit{Test$\to$Train} blokem) je však stabilní.}
-    \label{fig:attention_all_layers}
-\end{figure}
 
 \subsection{Matematický rámec pro srovnávací experimenty}
 \label{subsec:matematicky-ramec}
@@ -185,17 +186,6 @@ Poměr MSE(NW)/MSE(PFN) & ${\sim}1\,256\times$ \\
 \label{tab:exp3}
 \end{table}
 
-\begin{figure}[htbp]
-    \centering
-    \subcaptionbox{Detail \emph{attention vah} poslední vrstvy (průměr přes $8$ hlav) pro vybraný testovací bod v porovnání s normalizovanými RBF vahami. \emph{Attention} je výrazně ostřejší, koncentruje téměř veškerou váhu na nejbližší bod, zatímco RBF distribuuje váhu plynule. Korelace $0{,}374 \pm 0{,}270$.\label{fig:attn_vs_rbf}}[1.0\linewidth]{%
-        \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_04_attention_detail.png}}
-    \vspace{0.5em}
-    \subcaptionbox{Srovnání predikcí PFN, Nadaraya-Watsonova estimátoru a analytického GP posterioru ($n_{\text{ctx}} = 20$). NW systematicky přehlazuje, PFN sleduje GP posterior s MSE $167 \times 10^{-6}$ oproti MSE $0{,}21$ u NW – rozdíl ${\sim}1\,256\times$.\label{fig:pfn_vs_nw}}[1.0\linewidth]{%
-        \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_05_nw_comparison.png}}
-    \caption{Porovnání \emph{attention vah} s RBF kernelem (nahoře) a predikcí PFN, NW a GP (dole).}
-\end{figure}
-\par
-
 \textbf{Diskuze:}
 
 Z tabulky~\ref{tab:exp3} vyplývají dvě zásadní pozorování.
@@ -203,11 +193,25 @@ Za prvé, korelace \emph{attention vah} s RBF kernelem je nízká ($0{,}374 \pm 
 Také je zjevné, že \emph{attention mechanismus} se naučil jinou strategii.
 Jak je vidět na obrázku~\ref{fig:attn_vs_rbf}, \emph{attention váhy} jsou výrazně ostřejší než RBF, soustřeďují téměř veškerou váhu na nejbližší bod, zatímco RBF ji distribuuje plynule.
 
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/GP1_big_model/fig_big_04_attention_detail.png}
+    \caption{Detail \emph{attention vah} poslední vrstvy (průměr přes $8$ hlav) pro vybraný testovací bod v porovnání s normalizovanými RBF vahami. \emph{Attention} je výrazně ostřejší, koncentruje téměř veškerou váhu na nejbližší bod, zatímco RBF distribuuje váhu plynule.}
+    \label{fig:attn_vs_rbf}
+\end{figure}
+
 Za druhé, $\textrm{MSE(PFN, NW)} \approx \textrm{MSE(NW, GP)} \approx 0{,}21$, vzdálenost mezi PFN a NW je přibližně stejně velká jako vzdálenost NW od GP.
-To znamená, že PFN sedí blízko GP posterioru, zatímco NW stojí daleko od obou.
+To znamená, že PFN sedí blízko GP posterioru, zatímco NW stojí daleko od obou, jak názorně ukazuje obrázek~\ref{fig:pfn_vs_nw}.
 Tyto obě metody predikují zcela odlišné hodnoty.
 Dále je vidět, že je PFN o $1\,256\times$ přesnější než NW (poměr $\textrm{MSE(NW,\,GP)} / \textrm{MSE(PFN,\,GP)} = 0{,}2099 / 0{,}000167$).
 \par
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/GP1_big_model/fig_big_05_nw_comparison.png}
+    \caption{Srovnání predikcí PFN, Nadaraya-Watsonova estimátoru a analytického GP posterioru ($n_{\text{ctx}} = 20$). NW systematicky přehlazuje, zatímco PFN sleduje GP posterior těsně, přesné hodnoty MSE shrnuje tabulka~\ref{tab:exp3}.}
+    \label{fig:pfn_vs_nw}
+\end{figure}
 
 Nás by ale mohlo zajímat, proč je \emph{attention} ostřejší než RBF, tj. proč ty \emph{attention váhy} jsou rozloženy ne tak hladce a plynule, jako u RBF na obrázku \ref{fig:attn_vs_rbf}.
 \emph{Attention hlavy} totiž nepotřebují počítat čistou kernelovou podobnost $k(x^*, x_i)$.
@@ -265,14 +269,10 @@ $20$ & $0{,}0021 \pm 0{,}0025$ & $0{,}0017 \pm 0{,}0011$ \\
 \label{tab:exp4}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[!htb]
     \centering
-    \subcaptionbox{MSE PFN (modrá) a \emph{GP oracle} (zelená přerušovaná) jako funkce $n_{\text{ctx}}$. Chybové úsečky $= \pm 1$ \emph{std} přes $20$ realizací. \emph{GP oracle} mírně vede od $n = 10$, protože zná správné $\ell$.\label{fig:exp4_mse}}[0.82\linewidth]{%
-        \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_06_context_size_mse.png}}
-    \vspace{0.5em}
-    \subcaptionbox{Vizualizace predikcí pro $n \in \{5, 10, 15, 20\}$. Červené body: kontextová data dostupná modelu; šedé body: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP posterior se správným $\ell$. Všechny řádky vychází ze stejné GP realizace, liší se pouze velikostí kontextu. Od $n = 15$ obě křivky téměř splývají.\label{fig:exp4_grid}}[0.82\linewidth]{%
-        \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_06b_context_size_grid.png}}
-    \caption{100-epoch model: MSE a predikce jako funkce velikosti kontextu.}
+    \includegraphics[width=0.82\linewidth]{figures/GP1_big_model/fig_big_06b_context_size_grid.png}
+    \caption{100-epoch model: vizualizace predikcí pro $n \in \{5, 10, 15, 20\}$. Červené body: kontextová data dostupná modelu; šedé body: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP posterior se správným $\ell$. Všechny řádky vychází ze stejné GP realizace, liší se pouze velikostí kontextu. Od $n = 15$ obě křivky téměř splývají.}
     \label{fig:exp4_combined}
 \end{figure}
 

@@ -13,21 +13,21 @@ Prior–Data Fitted Networks je Deep Learning (dále jenom DL) architektura, kte
 Hlavní motivací pro vznik tohoto modelu je snaha posunout techniky Bayesovské statistiky na další úroveň spolu se strmým rozvojem v oblasti strojového učení. 
 PFN je založeno na proslulé architektuře transformer, která je viníkem dnešního pokroku všemožných Deep Learning modelu, a o niž víme díky velkým jazykovým modelům, a není to náhoda, existuje totiž jisté spojení mezi těmito architekturami. 
 Ačkoli samotnou architekturu PFN a její technické nuance budeme podrobně diskutovat až v následující sekci, zde jenom uvedeme její základní charakteristiky.
-PFN je tzv. \emph{encoder–only} architektura (tj. neobsahuje \emph{dekóder} blok, ale pouze \emph{enkóder} blok transformeru), na kterou je pak napojena softmax hlava, pro vyhodnocování výsledků ve tvaru pravděpodobností.
+PFN je tzv. \emph{encoder–only} architektura (tj. neobsahuje \emph{decoder} blok, ale pouze \emph{encoder} blok transformeru), na kterou je pak napojena softmax hlava pro vyhodnocování výsledků ve tvaru pravděpodobností.
 Na vstup PFN dostává sekvenci dat.
-V případě velkých jazykových modelu by se jednalo o slovy nebo věty, umístěné v jistém pořadí.
+V případě velkých jazykových modelů by se jednalo o slova nebo věty, umístěné v jistém pořadí.
 Tady je ta myšlenka shodná, ale namísto slov dostane síť neuspořádanou sekvenci dat, které získáme z prior rozdělení.  
-Právě toto je důležitý intuitivní pojetí, na kterém je založená celá ta architektura.
-Stejně jako po jazykovém modelu, který dostal sekvenci slov, budeme chtít aby odhadl celkový kontext a jako výsledek např. i následující neznáme slovo, které by mohlo následovat , budeme i po PFN chtít, aby po předložení sekvenci dat, zkusil uchopit celkový trend (neboli kontext) a předpovědět, co by mohlo následovat dále.
+Právě toto je důležité intuitivní pojetí, na kterém je založená celá ta architektura.
+Stejně jako po jazykovém modelu, který dostal sekvenci slov, budeme chtít, aby odhadl celkový kontext a jako výsledek např. i neznámé slovo, které by mohlo následovat, budeme i po PFN chtít, aby po předložení sekvenci dat, zkusil uchopit celkový trend (neboli kontext) a předpovědět, co by mohlo následovat dále.
 Což je velmi relevantní, když zpracováváme časové řady a chceme řešit regresní problém, jak tomu je např. během práce s Gaussovskými procesy.
 \par 
 
 Celý princip fungování této metodiky lze popsat následujícím způsobem.
 Jak již jsme diskutovali dříve, účelem Bayesovského přístupu ve statistice je využití apriorní znalosti nebo informace o jistém jevu v přírodě. 
-A tento princip se dobře prolíná s obecnou úlohou aproximace funkcí pomocí neuronových sítí, protože při jejich návrhu vždy musíme enkódovat apriorní znalosti o této funkce.
+A tento princip se dobře prolíná s obecnou úlohou aproximace funkcí pomocí neuronových sítí, protože při jejich návrhu vždy musíme enkódovat apriorní znalosti o této funkci.
 To se dělá buď přímo skrz architekturu konkrétního modelu nebo za pomocí různých regularizací. 
 Každopádně je to velmi netriviální úloha, kterou je třeba vždy řešit než začneme řešit kteroukoliv úlohu pomocí DL nástrojů. 
-Jako jedno z možných řešení se nabízí právě tzv. Bayesovská inference, jejíž hlavním předpokladem je, že se jistý jev nebo proces vyskytuje v reálném světě a disponujeme informacemi o jeho chování.
+Jako jedno z možných řešení se nabízí právě tzv. Bayesovská inference, jejímž hlavním předpokladem je, že se jistý jev nebo proces vyskytuje v reálném světě a disponujeme informacemi o jeho chování.
 Tento předpoklad nám umožňuje definovat následující postup.    
 Uvažujme jev nebo celý proces (to jest prior, pro jednoduchost si pod tím můžeme představit obyčejnou množinu dat), ze kterého můžeme neomezeně vzorkovat simulované datové sady $\mathcal{D}$ reprezentující různé prediktivní úlohy (body). 
 Bez újmy na obecnosti předpokládejme, že tyto datové sady obsahují vstupní příznaky $\mathbf{x} \in \mathbb{R}^d$ a k nim příslušné výstupní třídy $y \in \mathcal{Y}$.
@@ -334,7 +334,7 @@ Po MLP opět následuje reziduální spojení a normalizace.
 
 Toto se opakuje tolik, kolik vrstev obsahuje model, v našem případě $6$ krát.
 Po každé vrstvě se embedding každého bodu obohacuje o informaci z ostatních bodů (přes \emph{attention}) a transformuje (přes MLP). 
-Po $6$ vrstvách embedding testovacího bodu obsahuje dostatečnou informaci k tomu, aby \emph{dekóder} z něj vyrobil prediktivní distribuci.
+Po $6$ vrstvách embedding testovacího bodu obsahuje dostatečnou informaci k tomu, aby \emph{decoder} z něj vyrobil prediktivní distribuci.
 \par   
 
 Po průchodu $6$ vrstvami dostáváme opět nový tenzor.
@@ -361,7 +361,7 @@ test_encoder_out = test_encoder_out[:, :, -1, :]
 # (1, 50, 512) -- only y-token for test positions
 \end{lstlisting}
 
-\subsection{Fáze 4 – Dekóder, převod embeddingu na logity.}
+\subsection{Fáze 4 – Decoder, převod embeddingu na logity.}
 \label{subsec:faze4-dekoder}
 Jsme si již řekli, že PFN je \emph{encoder–only} architektura, tj. \emph{decoder} blok, který je součástí obecné architektury transformer, v něm chybí.
 Decoder blok ale je napojen na hlavu, která v sobě obsahuje opět MLP vrstvu a softmax vrstvu.
@@ -413,7 +413,7 @@ Jednotlivé prvky v schématu, který jsme uvedli na začátku sekce, plní nás
     Výstupem je $1000$ čísel, říkáme jim \textit{logity}, jeden pro každý bucket.
 \end{enumerate}
 
-Logit v tomto případě je jenom surové číslo z poslední lineární vrstvy našeho \emph{dekóderu}.
+Logit v tomto případě je jenom surové číslo z poslední lineární vrstvy našeho \emph{decoderu}.
 Může to být jakékoliv reálné číslo.
 Důležité ale je, že nemají žádné jednotky, nesčítají se na jedničku a ne této etapě nemají žádnou přímou pravděpodobnostní interpretaci.
 Logit je pouze signál pro určitý bucket, do kterého spadne, jak moc si model myslí, že skutečná hodnota padne do daného intervalu.
