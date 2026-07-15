@@ -153,7 +153,7 @@ Matice vah $\mathbf{W}_Q, \mathbf{W}_K$ jsou naučeny z dat a mohou kódovat lib
 Klíčová otázka, kterou budeme v následujících experimentech testovat, pak zní: \textit{odpovídají attention váhy PFN normalizovaným RBF vahám, nebo se model naučil odlišnou strategii?}
 A pokud odlišnou, jak moc se jeho výstup blíží skutečnému GP posterioru oproti triviálnímu NW estimátoru?
 
-\subsection{Dělá PFN něco podobného jako GP s RBF kernelem?}
+\subsection{Srovnání s RBF kernelem a Nadaraya-Watsonovým estimátorem}
 \label{subsec:pfn-vs-rbf}
 
 V této sekci se zaměříme, zda se PFN transformer snaží napodobit chování RBF kernelu, a proto ho tak dobře aproximuje, anebo dělá něco jiného.
@@ -231,7 +231,7 @@ I kdyby \emph{attention váhy} v poslední vrstvě přesně odpovídaly normaliz
 Za druhé, GP na rozdíl od RBF neváží trénovací body jen podle jejich podobnosti s~$x^*$, ale přes inverzi $\mathbf{K}^{-1}$ zohledňuje i to, jak jsou body korelované mezi sebou (blízké body si „konkurují“, vzdálené mohou dostat i zápornou váhu).
 Nízká korelace \emph{attention} s~čistým RBF je tedy očekávaná, i perfektní GP by ji při tomto srovnání vykazoval.
 
-\subsection{Jak přesný je PFN na skutečné GP realizaci?}
+\subsection{Přesnost predikcí na skutečné GP realizaci}
 \label{subsec:presnost-pfn}
 
 Předchozí experiment porovnával PFN se syntetickým GP posteriorem, tj. modelu jsme předložili trénovací body a srovnávali jsme jeho predikci s analytickým řešením.
@@ -339,3 +339,23 @@ Z toho usuzujeme, že PFN mírně podhodnocuje míru zvýšení \emph{uncertaint
 Toto je zásadní vlastnost.
 Model bez explicitní representace GP posterioru přesto generuje uncertainty, která odpovídá bayesovskému výpočtu.
 
+\subsection{Shrnutí}
+\label{subsec:shrnuti-fixni}
+
+Tato sekce zkoumala fixní model, tedy PFN natrénované na jediném GP prioru se známými hyperparametry.
+Ukázali jsme, že \emph{attention matice} mají stabilní vnitřní strukturu: rané vrstvy distribuují váhu široce, zatímco v poslední vrstvě dominuje blok \textit{Test$\to$Train} (obrázek~\ref{fig:attention_all_layers}).
+\par
+
+Následně jsme vyvrátili hypotézu, že se model chová jako prostý \emph{kernel smoother}.
+Korelace \emph{attention vah} s RBF kernelem je nízká a predikce PFN se od Nadaraya-Watsonova estimátoru řádově liší, poměr chyb dosahuje $1\,256\times$ ve prospěch PFN (tabulka~\ref{tab:exp3}).
+PFN tedy sedí těsně u analytického GP posterioru, zatímco NW stojí daleko od obou.
+\par
+
+Stejný závěr platí i mimo syntetické srovnání.
+Při predikci skutečných šumových hodnot GP realizace se PFN s rostoucím kontextem přibližuje \emph{GP oraclu} a od $n = 20$ jsou obě metody prakticky rovnocenné (tabulka~\ref{tab:exp4}).
+Model také správně reprodukuje tvar profilu nejistoty a nárůst nejistoty v oblasti extrapolace jen mírně podhodnocuje (tabulka~\ref{tab:exp1}).
+\par
+
+Fixní model tedy věrně aproximuje plnou GP inferenci, a to jak ve střední hodnotě, tak v rozptylu.
+Zůstává otázka, co se stane, když modelu hyperparametry předem nesdělíme.
+Tomu se věnuje následující sekce.
