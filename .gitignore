@@ -56,3 +56,4 @@ background/variant_a_results.npz
 # HELIOS training logs (nechceme v gitu)
 pfn_seg.o*
 *.o[0-9]*
+background/variant_c_seed_results.json

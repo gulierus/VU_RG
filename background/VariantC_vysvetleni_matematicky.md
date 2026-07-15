@@ -85,8 +85,10 @@ $\mathrm{Var}(f)\approx1{,}003$ (cíl $\sigma_f^2=1$) a empirická autokovarianc
 
 ## 3. Oracle: exaktní posterior
 
+### 3.1 Posterior nad latentním polem
+
 Model $x=f+\varepsilon$ s $f\sim\mathcal N(0,K)$, $\varepsilon\sim\mathcal N(0,\sigma^2 I)$
-nezávislé je společně Gaussovský. Standardní podmiňování dává **posterior nad latentním polem**:
+nezávislé je společně Gaussovský. Standardní podmiňování dává posterior nad latentním polem:
 
 $$
 f\mid x\sim\mathcal N(\mu_{\mathrm{post}},\Sigma_{\mathrm{post}}),\qquad
@@ -97,7 +99,9 @@ $$
 Kovarianci lze zjednodušit:
 $\Sigma_{\mathrm{post}}=\sigma^2 K(K+\sigma^2 I)^{-1}=(K^{-1}+\sigma^{-2}I)^{-1}$.
 
-**Spektrální (FFT) forma — Wienerův filtr.** V bázi $F$ je vše diagonální; per frekvenci $k$:
+### 3.2 Spektrální forma posteriorní střední hodnoty (Wienerův filtr)
+
+V bázi $F$ je vše diagonální; per frekvenci $k$:
 
 $$
 \widehat{\mu}_{\mathrm{post},k}=\underbrace{\frac{\lambda_k}{\lambda_k+\sigma^2}}_{\text{Wiener gain}}\widehat{x}_k
@@ -106,16 +110,19 @@ $$
 =\texttt{ifft2}\!\big(\tfrac{\lambda}{\lambda+\sigma^2}\cdot\texttt{fft2}(x)\big).
 $$
 
-Protože $\Sigma_{\mathrm{post}}$ je také BCCB (cirkulantní), její **diagonála je konstantní přes
-pixely** (stacionarita) a rovná se průměru vlastních čísel:
+### 3.3 Posteriorní rozptyl (konstantní přes pixely)
+
+Protože $\Sigma_{\mathrm{post}}$ je také BCCB (cirkulantní), její diagonála je konstantní přes
+pixely (důsledek stacionarity) a rovná se průměru vlastních čísel:
 
 $$
 s_{\mathrm{post}}^2=(\Sigma_{\mathrm{post}})_{ii}=\frac1N\sum_{k}\frac{\sigma^2\lambda_k}{\lambda_k+\sigma^2}
 \qquad(\forall i).
 $$
 
-**Pushforward na label.** Maska je deterministická funkce pole, takže per-pixel posterior
-predictive je exaktně
+### 3.4 Posterior predictive labelu
+
+Maska je deterministická funkce pole, takže per-pixel posterior predictive je exaktně
 
 $$
 \boxed{\,p_{\mathrm{oracle},ij}=\mathbb P(y_{ij}=1\mid x)=\mathbb P(f_{ij}>\tau\mid x)
@@ -125,7 +132,9 @@ $$
 (Marginála $f_{ij}\mid x$ je $\mathcal N(\mu_{\mathrm{post},ij},s_{\mathrm{post}}^2)$; per-pixel
 pravděpodobnost potřebuje jen tuto marginálu, ne celou $\Sigma_{\mathrm{post}}$.)
 
-**Explicitní prior maska.** Bez pozorování je $f_{ij}\sim\mathcal N(0,\sigma_f^2)$, takže
+### 3.5 Explicitní prior maska
+
+Bez pozorování je $f_{ij}\sim\mathcal N(0,\sigma_f^2)$, takže
 
 $$
 p_{\mathrm{prior},ij}=\mathbb P(f_{ij}>\tau)=\Phi(-\tau/\sigma_f)=\text{fg}\quad(\text{uniformní}).
@@ -133,21 +142,37 @@ $$
 
 To je „defaultní" maska, ke které by amortizovaný prediktor kolaboval při neinformativním kontextu.
 
-**Výpočetní složitost.** Naivně $(K+\sigma^2 I)^{-1}$ stojí $O(N^3)=O((HW)^3)$; cirkulantní/FFT
-forma je $O(N\log N)$. Proto je oracle na $64\times64$ levný a exaktní (past C.8: pro krátké $\ell$
-je $K$ špatně podmíněná, $\sigma^2$ působí jako nugget/jitter a stabilizuje inverzi).
+### 3.6 Výpočetní složitost
+
+Naivně $(K+\sigma^2 I)^{-1}$ stojí $O(N^3)=O((HW)^3)$; cirkulantní/FFT forma je $O(N\log N)$. Proto
+je oracle na $64\times64$ levný a exaktní (past C.8: pro krátké $\ell$ je $K$ špatně podmíněná,
+$\sigma^2$ působí jako nugget/jitter a stabilizuje inverzi).
+
+### 3.7 Shrnutí
+
+Pro známé $\theta=(\ell,\tau,\sigma^2)$ a pozorovaný query $x$ je per-pixel posterior predictive
+labelu **exaktně** $p_{\mathrm{oracle},ij}=\Phi\big((\mu_{\mathrm{post},ij}-\tau)/s_{\mathrm{post}}\big)$,
+kde $\mu_{\mathrm{post}}$ je Wienerův filtr $x$ (spektrální gain $\lambda/(\lambda+\sigma^2)$) a
+$s_{\mathrm{post}}$ je konstantní posteriorní směrodatná odchylka daná spektrem. Cirkulantní
+struktura činí celý výpočet $O(N\log N)$ a numericky stabilní ($\sigma^2$ jako jitter). Marginální
+prior maska je uniformní $\Phi(-\tau/\sigma_f)=\text{fg}$. Toto $p_{\mathrm{oracle}}$ je referenční
+„pravda", proti níž měříme PFN v §5–§7.
 
 ---
 
-## 4. PFN: architektura, objektiv a co je vlastně „pravda"
+## 4. PFN: architektura, trénovací objektiv a referenční veličina
 
-**Architektura.** UniverSeg (encoder–decoder), random init; **CrossBlock** vyměňuje featury mezi
+### 4.1 Architektura
+
+UniverSeg (encoder–decoder), random init; **CrossBlock** vyměňuje featury mezi
 query a každým support párem (globální feature-averaging). Výstup: 1 logit/pixel
 $g_\phi(x_\star,S)\in\mathbb R^{\mathcal G}$; predikce $\hat p_{\mathrm{PFN}}=\varsigma(g_\phi)$,
 $\varsigma$ = sigmoid.
 
-**Trénovací objektiv.** Jeden krok: $\theta\sim\Pi$; nasampluj $n+1$ polí; $S$ z $n$ dvojic,
-query $(x_\star,y_\star)$. Ztráta = **per-pixel binary cross-entropy**
+### 4.2 Trénovací objektiv
+
+Jeden krok: $\theta\sim\Pi$; nasampluj $n+1$ polí; $S$ z $n$ dvojic, query $(x_\star,y_\star)$.
+Ztráta = **per-pixel binary cross-entropy**
 
 $$
 \mathcal L(\phi)=\mathbb E_{\theta\sim\Pi}\,\mathbb E_{S,x_\star,y_\star}\,
@@ -155,8 +180,10 @@ $$
 \mathrm{BCE}(q,y)=-y\log q-(1-y)\log(1-q).
 $$
 
-**Proč sigmoid + BCE dává posterior.** BCE je **striktně vlastní skórovací pravidlo** (strictly
-proper scoring rule). Pro pevný vstup je populační minimalizátor
+### 4.3 Konzistence (sigmoid, BCE) s posteriorem
+
+BCE je **striktně vlastní skórovací pravidlo** (strictly proper scoring rule). Pro pevný vstup je
+populační minimalizátor
 
 $$
 \arg\min_{q}\ \mathbb E_{y}\big[\mathrm{BCE}(q,y)\mid x_\star,S\big]=\mathbb E[y_\star\mid x_\star,S]
@@ -170,7 +197,7 @@ p_{\mathrm{PFN}}^{\star}(x_\star,S)=\mathbb P(y_\star=1\mid x_\star,S)
 =\int \mathbb P(y_\star=1\mid x_\star,\theta)\;\underbrace{p(\theta\mid S)}_{\text{HP posterior}}\,d\theta .
 $$
 
-**Dvě „pravdy" (důležité rozlišení).**
+### 4.4 Dvě referenční veličiny: oracle a amortizovaný posterior predictive
 
 - **Oracle** $p_{\mathrm{oracle}}=\mathbb P(y_\star=1\mid x_\star,\theta_{\mathrm{true}})$ — podmiňuje
   na *známé* $\theta$.
@@ -258,13 +285,25 @@ přímo v log-log a $\mathrm{bias}^2$ jako plateau.)
   má tzv. tilted-measure limit, který se nelokalizuje kolem $x_\star$ → **neredukovatelný bias**.
   V našem 2D CrossBlocku má feature-averaging přes support globální dosah, takže očekáváme
   strukturální bias soustředěný na hranicích masky.
-- **Variance (Thm 6.2, analog).** Variance z konečného kontextu klesá $\sim O(n^{-1/2})$
-  (softmax → diminishing sensitivity).
+- **Variance (Thm 6.2).** Nagler bounduje **absolutní deviaci** predikce (doslovné znění, str. 6):
+  $$\big|q_\theta(y\mid x,D_n)-\mathbb E[q_\theta(y\mid x,D_n)]\big|\lesssim n^{-1/2}\quad\text{s vysokou pravděpodobností.}$$
+  Bounded je tedy **magnituda fluktuace** (std-škála), ne přímo rozptyl; „the variance vanishes"
+  je Naglerův prozaický popisek. Protože $q_\theta\in[0,1]$ je omezené, deviace $\sim n^{-1/2}$
+  implikuje **rozptyl** $\mathrm{Var}\sim n^{-1}$. Formálně (Appendix A.8 / Thm A.1) síť splňuje
+  podmínku (5) s $\alpha=1$, což dává právě $n^{1/2-\alpha}=n^{-1/2}$. Mizení variance je dle
+  Naglera *strukturální* (vlastnost architektury, nezávislá na $\theta$; attention dává každému
+  vzorku váhu řádu $1/n$).
 
-Naše měření (§7): variance klesá (empirický log-log sklon $\approx-1$, tj. i strměji než
-$-\tfrac12$), $\mathrm{bias}^2$ drží malé kladné plateau. Protože je model jinak *near-optimal*
-(§7b), tento zbytkový bias **není optimalizační artefakt, ale strukturální** — přesně predikce
-locality condition.
+  *Nezávislý argument (proč $-1$ dává smysl i bez Naglera):* prediktor je v jádru vážený průměr
+  přes $\sim n$ support příspěvků s vahami $O(1/n)$; rozptyl takového průměru je $\mathrm{Var}[\bar\cdot]\sim1/n$
+  elementárně (jako CLT-škála). Sklon $-1$ tedy potvrzují dvě nezávislé úvahy.
+
+Naše měření (§7): log-log sklon $\overline{\mathrm{var}}$ je $\approx-1$, což je **přesná shoda**
+s Thm 6.2 (deviace $\lesssim n^{-1/2}\Leftrightarrow\mathrm{Var}\sim n^{-1}$) — ne překonání teorie.
+$\overline{\mathrm{bias}^2}$ drží malé kladné plateau, konzistentní s Naglerovou predikcí
+neredukovatelného biasu. **Že naměřená hodnota plateau odpovídá *strukturálnímu* biasu (a ne
+optimalizačnímu reziduu tohoto jednoho běhu) však z jednoho tréninkového seedu prokázat nelze**
+— viz limit 1 v §8.
 
 ---
 
@@ -286,20 +325,34 @@ identifikovatelné z jednoho páru; strukturní rozdíl vůči řídké GP regre
 | Easy | 0,0480 | 0,0327 | +0,0153 |
 | OOD-long | 0,0403 | 0,0272 | +0,0131 |
 
-In-distribution je excess risk $\approx0{,}004$–$0{,}006$ nat/pixel → PFN je **skoro
-Bayes-optimální** (tréninkové plató na loss $\approx0{,}019$ = sezení těsně nad $H(y\mid x)$, ne
-zaseknutí). OOD-short: excess $\approx9\times$ vyšší. Easy $>$ Hard, protože hladká pole mají široké
-nejisté hranice (velké $\overline{H_b(p_{\mathrm{oracle}})}$), kde mírná over-sharpness stojí nejvíc
-KL.
+In-distribution je excess risk $\approx0{,}004$–$0{,}006$ nat/pixel → v čistém matched režimu je PFN
+**skoro Bayes-optimální**. OOD-short: excess $\approx9\times$ vyšší. Easy $>$ Hard, protože hladká
+pole mají široké nejisté hranice (velké $\overline{H_b(p_{\mathrm{oracle}})}$), kde mírná
+over-sharpness stojí nejvíc KL.
 
-**(c) Kolaps k prioru — negativní.** $d_{\mathrm{oracle}}=|\hat p-p_{\mathrm{oracle}}|$ zůstává
-malé a ploché i při $n_{\mathrm{supp}}=1$; $d_{\mathrm{prior}}=|\hat p-\text{fg}|\approx0{,}47$
-napříč. Kolaps ($\hat p\to\text{fg}$) tedy **nenastává** — vyžadoval by řídký neinformativní
-kontext (Varianta A). Není to univerzálie amortizace, ale důsledek řídkosti dat.
+> **Pozor na čtení tabulky vs. tréninkové plató.** Tréninkové plató $0{,}0194$ je nižší než každý
+> floor v tabulce (min $0{,}025$), což zdánlivě porušuje excess $\ge0$. Není tomu tak: tabulkové
+> floory jsou **tvrdší řezy** (fixní fg$=0{,}5$, dané režimy), kdežto plató je průměr přes **celé**
+> $\Pi$. Log-uniformní $\sigma\in[0{,}01,0{,}30]$ klade většinu hmoty na malý šum (medián
+> $\sigma\approx0{,}055$), kde jsou masky skoro bezšumové a $H_b\approx0$. Nezávisle spočtený
+> full-prior floor je $\mathbb E_\Pi[H_b(p_{\mathrm{oracle}})]=0{,}0133$ (medián $0{,}0095$, 5–95 %
+> $[0{,}0020,\,0{,}0420]$), takže $0{,}0194\ge0{,}0133$ a excess $\approx0{,}006$ — konzistentní.
+> Plató tedy sedí těsně nad *full-prior* floorem, ne nad tabulkovými řezy.
 
-**(d) Bias–variance.** $\overline{\mathrm{var}}$ klesá s $n_{\mathrm{supp}}$ k $\approx0$ (sklon
-$\approx-1$); $\overline{\mathrm{bias}^2}$ plateau (~$0{,}0016$ Hard, ~$0{,}0035$ Easy). Variance
-mizí, bias strukturálně přetrvává.
+**(c) Kolaps k prioru — negativní.** Průkazná veličina je $d_{\mathrm{oracle}}=|\hat p-p_{\mathrm{oracle}}|$:
+zůstává malé a ploché i při $n_{\mathrm{supp}}=1$, takže kolaps ($\hat p\to\text{fg}$)
+**nenastává**. *(Doplňkové $d_{\mathrm{prior}}=|\hat p-\text{fg}|\approx0{,}47$ je téměř neinformativní
+diagnostik: pro libovolný sebejistý model, $\hat p\approx\{0,1\}$, platí
+$\mathbb E|\hat p-\text{fg}|\approx2\,\text{fg}(1-\text{fg})\approx0{,}47$ při fg$\approx0{,}5$
+nezávisle na kolapsu; proto argumentujeme $d_{\mathrm{oracle}}$, ne $d_{\mathrm{prior}}$.)* Kolaps by
+vyžadoval řídký neinformativní kontext (Varianta A); není to univerzálie amortizace, ale důsledek
+řídkosti dat.
+
+**(d) Bias–variance.** $\overline{\mathrm{var}}$ klesá s $n_{\mathrm{supp}}$ k $\approx0$ s log-log
+sklonem $\approx-1$ — tj. $\mathrm{Var}\sim n^{-1}$, **přesná shoda s Naglerovým Thm 6.2**.
+$\overline{\mathrm{bias}^2}$ drží malé plateau (~$0{,}0016$ Hard, ~$0{,}0035$ Easy): variance mizí,
+zbytkový bias tohoto modelu přetrvává. (Zda plateau odpovídá *strukturálnímu* biasu z Naglera, viz
+limit 2 v §8 — potřebuje víc seedů.)
 
 **(e) Kalibrace vs oracle.** Rozdělení $\hat p_{\mathrm{PFN}}$ a $p_{\mathrm{oracle}}$ se téměř
 překrývají; $\overline{H_b}$ srovnatelné i na nejisté množině (0,522 vs 0,552). ECE(oracle)
@@ -310,19 +363,41 @@ nejistoty** s jen mírnou zbytkovou over-sharpness na hranicích.
 
 ## 8. Souhrn a limity
 
-**Souhrn (formálně).** Skutečný PFN natrénovaný minimalizací per-pixel BCE na tazích z $\Pi$
-realizuje amortizovaný posterior predictive; měřeno proti exaktnímu oraclu je jeho
-$\mathbb E[\mathrm{KL}(\text{oracle}\Vert\text{PFN})]$ řádu $10^{-3}$ in-distribution
-(near-Bayes-optimal) a roste $\sim10\times$ OOD, asymetricky v $\ell$. Variance $\to0$ s kontextem,
-bias strukturálně přetrvává (locality condition), kalibrace věrná s mírnou over-sharpness na
-hranicích. Kolaps k prioru se u husté segmentace neprojevuje.
+**Hlavní teze (opatrně formulovaná).** C **neukazuje, že PFN nemá patologie** — ukazuje, že se
+v **čistém, hustém, matched režimu neprojevují**. Slabá závislost na $n_{\mathrm{supp}}$ (§7a),
+chybějící kolaps (§7c) i malý excess risk (§7b) mají **společnou příčinu**: úloha je skoro
+identifikovatelná i bez support setu. Hustý query $x_\star$ sám prozradí $\ell$ (hladkost) a
+$\sigma$ (lokální rozptyl); jediné, co z něj nevyčteš, je práh $\tau$, a ten pinne už **jediná**
+support maska. Proto (i) neexistuje neinformativní režim, ve kterém by kolaps mohl nastat, a (ii)
+„near-Bayes-optimalita" je zčásti tím, že testujeme **snadný inferenční problém**. Patologie
+předpovězené teorií (kolaps, velký amortizační bias) proto vyžadují **řídký kontext** (Varianta A)
+nebo **OOD** — a přesně tam se v C i objevují (excess risk $\sim10\times$ u OOD-short, asymetricky
+v $\ell$, křížově konzistentní s 1D nálezem z GP2).
+
+**Proč to tedy měřit (C jako kontrolní podmínka).** C není „nepovedlo se ukázat patologii", ale
+**clean baseline**: dokazuje, že v matched/hustém režimu je PFN *prokazatelně* skoro
+Bayes-optimální (excess $\approx0{,}006$ ověřený proti exaktnímu oraclu). Tím **vylučuje**, že by
+kolaps ve Variantě A nebo selhání v OOD byly dílem vadné architektury či špatného tréninku — model
+umí být optimální, když je úloha identifikovatelná. Patologie jsou tedy **podmíněné režimem**
+(řídkost / OOD), ne defektem modelu. Bez C by tenhle rozdíl nešel odlišit.
+
+**Souhrn měření (formálně).** PFN realizuje amortizovaný posterior predictive; proti exaktnímu
+oraclu je $\mathbb E[\mathrm{KL}(\text{oracle}\Vert\text{PFN})]$ řádu $10^{-3}$ in-distribution
+a roste $\sim10\times$ OOD (asymetricky v $\ell$). Rozptyl $\to0$ jako $n^{-1}$ (přesně Thm 6.2),
+zbytkový bias přetrvává, kalibrace věrná s mírnou over-sharpness na hranicích.
 
 **Limity (poctivě).**
-1. **Matched prior** (train $\Pi$ = test $\Pi$) a **husté** pozorování činí úlohu skoro
-   identifikovatelnou; „near-optimal" je proto částečně vlastnost setupu. Praktické riziko = OOD.
-2. **Oracle vs $p_{\mathrm{PFN}}^{\star}$**: měříme proti $\theta$-known oraclu, ne proti
-   $\theta$-marginalizovanému optimu; rozdíl je HP-nejistota, empiricky malá (§4).
-3. **Torus** je zjednodušení kvůli exaktnímu $O(N\log N)$ oraclu; neperiodická/reálná data =
+1. **Jeden tréninkový seed.** Celá analýza stojí na jednom natrénovaném modelu. Tvrzení, že
+   naměřené $\mathrm{bias}^2$ plateau je *strukturální* (vlastnost architektury, ne tohoto
+   optimalizačního běhu), **nelze z jednoho seedu podložit** — jde o tutéž výtku jednoho seedu
+   jako v Ch.3. Bez 2–3 seedů piš „zbytkový bias tohoto modelu", ne „strukturální bias".
+2. **Snadný inferenční problém (matched prior + husté pozorování).** „Near-optimal" je zčásti
+   vlastnost setupu, ne jen modelu; $\theta$ je skoro identifikovatelné z $x_\star$. Praktické
+   riziko a zajímavý režim je **OOD** a **řídký kontext**, ne in-distribution.
+3. **Oracle vs $p_{\mathrm{PFN}}^{\star}$.** Měříme proti $\theta$-known oraclu, ne proti
+   $\theta$-marginalizovanému populačnímu optimu PFN; rozdíl je HP-nejistota (empiricky malá, §4),
+   ale znaménkově „přičítá" PFN chybu, za kterou nemůže.
+4. **Torus** je zjednodušení kvůli exaktnímu $O(N\log N)$ oraclu; neperiodická/reálná data =
    další krok.
-4. **Trénink** (log `pfn_seg.o235933`): konvergoval, loss $0{,}15\to0{,}0194$, pix-acc $0{,}991$,
+5. **Trénink** (log `pfn_seg.o235933`): konvergoval, loss $0{,}15\to0{,}0194$, pix-acc $0{,}991$,
    grad-clip pohltil přechodné výkyvy gradientu (ep. 76–77); `best` = epocha 250.

@@ -81,10 +81,13 @@ Fixní query, $n_{\text{draws}}=24$ tahů support setu.
 | Easy | 0,0036 → 0,0035 | 0,0039 → ~0,0000 |
 | Hard | 0,0016 → 0,0017 | 0,0009 → ~0,0000 |
 
-**Variance s kontextem mizí** (kvalitativně $O(n^{-1/2})$, empiricky až strměji), zatímco
-**bias² se drží na malé kladné hodnotě** (plateau) — přesně Naglerova předpověď (globální
-attention porušuje locality → neredukovatelný bias), 2D analog GP2 rozkladu. Bias je malý,
-což je konzistentní s dobrou fidelitou. (Nefitujeme degenerovaný joint `bias²+c/n` — past z Ch.3.)
+**Variance s kontextem mizí** s log-log sklonem $\approx-1$, tj. $\mathrm{Var}\sim n^{-1}$ —
+**přesná shoda s Naglerovým Thm 6.2** (deviace $\lesssim n^{-1/2}$), ne překonání teorie. Naopak
+**bias² se drží na malé kladné hodnotě** (plateau), konzistentní s Naglerovou predikcí
+neredukovatelného biasu (globální attention porušuje locality). Pozn.: že plateau odpovídá
+*strukturálnímu* biasu (ne optimalizačnímu reziduu tohoto jednoho běhu) nelze z jednoho seedu
+prokázat — potřebuje 2–3 seedy (viz limity). Bias je malý, konzistentní s dobrou fidelitou.
+(Nefitujeme degenerovaný joint `bias²+c/n` — past z Ch.3.)
 
 ### (4) Kalibrace vs oracle — PFN reprezentuje nejistotu věrně
 
@@ -143,6 +146,11 @@ nejisté hranice, kde ta mírná over-sharpness (sekce 4) stojí nejvíc BCE.
 **Závěr C:** *Skutečný PFN na explicitním prioru je in-distribution skoro Bayes-optimální (excess
 risk nad Bayes floor ~0,004–0,006) a věrně aproximuje pravý posterior (fidelita vysoká, nejistota
 zachycená); amortizační chyba roste s tvrdostí a OOD hyperparametrů (asymetricky
-v $\ell$), ne s počtem hustého kontextu; variance mizí $O(n^{-1/2})$, bias malý ale strukturálně
-přetrvává; kalibrace dobrá s mírnou over-sharpness na hranicích. Bias–variance účet amortizované
-segmentace měřený proti pravdě.*
+v $\ell$), ne s počtem hustého kontextu; variance mizí jako $n^{-1}$ (přesně Thm 6.2), zbytkový
+bias malý ale přetrvávající; kalibrace dobrá s mírnou over-sharpness na hranicích. Klíčový caveat:
+„near-optimalita" platí jen v čistém hustém matched režimu (úloha je skoro identifikovatelná);
+patologie vyžadují OOD nebo řídký kontext. C tak slouží jako **kontrolní podmínka (clean
+baseline)**: dokazuje, že v matched režimu je model prokazatelně skoro Bayes-optimální, čímž
+vylučuje, že by kolaps v A nebo selhání v OOD byly defektem architektury/tréninku — patologie jsou
+podmíněné režimem, ne vadou modelu. Bias–variance účet amortizované segmentace měřený proti
+pravdě.*
