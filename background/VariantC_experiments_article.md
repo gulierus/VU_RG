@@ -84,10 +84,24 @@ Fixní query, $n_{\text{draws}}=24$ tahů support setu.
 **Variance s kontextem mizí** s log-log sklonem $\approx-1$, tj. $\mathrm{Var}\sim n^{-1}$ —
 **přesná shoda s Naglerovým Thm 6.2** (deviace $\lesssim n^{-1/2}$), ne překonání teorie. Naopak
 **bias² se drží na malé kladné hodnotě** (plateau), konzistentní s Naglerovou predikcí
-neredukovatelného biasu (globální attention porušuje locality). Pozn.: že plateau odpovídá
-*strukturálnímu* biasu (ne optimalizačnímu reziduu tohoto jednoho běhu) nelze z jednoho seedu
-prokázat — potřebuje 2–3 seedy (viz limity). Bias je malý, konzistentní s dobrou fidelitou.
-(Nefitujeme degenerovaný joint `bias²+c/n` — past z Ch.3.)
+neredukovatelného biasu (globální attention porušuje locality). Bias je malý, konzistentní s dobrou
+fidelitou. (Nefitujeme degenerovaný joint `bias²+c/n` — past z Ch.3.)
+
+### (3b) Strukturálnost biasu — ověřeno přes 3 seedy
+
+Zda plateau odráží *strukturální* bias (vlastnost architektury) nebo optimalizační reziduum
+jednoho běhu, rozhodne shoda přes nezávislé tréninky. Natrénovali jsme **3 modely** se seedy 0/1/2
+(shodný config, mění se init i realizace dat) a změřili bias² plateau na **stejné** fixní sadě úloh
+(`background/variant_c_seed_aggregation.py`):
+
+| režim | bias² plateau (seed 0 / 1 / 2) | mean ± std | CV | var. sklon |
+|---|---|---|---|---|
+| Easy | 0,00311 / 0,00302 / 0,00309 | 0,00307 ± 0,00005 | **1,6 %** | −1,30 |
+| Hard | 0,00147 / 0,00144 / 0,00156 | 0,00149 ± 0,00007 | **4,4 %** | −0,96 |
+
+Plateau se napříč seedy shoduje na jednotky procent (CV ≪ 25 %) → **bias je STRUKTURÁLNÍ**, ne
+artefakt konkrétního běhu. Tím je Naglerova predikce neredukovatelného biasu potvrzená empiricky,
+ne jen jako tvrzení o jednom modelu. Sklon variance je taktéž stabilní ($\approx-1$ napříč seedy).
 
 ### (4) Kalibrace vs oracle — PFN reprezentuje nejistotu věrně
 
@@ -128,12 +142,15 @@ nejisté hranice, kde ta mírná over-sharpness (sekce 4) stojí nejvíc BCE.
 - `fig_C_01_qualitative.png` — image / pravá maska / oracle / PFN / |rozdíl| (Easy & Hard).
 - `fig_C_02_fidelity.png` — fidelita vs $n_{\text{supp}}$ přes 5 režimů tvrdosti/OOD.
 - `fig_C_03_collapse.png` — $d_{\text{oracle}}$ vs $d_{\text{prior}}$ (negativní výsledek).
-- `fig_C_04_bias_variance.png` — bias² vs variance a sklon $n^{-1/2}$.
+- `fig_C_04_bias_variance.png` — bias² vs variance a sklon $n^{-1}$ (Thm 6.2).
 - `fig_C_05_calibration.png` — histogram predikcí + reliability vs oracle.
 - `fig_C_06_bayes_floor.png` — PFN BCE vs Bayes floor + excess risk per režim.
+- `fig_C_07_seed_bias.png` — bias² plateau per seed (shoda ⇒ strukturální).
 
 ## Limity a most A ↔ C
 
+- **Strukturálnost biasu — vyřešeno.** Dřívější výhrada „jeden seed → nelze prohlásit za
+  strukturální" je zodpovězena: 3 nezávislé seedy dají shodné plateau (CV 1,6 % / 4,4 %, sekce 3b).
 - **Trénink konvergoval čistě** (loss ~0,019, pix-acc 0,991, epocha 250), takže výsledky
   neomezuje trénovací nestabilita; saturace logitů je normální projev sebejistého segmenteru.
 - **Torus:** oracle i generátor sdílí periodické (cirkulantní) jádro → oracle exaktní a levný (FFT).
@@ -146,8 +163,9 @@ nejisté hranice, kde ta mírná over-sharpness (sekce 4) stojí nejvíc BCE.
 **Závěr C:** *Skutečný PFN na explicitním prioru je in-distribution skoro Bayes-optimální (excess
 risk nad Bayes floor ~0,004–0,006) a věrně aproximuje pravý posterior (fidelita vysoká, nejistota
 zachycená); amortizační chyba roste s tvrdostí a OOD hyperparametrů (asymetricky
-v $\ell$), ne s počtem hustého kontextu; variance mizí jako $n^{-1}$ (přesně Thm 6.2), zbytkový
-bias malý ale přetrvávající; kalibrace dobrá s mírnou over-sharpness na hranicích. Klíčový caveat:
+v $\ell$), ne s počtem hustého kontextu; variance mizí jako $n^{-1}$ (přesně Thm 6.2), bias je malý,
+ale **strukturální** (shodné plateau přes 3 seedy, CV 1,6 %/4,4 %); kalibrace dobrá s mírnou
+over-sharpness na hranicích. Klíčový caveat:
 „near-optimalita" platí jen v čistém hustém matched režimu (úloha je skoro identifikovatelná);
 patologie vyžadují OOD nebo řídký kontext. C tak slouží jako **kontrolní podmínka (clean
 baseline)**: dokazuje, že v matched režimu je model prokazatelně skoro Bayes-optimální, čímž

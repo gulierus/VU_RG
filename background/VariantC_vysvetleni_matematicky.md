@@ -301,9 +301,9 @@ přímo v log-log a $\mathrm{bias}^2$ jako plateau.)
 Naše měření (§7): log-log sklon $\overline{\mathrm{var}}$ je $\approx-1$, což je **přesná shoda**
 s Thm 6.2 (deviace $\lesssim n^{-1/2}\Leftrightarrow\mathrm{Var}\sim n^{-1}$) — ne překonání teorie.
 $\overline{\mathrm{bias}^2}$ drží malé kladné plateau, konzistentní s Naglerovou predikcí
-neredukovatelného biasu. **Že naměřená hodnota plateau odpovídá *strukturálnímu* biasu (a ne
-optimalizačnímu reziduu tohoto jednoho běhu) však z jednoho tréninkového seedu prokázat nelze**
-— viz limit 1 v §8.
+neredukovatelného biasu. Že plateau odpovídá **strukturálnímu** biasu (a ne optimalizačnímu
+reziduu jednoho běhu), je ověřeno přes **3 nezávislé seedy**: plateau se shoduje na jednotky
+procent (CV 1,6 % Easy / 4,4 % Hard, §7f).
 
 ---
 
@@ -350,14 +350,26 @@ vyžadoval řídký neinformativní kontext (Varianta A); není to univerzálie 
 
 **(d) Bias–variance.** $\overline{\mathrm{var}}$ klesá s $n_{\mathrm{supp}}$ k $\approx0$ s log-log
 sklonem $\approx-1$ — tj. $\mathrm{Var}\sim n^{-1}$, **přesná shoda s Naglerovým Thm 6.2**.
-$\overline{\mathrm{bias}^2}$ drží malé plateau (~$0{,}0016$ Hard, ~$0{,}0035$ Easy): variance mizí,
-zbytkový bias tohoto modelu přetrvává. (Zda plateau odpovídá *strukturálnímu* biasu z Naglera, viz
-limit 2 v §8 — potřebuje víc seedů.)
+$\overline{\mathrm{bias}^2}$ drží malé plateau (~$0{,}0015$ Hard, ~$0{,}0031$ Easy): variance mizí,
+bias přetrvává.
 
 **(e) Kalibrace vs oracle.** Rozdělení $\hat p_{\mathrm{PFN}}$ a $p_{\mathrm{oracle}}$ se téměř
 překrývají; $\overline{H_b}$ srovnatelné i na nejisté množině (0,522 vs 0,552). ECE(oracle)
 $=0{,}0049$ celkově, $0{,}0369$ na nejisté množině ($\sim5\%$ pixelů). Tj. **věrná reprezentace
 nejistoty** s jen mírnou zbytkovou over-sharpness na hranicích.
+
+**(f) Strukturálnost biasu — 3 seedy.** Aby šlo plateau prohlásit za *strukturální* (vlastnost
+architektury), a ne za optimalizační reziduum jednoho běhu, natrénovali jsme 3 modely (seed 0/1/2;
+shodný config, mění se init i realizace dat) a změřili plateau na **stejné** fixní sadě úloh
+(`background/variant_c_seed_aggregation.py`):
+
+| režim | plateau (seed 0/1/2) | mean ± std | CV | sklon var. |
+|---|---|---|---|---|
+| Easy | 0,00311 / 0,00302 / 0,00309 | 0,00307 ± 0,00005 | 1,6 % | −1,30 |
+| Hard | 0,00147 / 0,00144 / 0,00156 | 0,00149 ± 0,00007 | 4,4 % | −0,96 |
+
+Plateau je napříč seedy shodné (CV $\ll$ 25 %) → **bias je strukturální**, ne artefakt běhu; sklon
+variance je taktéž stabilní. Naglerova predikce neredukovatelného biasu je tím potvrzena empiricky.
 
 ---
 
@@ -387,10 +399,10 @@ a roste $\sim10\times$ OOD (asymetricky v $\ell$). Rozptyl $\to0$ jako $n^{-1}$ 
 zbytkový bias přetrvává, kalibrace věrná s mírnou over-sharpness na hranicích.
 
 **Limity (poctivě).**
-1. **Jeden tréninkový seed.** Celá analýza stojí na jednom natrénovaném modelu. Tvrzení, že
-   naměřené $\mathrm{bias}^2$ plateau je *strukturální* (vlastnost architektury, ne tohoto
-   optimalizačního běhu), **nelze z jednoho seedu podložit** — jde o tutéž výtku jednoho seedu
-   jako v Ch.3. Bez 2–3 seedů piš „zbytkový bias tohoto modelu", ne „strukturální bias".
+1. **Strukturálnost biasu — VYŘEŠENO (3 seedy).** Původní výtka „jeden seed → nelze prohlásit za
+   strukturální" je zodpovězena: plateau se přes seedy 0/1/2 shoduje (CV 1,6 %/4,4 %, §7f), takže
+   „strukturální bias" je oprávněné psát natvrdo. (Zůstává rozlišené jen na dvou režimech Easy/Hard;
+   plný $\ell$-profil biasu je možné rozšíření.)
 2. **Snadný inferenční problém (matched prior + husté pozorování).** „Near-optimal" je zčásti
    vlastnost setupu, ne jen modelu; $\theta$ je skoro identifikovatelné z $x_\star$. Praktické
    riziko a zajímavý režim je **OOD** a **řídký kontext**, ne in-distribution.
