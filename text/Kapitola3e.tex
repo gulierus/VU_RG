@@ -91,9 +91,16 @@ Nejzajímavější proto budou malé kontexty, kde prior dominuje a ukazuje se, 
 
 V prvním testu zafixujeme $\ell_{\text{true}} = 0{,}3$ a měníme velikost kontextu $n \in \{5, 10, 20, 40, 64, 100, 128\}$.
 Ptáme se, jak rychle se jednotlivé metody s rostoucím množstvím dat vzpamatují ze špatného prioru.
-Výsledky shrnují tabulky~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n} a obrázek~\ref{fig:exp7_q1}.
+Výsledky shrnují obrázek~\ref{fig:exp7_q1} a tabulky~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n}.
 Horní panel obrázku ukazuje MSE jako funkci $n$, dolní panel $\Delta$NLL.
 Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které se chtějí všechny metody přiblížit.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.576\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n.png}
+    \caption{Vliv velikosti kontextu při misspecifikaci kernelu (data z Matérn $2{,}5$, $\ell_{\text{true}} = 0{,}3$). Nahoře: MSE jako funkce $n$, černá tečkovaná čára je \emph{GP\_oracle}. Dole: $\Delta$NLL vůči \emph{oracle}, tečkovaná čára značí nulu (\emph{oracle}). Chybové úsečky $\pm 1$ směrodatná chyba. PFN (modrá) se v MSE drží těsně u \emph{oracle} a v $\Delta$NLL je pro malé a střední kontexty ze všech metod nejníže.}
+    \label{fig:exp7_q1}
+\end{figure}
 
 \begin{table}[!htb]
     \centering
@@ -133,13 +140,6 @@ Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které 
     \label{tab:exp7_dnll_n}
 \end{table}
 
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.576\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n.png}
-    \caption{Vliv velikosti kontextu při misspecifikaci kernelu (data z Matérn $2{,}5$, $\ell_{\text{true}} = 0{,}3$). Nahoře: MSE jako funkce $n$, černá tečkovaná čára je \emph{GP\_oracle}. Dole: $\Delta$NLL vůči \emph{oracle}, tečkovaná čára značí nulu (\emph{oracle}). Chybové úsečky $\pm 1$ směrodatná chyba. PFN (modrá) se v MSE drží těsně u \emph{oracle} a v $\Delta$NLL je pro malé a střední kontexty ze všech metod nejníže.}
-    \label{fig:exp7_q1}
-\end{figure}
-
 \textbf{Diskuze:}
 
 Z tabulek plynou dvě pozorování.
@@ -166,7 +166,14 @@ Pro velká $\ell_{\text{true}}$ jsou realizace hladké a rozdíl mezi oběma ker
 Hodnoty $\ell_{\text{true}} > 1{,}0$ navíc leží mimo trénovací rozsah PFN, takže zároveň testujeme, jak model degraduje mimo svůj implicitní prior.
 Výsledky shrnují tabulky~\ref{tab:exp7_mse_ls} a~\ref{tab:exp7_dnll_ls} a obrázek~\ref{fig:exp7_q2}.
 
-\begin{table}[htbp]
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.576\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q2_mse_vs_ls.png}
+    \caption{Vliv síly misspecifikace ($n = 40$). Nahoře: MSE jako funkce $\ell_{\text{true}}$. Dole: $\Delta$NLL vůči \emph{oracle}. Modrý pás značí trénovací rozsah PFN $\ell \in [0{,}05,\, 1{,}0]$. GP\_fixed (oranžová) pro krátké korelační délky selhává v obou metrikách, ostatní metody se s rostoucím $\ell_{\text{true}}$ sbíhají k \emph{oracle}. PFN zůstává blízko \emph{oracle} v celém rozsahu včetně hodnot mimo svůj trénovací rozsah.}
+    \label{fig:exp7_q2}
+\end{figure}
+
+\begin{table}[!htb]
 \centering
 \begin{tabular}{cccccc}
 \hline
@@ -187,9 +194,7 @@ $2{,}00$ & $0{,}14713$ & $0{,}13830$ & $0{,}13038$ & $0{,}12932$ & $0{,}12545$ \
 \label{tab:exp7_mse_ls}
 \end{table}
 
-\begin{figure}[p]
-    \centering
-    \begin{minipage}{\linewidth}
+\begin{table}[!htb]
     \centering
     \begin{tabular}{ccccc}
     \hline
@@ -206,14 +211,9 @@ $2{,}00$ & $0{,}14713$ & $0{,}13830$ & $0{,}13038$ & $0{,}12932$ & $0{,}12545$ \
     $2{,}00$ & $+0{,}097$ & $+0{,}043$ & $+0{,}020$ & $+0{,}013$ \\
     \hline
     \end{tabular}
-    \captionof{table}{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce $\ell_{\text{true}}$ ($n = 40$, průměr přes $150$ instancí). Pro střední korelační délky kolem pravé hodnoty $0{,}2$ až $0{,}3$ je nejblíže \emph{oracle} PFN. Pro velmi krátké i dlouhé délky vedou adaptivní metody, $\Delta$NLL PFN však zůstává malé v celém rozsahu, a to i mimo jeho trénovací rozsah $\ell > 1{,}0$.}
+    \caption{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce $\ell_{\text{true}}$ ($n = 40$, průměr přes $150$ instancí). Pro střední korelační délky kolem pravé hodnoty $0{,}2$ až $0{,}3$ je nejblíže \emph{oracle} PFN. Pro velmi krátké i dlouhé délky vedou adaptivní metody, $\Delta$NLL PFN však zůstává malé v celém rozsahu, a to i mimo jeho trénovací rozsah $\ell > 1{,}0$.}
     \label{tab:exp7_dnll_ls}
-    \end{minipage}
-    \vfill
-    \includegraphics[width=0.64\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q2_mse_vs_ls.png}
-    \caption{Vliv síly misspecifikace ($n = 40$). Nahoře: MSE jako funkce $\ell_{\text{true}}$. Dole: $\Delta$NLL vůči \emph{oracle}. Modrý pás značí trénovací rozsah PFN $\ell \in [0{,}05,\, 1{,}0]$. GP\_fixed (oranžová) pro krátké korelační délky selhává v obou metrikách, ostatní metody se s rostoucím $\ell_{\text{true}}$ sbíhají k \emph{oracle}. PFN zůstává blízko \emph{oracle} v celém rozsahu včetně hodnot mimo svůj trénovací rozsah.}
-    \label{fig:exp7_q2}
-\end{figure}
+\end{table}
 
 \textbf{Diskuze:}
 
