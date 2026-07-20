@@ -14,7 +14,7 @@ Rovněž prozkoumáme mechanismy pomocí kterých PFN vyhodnocuje vstupní data 
 Nejdříve uvedeme základní analýzu PFN transformeru.
 Zaměříme se zde na to, co přesně děla se vstupními daty, podíváme se, zde se snaží nakopírovat stejné mechanismy jako GP, anebo zda dělá něco jiného.
 Experimenty jsme prováděli na dvou typech modelů.
-Oba sdílí identickou architekturu transformeru: $6$ vrstev, $8$ \emph{attention hlav}, dimenze embeddingu $512$, dimenze skrytých vrstev dopředné sítě $1024$ a výstupní \texttt{FullSupportBarDistribution} s $1000$ biny, celkem $14{,}14$ milionu parametrů.
+Oba sdílí identickou architekturu transformeru: $6$ vrstev, $8$ \emph{attention hlav}, dimenze embeddingu $512$, dimenze skrytých vrstev dopředné sítě $1024$ a výstupní \texttt{FullSupportBarDistribution} s $1000$ biny.
 Architektura je nastavena s parametry \lstinline|features_per_group=1| a \lstinline|attention_between_features=False|, tedy přesně tak, jak jsme ji popsali v předchozí kapitole pro případ $1$D regrese.
 Oba modely byly trénovány na syntetických datech vygenerovaných z Gaussovského procesu s RBF kernelem, vstupní prostor $x \in [0, 1]$.
 Liší se však tím, z jakého prioru nad hyperparametry trénovací data pocházela, a tedy i délkou tréninku, neboť pro nefixní hyperparametry model potřebuje více času na učení.
@@ -27,7 +27,8 @@ Model se tedy učil aproximovat posterior jednoho konkrétního GP a trénink ko
 \textbf{Model s náhodně vzorkovanými hyperparametry:} 
 
 Model byl trénován na GP, jehož hyperparametry byly při každé dávce vzorkovány nezávisle z předem dané distribuce: $\ell \sim \mathcal{U}(0{,}05,\, 1{,}0)$, $\text{outputscale} \sim \text{LogNormal}(0,\, 0{,}5)$, $\sigma^2 \sim 10^{\mathcal{U}(-3,\,-1)}$.
-Tento model se tedy musí naučit generalizovat přes celou rodinu GP funkcí s různými korelačními délkami a amplitudami – jde o plnohodnotný meta-learning nad distribucí hyperparametrů.
+Tento model se tedy musí naučit generalizovat přes celou rodinu GP funkcí s různými korelačními délkami a amplitudami.
+Tím pádem jde o plnohodnotný meta-learning nad distribucí hyperparametrů.
 Právě proto vyžaduje podstatně delší trénink: model viděl data z nespočetně různých tvarů funkcí a musel se naučit rozpoznávat hyperparametry přímo z kontextových dat.
 Trénink trval $500$ epoch.
 \par
@@ -45,7 +46,7 @@ To znamená, ze model s s náhodně vzorkovanými hyperparametry budeme zkoumat 
 Začneme však s tím, že vykreslíme si jednotlivé vrstvy a podíváme se na vnitřnosti transformeru a jak se jeho vrstvami prochází tok dat.
 \emph{Attention matice} je přirozené okno do toho, jak transformer interně organizuje informaci.
 Připomínáme, že v naší konfiguraci má model $6$ vrstev a v každé vrstvě $8$ \emph{attention hlav}, přičemž každá hlava může sledovat jiný aspekt vstupních dat.
-Vizualizaci provedeme pro $100$-epoch model na sekvenci délky $120$ bodů: $20$ trénovacích bodů a $100$ testovacích bodů.
+Vizualizaci provedeme pro náš fixní model na sekvenci délky $120$ bodů: $20$ trénovacích bodů a $100$ testovacích bodů.
 Výsledkem je \emph{attention matice} tvaru $120 \times 120$, přičemž každý prvek $a_{ij}$ říká, jak moc se bod $i$ (jako \textit{query}) dívá na bod $j$ (jako \textit{key}).
 Každá vrstva přitom neobsahuje jen jednu takovou matici, ale $8$, tj. jednu za každou \emph{attention hlavu}, protože každá hlava má vlastní naučené váhy.
 Abychom nemuseli sledovat všech $8$ matic zvlášť (pro $6$ vrstev bychom obdrželi $48$ matic), sečteme je po prvcích a vydělíme osmi, čímž z nich uděláme jedinou \emph{průměrnou} matici pro každou vrstvu.
@@ -106,14 +107,20 @@ Některé \textit{key} pozice (sloupce) dostávají vysoké \emph{attention} od 
 Ve~vrstvě $0$ jsou nejostřejší, v~hlubších vrstvách obvykle přetrvává jeden reziduální (v~naší realizaci nápadně kolem \textit{key} pozice $75$).
 Jde o~tzv.\ \textit{attention sink}, mechanismus dobře popsaný u~velkých jazykových modelů (Xiao et al., 2023).
 Vzniká ze dvou důvodů.
-Za prvé, softmax nutí každý řádek matice sečíst na jedničku – každý \textit{query} bod tedy \emph{musí} své \emph{attention} někam rozdělit, i když pro něj žádný klíč není opravdu relevantní (typicky v~raných vrstvách, než se vybudují informativní reprezentace, nebo u~bodů daleko od dat).
-Přebytek \emph{attention} se pak „vylije“ na několik stále stejných pozic, které tak vytvoří svislé pruhy.
-Za druhé, body s~netypickou hodnotou (extrémní $Y_j$ nebo okrajové $X_j$) dostanou po zakódování větší embedding, a tím i vyšší skóre od všech ostatních bodů – přitahují proto \emph{attention} bez ohledu na to, odkud se \textit{query} dívá.
+Za prvé, softmax nutí každý řádek matice sečíst na jedničku.
+To znamená, že každý \textit{query} bod tedy \emph{musí} své \emph{attention} někam rozdělit, i když pro něj žádný klíč není skutečně relevantní.
+Typicky se to stává v~raných vrstvách, než se vybudují informativní reprezentace, nebo u~bodů daleko od dat.
+Přebytek \emph{attention} se pak přerozdělí na několik stále stejných pozic, které pak vytvoří svislé pruhy.
+Za druhé, body s~netypickou hodnotou (extrémní $Y_j$ nebo okrajové $X_j$) dostanou po zakódování větší embedding, a tím i vyšší skóre od všech ostatních bodů.
+Proto přitahují \emph{attention} bez ohledu na to, odkud se \textit{query} dívá.
 \par
 
-Pro naši otázku je podstatné, že tyto pruhy jsou \textit{query-nezávislé}: Nadaraya-Watsonův ani RBF estimátor by je nikdy nevytvořil, protože jejich váhy jsou lokální a závisejí na poloze query bodu $x^*$.
-Svislý pruh naopak znamená „všechny \emph{query} se dívají na tentýž bod bez ohledu na svou polohu“, část \emph{attention rozpočtu} tedy jde na \emph{normalizační sink}, nikoli na kernelové porovnávání.
-Tímto se dá říct, že existence pruhů je tak dalším nepřímým dokladem, že PFN \emph{attention} není prostý kernel smoothing.
+Pro naši otázku je podstatné, že tyto pruhy jsou tzv. \textit{query-nezávislé},
+To znamená, že stejný \textit{key} bod přitahuje vysoké \emph{attention} od všech \emph{query} pozic stejně a bez ohledu na to, který bod zrovna predikujeme.
+RBF estimátor by je nikdy nevytvořil, protože jeho váhy jsou lokální a závisejí na poloze \emph{query} bodu $x^*$.
+Svislý pruh naopak znamená „všechny \emph{query} se dívají na stejný bod bez ohledu na svou polohu“.
+Část \emph{attention rozpočtu} tedy jde na \emph{normalizační sink}, nikoli na \emph{kernelové porovnávání}.
+Tímto se dá říct, že existence pruhů je tak dalším nepřímým dokladem, že PFN \emph{attention} není prostý \emph{kernel smoothing}.
 
 \subsection{Matematický rámec pro srovnávací experimenty}
 \label{subsec:matematicky-ramec}
@@ -165,7 +172,7 @@ Experiment provedeme pro fixní model na $n_{\text{ctx}} = 20$ trénovacích bod
 Každá metrika je průměrována přes $5$ nezávislých \emph{seedů}, přičemž pro každý \emph{seed} je vygenerována jedna GP sekvence délky $100$ (prvních $20$ bodů jako kontext, všech $100$ jako testovací body).
 MSE je počítáno jako střední kvadratická odchylka mezi střední hodnotou predikce PFN a analytickým GP posteriorem přes všech $100$ testovacích bodů.
 Korelace \emph{attention} vs.\ RBF je pro každý testovací bod $x^*$ spočítána jako Pearsonova korelace mezi \emph{attention vahami} poslední vrstvy (průměr přes $8$ hlav) a normalizovanými RBF vahami $\exp(-d^2/2\ell^2)$, zprůměrovaná přes všechny testovací body.
-Jako referenční baseline zahrnujeme rovněž Nadaraya-Watsonův estimátor: \textrm{MSE(NW, GP)} měří jeho odchylku od analytického GP posterioru a slouží jako dolní mez kvality nejjednoduššího \emph{kernel smoothingu}.
+Jako referenční metodu zahrnujeme rovněž Nadaraya-Watsonův estimátor: \textrm{MSE(NW, GP)} měří jeho odchylku od analytického GP posterioru a slouží jako dolní mez kvality nejjednoduššího \emph{kernel smoothingu}.
 \textrm{MSE(PFN, NW)} pak kvantifikuje, o kolik se predikce PFN od NW liší, pokud $\textrm{MSE(PFN, NW)} \approx \textrm{MSE(NW, GP)}$, znamená to, že PFN a NW predikují zcela odlišné hodnoty, a tedy že PFN neprovádí prostý \emph{kernel smoothing}.
 Naměřené hodnoty jsou shrnuty v tabulce~\ref{tab:exp3}.
 

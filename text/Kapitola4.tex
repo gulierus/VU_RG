@@ -395,8 +395,6 @@ Chybu měříme binární křížovou entropií (BCE) vůči pravé masce, pro P
 Rozdíl mezi chybou PFN a touto mezí je cena, kterou platíme za to, že PFN úlohu jen odhaduje z~kontextu.
 \par
 
-\textbf{Diskuze:}
-
 Popišme nejprve, co obrázek~\ref{fig:seg-c-bayes} zobrazuje a jak ho číst.
 Na vodorovné ose obou grafů je pět režimů náročnosti, které jsme zavedli v~části~\ref{subsec:seg-c-setup}.
 Zleva stojí OOD-short, tam je korelační délka kratší, než jakou model viděl při tréninku, a pole je proto členitější.
@@ -408,6 +406,8 @@ Modrý sloupec je chyba samotného \emph{oraclu}, tedy \emph{Bayes floor}, nejme
 Čím menší je rozdíl mezi nimi, tím blíže je PFN nejlepšímu možnému prediktoru.
 Pravý graf vynáší tento rozdíl, tedy přebytečnou chybu, přímo, v~popisku osy je označen \emph{excess risk}.
 \par
+
+\textbf{Diskuze:}
 
 Nyní k~výsledkům.
 Uvnitř trénovacího rozsahu (sloupce Hard, Medium a Easy) je přebytečná chyba malá.
@@ -445,33 +445,35 @@ Zde stejné měření provedeme na vlastním PFN, a to s~pravým priorem místo 
 Prior masku totiž tentokrát známe přesně.
 Před pozorováním vstupního obrázku patří každý pixel do popředí se stejnou pravděpodobností, rovnou podílu popředí.
 Prior maska je tedy jednobarevná plocha bez jakéhokoli tvaru.
+Měření provedeme na jednom zástupci uvnitř trénovacího rozsahu, konkrétně na náročné úloze (Hard).
 Sledujeme vzdálenost predikce od \emph{oraclu} a od této prior masky jako funkci velikosti kontextu.
 \par
 
-\textbf{Diskuze:}
-
-Popišme nejprve, co obrázek~\ref{fig:seg-c-kolaps} zobrazuje a jak ho číst.
-Zelená křivka je vzdálenost predikce od \emph{oraclu}, fialová vzdálenost od uniformní prior masky, obě jako funkce velikosti kontextu.
-Kdyby kolaps nastával, viděli bychom při malém kontextu fialovou křivku klesat k~nule a zelenou stoupat, predikce by se totiž podobala prior masce, a ne pravdě.
-Nic takového se neděje.
-Zelená křivka je malá a plochá i při jediném \emph{support páru}, predikce je po celou dobu mnohem blíž pravdě než prior masce.
-Kolaps zde tedy \textit{nenastává}.
-Důvod je stejný jako v~části~\ref{subsec:seg-c-fidelita}, hustý vstupní obrázek prozradí úlohu i z~jednoho příkladu, takže model nemá proč se vracet k~průměru.
+I v tomto případě není zcela zřejmé, co zobrazuje graf na obrázku \ref{fig:seg-c-kolaps} a jak ho správně číst.
+Proto se pokusíme opět čtenáři přiblížit co je vyneseno na tomto grafu.
+Zelená křivka je vzdálenost predikce od \emph{oraclu}, fialová křivka je vzdálenost od uniformní prior masky (naš prior v tomto případě), obě jako funkce velikosti kontextu.
 \par
 
-Poznamenejme ještě, proč se fialová křivka drží u~hodnoty zhruba $0{,}5$ a s~kontextem se vůbec nehýbe.
-Drtivá většina pixelů je jistý vnitřek nebo jisté pozadí a model tam predikuje hodnoty blízké nule nebo jedné.
-Vzdálenost takové predikce od uniformní masky s~hodnotou $0{,}5$ je proto skoro přesně $0{,}5$ bez ohledu na kontext.
-Nosným důkazem je tedy plochá a nízká zelená křivka, fialová jen dokládá, že se predikce uniformní masce nikdy nepřiblíží.
+\textbf{Diskuze:}
+Podle popisu grafu výše můžeme udělat následující závěr.
+Kdyby kolaps k prioru nastával i tady, viděli bychom fialovou křivku klesat k~nule při malém kontextu a zelenou naopak stoupat.
+Predikce by se totiž podobala prior masce, a ne skutečnosti.
+Avšak nic takového se tady neděje.
+Zelená křivka zůstává nízko (blízko nuly) a nemění se s~velikostí kontextu, dokonce se drží u~nuly už i při jediném \emph{support páru}.
+Predikce je tedy po celou dobu mnohem blíž pravdě než prior masce.
+Kolaps zde tedy nenastává.
+Důvod je stejný jako v~části~\ref{subsec:seg-c-fidelita}, hustý vstupní obrázek prozradí úlohu hned u jednoho příkladu, takže model nemá důvod, proč se vracet k~průměru.
 \par
 
 Zdůrazněme, že tento negativní výsledek Naglerově teorii neodporuje.
-Podmínka lokality (věta~\ref{theorem:lokalizace}) předpovídá tah k~prioru tam, kde je predikce daleko od dat.
-Hustý vstupní obrázek ale tuto podmínku nikdy nesplní, model má pozorování po ruce v~každém pixelu a pravý posterior je proto daleko od prioru.
+Podmínka lokality (věta~\ref{theorem:lokalizace}) předpovídá přiblížení k~prioru tam, kde je predikce daleko od dat.
+Avšak hustý vstupní obrázek tuto podmínku nikdy nesplní, model má pozorování po ruce v~každém pixelu a pravý posterior je proto daleko od prioru.
 Kdyby PFN přesto kolaboval, nebylo by to potvrzení teorie, ale selhání aproximace posterioru.
-Stopa tahu k~prioru nicméně zůstává i zde, je jí malé bias plató z~části~\ref{subsec:seg-c-bias-var}, které s~kontextem nemizí.
-Tatáž síla, která u~řídkého kontextu způsobí kolaps, se u~hustého projeví jen touto drobnou systematickou odchylkou.
-To zpřesňuje závěr ze sekce~\ref{sec:seg-universeg}, kolaps k~prioru není univerzální vlastnost amortizace, ale důsledek řídkého a málo informativního kontextu.
+Stopa přiblížení k~prioru nicméně zůstává i zde.
+Touto stopou je malé bias plató z~části~\ref{subsec:seg-c-bias-var}, které s~kontextem nemizí.
+Stejná síla, která u~řídkého kontextu způsobí kolaps, se u~hustého projeví jen touto drobnou systematickou odchylkou.
+To rozšiřuje závěr ze sekce~\ref{sec:seg-universeg}.
+Kolaps k~prioru tedy není univerzální vlastnost amortizace, ale důsledek řídkého a málo informativního kontextu.
 \par
 
 \begin{figure}[!htb]
@@ -487,14 +489,15 @@ To zpřesňuje závěr ze sekce~\ref{sec:seg-universeg}, kolaps k~prioru není u
 \label{subsec:seg-c-shrnuti}
 
 Tento experiment ukázal, že jádro myšlenky PFN funguje i ve dvou dimenzích.
-Skutečné PFN natrénované na explicitním prioru věrně aproximuje pravý Bayesovský posterior, a to ve střední hodnotě i v~nejistotě.
-Uvnitř trénovacího rozsahu je dokonce skoro Bayesovsky optimální, od nejlepšího možného prediktoru jej dělí jen malá přebytečná chyba.
-Rozklad chyby přitom odpovídá Naglerově teorii, rozptyl s~kontextem mizí aspoň jako $n^{-1}$ a bias zůstává na malé, ale strukturální hodnotě, potvrzené shodou přes tři nezávislé tréninky.
+Skutečné PFN natrénované na explicitním prioru dostatečně dobře aproximuje pravý Bayesovský posterior, a to ve střední hodnotě i v~nejistotě.
+Uvnitř trénovacího rozsahu je dokonce skoro Bayesovsky optimální.
+Od nejlepšího možného prediktoru jej dělí jen malá chyba.
+Rozklad chyby přitom odpovídá Naglerově teorii, rozptyl s~kontextem mizí aspoň jako $n^{-1}$ a bias zůstává na malé, ale strukturální hodnotě, a to bylo potvrzené shodou přes tři nezávislé tréninky.
 \par
 
 Současně se ukázalo, kde má metoda meze.
 Amortizační chyba neroste s~ubývajícím kontextem, ale s~náročností úlohy a s~odchýlením hyperparametrů mimo trénovací rozsah.
-Hustý vstupní obrázek totiž úlohu prozradí i z~mála příkladů.
+Hustý vstupní obrázek totiž úlohu prozradí i z malým počtem příkladů.
 Oba experimenty této kapitoly tak vedou ke stejnému závěru.
 Kolaps k~prioru u~předtrénovaného modelu ani selhání mimo trénovací rozsah nejsou vadou architektury, v~čistém režimu je totiž model prokazatelně skoro optimální.
 Jsou to patologie podmíněné režimem, které nastupují až při řídkém kontextu nebo mimo naučenou rodinu úloh.

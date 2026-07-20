@@ -401,6 +401,20 @@ V naší konfiguraci jsou borders typicky rovnoměrně rozložené, takže všec
 Implementace ale podporuje i nerovnoměrné dělení (hustší buckety v zajímavých oblastech, řidší na krajích).
 \par   
 
+\textbf{Poznámka o prokletí dimenze}
+
+Uveďme jednu zajímavost, která se vyskytuje u BarDistribution.
+U tohoto konceptu se totiž neobjevuje tzv. \textit{prokletí dimenze} (anglicky \emph{curse of dimensionality}), na které jsou běžné histogramy náchylné.
+Připomeňme, kdy toto prokletí nastává.
+Objevuje se u diskretizačních metod tehdy, když binujeme prostor, jehož dimenze neustále roste.
+Počet binů potřebný k udržení dané přesnosti pak roste exponenciálně, konkrétně jako $\mathcal{O}(m^d)$ pro $m$ binů na osu a dimenzi $d$.
+Například Přesně tak je tomu u histogramového odhadu hustoty, kde se může diskretizovat vysokodimenzionální vstupní prostor.
+BarDistribution ale diskretizuje výhradně výstupní veličinu $y$, která je skalární, a to nezávisle na dimenzi vstupu $x$.
+I když bychom PFN trénovali na regresi s~dimenzí $d = 5$ nebo $d = 100$, prediktivní rozdělení $q_\theta(y \mid x, \mathcal{D})$ je vždy jednorozměrné rozdělení nad $\mathbb{R}$.
+Počet binů potřebný k aproximaci této jednorozměrné hustoty s danou přesností tedy vůbec nezávisí na dimenzi vstupu.
+Veškerou práci s vysokodimenzionálním vstupem totiž odvádí transformer ve svých spojitých reprezentacích, do binování už vysoká dimenze nevstupuje.
+\par
+
 Vraťme se zpátky k dekódování.
 Jednotlivé prvky v schématu, který jsme uvedli na začátku sekce, plní následující funkci:
 \begin{enumerate}
