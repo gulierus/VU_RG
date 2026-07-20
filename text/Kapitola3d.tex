@@ -115,7 +115,7 @@ Porovnáváme tedy jednu vrstvu PFN s jedním krokem GD přímo proti sobě.
 Tečkovaná vodorovná čára značí triviální predikci konstantním průměrem, které odpovídá $\text{nMSE} = 1$.
 Cokoli nad touto čárou je horší, než kdybychom vůbec nepredikovali.
 
-\begin{figure}[htbp]
+\begin{figure}[!t]
     \centering
     \includegraphics[width=\linewidth]{figures/GP2_exp2_neumann/fig_exp2_gd_baseline.png}
     \caption{PFN versus skutečný gradientní sestup, obojí v predikčním prostoru, pro \emph{Easy} (vlevo) a \emph{Hard} (vpravo). Modrá: normalizované MSE PFN proti hloubce $L$. Červená: normalizované MSE gradientního sestupu proti počtu kroků $t$ (stejné osy). Tečkovaná čára značí triviální predikci konstantním průměrem (nMSE $= 1$). PFN je hluboko pod triviální úrovní už při jedné vrstvě, zatímco skutečný gradientní sestup zůstává nad triviální predikcí i po osmi krocích.}
@@ -132,7 +132,7 @@ PFN je rychlejší než gradientní sestup i v korektním srovnání.
 Abychom rozdíl vyčíslili, dopočítáme pro každou hloubku $L$, kolik kroků gradientního sestupu dá stejnou chybu jako $L$-vrstvý PFN.
 Výsledky jsou v tabulce~\ref{tab:ch2_gd_steps}.
 
-\begin{table}[htbp]
+\begin{table}[!t]
 \centering
 \begin{tabular}{ccc}
 \hline
