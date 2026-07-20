@@ -13,7 +13,7 @@ Analýzu provedeme na rodině pěti modelů, které se liší pouze počtem vrst
 Všechny sdílejí identickou architekturu s modely z předchozích sekcí ($8$ \emph{attention hlav}, dimenze embeddingu $512$, dimenze skryté vrstvy dopředné sítě $1024$, \lstinline|features_per_group=1| a výstupní \texttt{Full\-Support\-Bar\-Distribution} s $1000$ biny).
 Všechny byly rovněž trénovány na stejném rozdělení hyperparametrů jako náhodný model:
 $$\ell \sim \mathcal{U}(0{,}05,\, 1{,}0), \qquad \text{outputscale} \sim \text{LogNormal}(0,\, 0{,}5), \qquad \sigma^2 \sim 10^{\mathcal{U}(-3,\,-1)}.$$
-Jednovrstvý model konvergoval již za $100$ epoch, dvou a čtyřvrstvy model byly trénovány $300$ epoch a nejhlubší šesti a osmivrstvý $500$ epoch.
+Jednovrstvý model konvergoval již za $100$ epoch, dvou- a čtyřvrstvé modely byly trénovány $300$ epoch a nejhlubší šesti- a osmivrstvé $500$ epoch.
 Tato řada modelů nám umožní sledovat, jak se vnitřní strategie transformeru mění s přidáváním vrstev.
 \par
 
@@ -163,7 +163,7 @@ Podstatné je, že jiná cesta neexistuje.
 Cokoli hlava spočítala, dostane se ke zbytku modelu jedině vynásobením touto maticí a přičtením ke společné reprezentaci.
 Konkrétní hlavu proto můžeme odpojit velmi jednoduše, stačí její výstupní projekci vynulovat ($\mathbf{W}_{\text{out}}^{(h)} = \mathbf{0}$).
 Hlava pak sice dál počítá, ale její výsledek se nikam nepřičte.
-Ostatní hlavy, dopředné sítě i reziduální spoje přitom zůstanou beze změn.
+Ostatní hlavy, dopředné sítě i reziduální spoje přitom zůstanou beze změny.
 Poté modelem znovu proženeme stejný vstup a měříme, o kolik se zhorší shoda predikce s GP posteriorem.
 Rozdíl oproti původnímu kompletnímu modelu je pak čistým příspěvkem právě té jedné hlavy.
 \par
@@ -174,8 +174,8 @@ $$\text{rel} = \frac{\text{MSE}(\text{knockout},\, \mu_{\text{GP}}) - \text{MSE}
 Používáme tuto metriku, jelikož absolutní rozdíl MSE by mohl být zavádějící.
 Hluboké modely totiž aproximují GP posterior s velmi malou \emph{baseline chybou} (řádově $10^{-4}$), takže jejich absolutní zhoršení není výrazné pouze kvůli této architektonické vlastnosti, ať je hlava důležitá, nebo ne.
 Relativní metrika naproti tomu měří zhoršení v násobcích vlastní \emph{baseline chyby} modelu, a proto je mezi modely srovnatelná.
-Velká hodnota $\text{rel}$ znamená, že hlava je důležitá pro aproximaci GP posterioru .
-Hodnota, která blízko nuly naopak značí, že model bez ní funguje prakticky stejně.
+Velká hodnota $\text{rel}$ znamená, že hlava je důležitá pro aproximaci GP posterioru.
+Hodnota blízko nuly naopak značí, že model bez ní funguje prakticky stejně.
 Test provedeme na $50$ instancích s kontextem $n_{\text{ctx}} = 40$.
 Výsledky shrnuje tabulka~\ref{tab:ch2_knockout} a obrázek~\ref{fig:ch2_knockout}.
 
@@ -208,13 +208,12 @@ $8$ vrstev & $(1,\, 6)$ & $0{,}00006$ & $14{,}6\times$ \\
 Obrázek ilustruje jasnou strukturu, kauzálně důležité hlavy se koncentrují v raných vrstvách.
 Je vidět, že dominantní hlava je u každého modelu ve vrstvě $0$ nebo $1$.
 To potvrzuje hypotézu o rozdělení práce z korelační analýzy.
-Pro hluboké modely platí, že \emph{knockout} je nepohorší a tak v absolutních číslech zůstávají blízko GP posterioru.
+U hlubokých modelů je absolutní dopad \emph{knockoutu} malý a predikce zůstávají blízko GP posterioru.
 Avšak odebrání jedné hlavy zhorší predikci relativně k vlastní \emph{baseline chybě}, a to napříč všemi hloubkami.
 Z toho tedy plyne, že žádná hlava není bezvýznamná.
 Jinými slovy, každá hlava má na výsledné predikci svůj podíl.
 Odebrání kterékoli z nich zvedne chybu modelu, jak je vidět v tabulce~\ref{tab:ch2_knockout}, ale model se bez ní nezhroutí a jeho predikce zůstává použitelná.
-Jednovrstvý model je nejkřehčí, což nás nepřekvapuje.
-Jelikož model má pouze jednu vrstvu, má pouze $8$ hlav a každá je pro výpočty a predikce důležitá.
+Jednovrstvý model je nejkřehčí, což nás nepřekvapuje, jelikož má jen jednu vrstvu s~$8$ hlavami a každá z~nich je pro predikci důležitá.
 \par
 
 Poznamenejme, že z výsledků přes všech $50$ instancí bereme \textit{medián}, nikoli průměr.
@@ -240,7 +239,7 @@ Nyní bychom se mohli ptát, \textit{kolik} jich vlastně potřebujeme, tedy jak
 K tomu použijeme rozklad střední kvadratické chyby na dvě složky, který přímo navazuje na \emph{bias-variance} rozklad (\ref{Bias_Variance}) z teoretické kapitoly.
 Pro každý model měříme MSE vůči GP posterioru při rostoucím počtu kontextových bodů $n \in \{5, 10, 20, 40, 80, 120\}$ ($200$ instancí pro každé $n$) a naměřené hodnoty proložíme modelem
 $$\text{MSE}(n) = \text{bias}^2 + \frac{c}{n}.$$
-Člen $\text{bias}^2$ zde představuje tzv. \textit{ireducibilní chybu}, tj. tu část chyby, která nezmizí ani při nekonečném kontextu ($n \to \infty$).
+Člen $\text{bias}^2$ zde představuje tzv. \textit{neredukovatelnou chybu} (\emph{irreducible}), tj. tu část chyby, která nezmizí ani při nekonečném kontextu ($n \to \infty$).
 Připomeňme si, že toto je jedna z vlastností, kterou Nagler popisuje u transformeru, jak jsme již zmiňovali v sekci~\ref{subsec:pfn-transformer}, bias transformeru totiž obecně nemůže úplně zmizet, zatímco jeho rozptyl s počtem dat klesá.
 Člen $c/n$ je naopak rozptyl, který s přibývajícími daty klesá.
 Odhadnuté koeficienty jsou v tabulce~\ref{tab:ch2_bias_variance}, proložení pak na obrázku~\ref{fig:ch2_msedecomp}.
@@ -258,7 +257,7 @@ $6$ vrstev & $-0{,}00076$ & $0{,}029$ \\
 $8$ vrstev & $-0{,}00065$ & $0{,}026$ \\
 \hline
 \end{tabular}
-\caption{Rozklad MSE vůči GP posterioru na $\text{bias}^2 + c/n$. Jednovrstvý model má jako jediný signifikantně nenulový $\text{bias}^2$. Od dvou vrstev výše je ireducibilní chyba statisticky neodlišitelná od nuly a hloubka už jen snižuje rozptylový člen $c$. Poznamenejme dále, že mírně záporné odhady $\text{bias}^2$ u hlubších modelů nemají věcný význam. Proložení totiž nevynucuje, aby $\text{bias}^2$ vyšel nezáporný, a když je skutečná hodnota blízká nule, může odhad vlivem šumu klesnout těsně pod nulu. Tyto hodnoty tedy prakticky znamenají nulový ireducibilní bias.}
+\caption{Rozklad MSE vůči GP posterioru na $\text{bias}^2 + c/n$. Jednovrstvý model má jako jediný zřetelně nenulový $\text{bias}^2$. Od dvou vrstev výše je neredukovatelná chyba prakticky nulová a hloubka už jen snižuje rozptylový člen $c$. Poznamenejme dále, že mírně záporné odhady $\text{bias}^2$ u hlubších modelů nemají věcný význam. Proložení totiž nevynucuje, aby $\text{bias}^2$ vyšel nezáporný, a když je skutečná hodnota blízká nule, může odhad vlivem šumu klesnout těsně pod nulu. Tyto hodnoty tedy prakticky znamenají nulový neredukovatelný bias.}
 \label{tab:ch2_bias_variance}
 \end{table}
 
@@ -272,9 +271,9 @@ $8$ vrstev & $-0{,}00065$ & $0{,}026$ \\
 \textbf{Diskuze:}
 
 Grafy a tabulka nám ukazuje následující situaci.
-Za prvé, jednovrstvý model má jako jediný signifikantně nenulový $\text{bias}^2 = 0{,}00476$.
+Za prvé, jednovrstvý model má jako jediný zřetelně nenulový $\text{bias}^2 = 0{,}00476$.
 To je přímé empirické potvrzení Naglerova teoretického výsledku ze sekce~\ref{subsec:pfn-transformer}.
-Jedna vrstva nestačí k asymptotickému přiblížení GP posterioru, a proto v ní zůstává ireducibilní chyba, kterou nelze odstranit žádným množstvím kontextových dat.
+Jedna vrstva nestačí k asymptotickému přiblížení GP posterioru, a proto v ní zůstává neredukovatelná chyba, kterou nelze odstranit žádným množstvím kontextových dat.
 Od dvou vrstev výše je $\text{bias}^2 \approx 0$.
 Dvě vrstvy už tedy stačí k tomu, aby se model při dostatku dat přiblížil GP posterioru libovolně přesně.
 \par
@@ -304,7 +303,7 @@ Avšak i v hlubokých modelech odebrání jediné hlavy znatelně zvedne chybu m
 \par
 
 Rozklad chyby nakonec vysvětlil, proč modelu jedna vrstva nestačí.
-Jednovrstvý model má jako jediný nenulový $\text{bias}^2 = 0{,}0048$, zatímco od dvou vrstev a výše je ireducibilní chyba nulová a hloubka už jen snižuje rozptylový člen $c$.
+Jednovrstvý model má jako jediný nenulový $\text{bias}^2 = 0{,}0048$, zatímco od dvou vrstev a výše je neredukovatelná chyba nulová a hloubka už jen snižuje rozptylový člen $c$.
 \par
 
 Dohromady nám tato pozorování dávají jasný obraz o tom, jak PFN uvnitř funguje.

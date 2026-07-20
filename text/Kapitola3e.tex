@@ -116,29 +116,29 @@ Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které 
     \label{tab:exp7_mse_n}
     \end{minipage}
     \vfill
+    \begin{minipage}{\linewidth}
+    \centering
+    \begin{tabular}{ccccc}
+    \hline
+    $n$ & PFN & GP\_fixed & GP\_ML & GP\_Bayes \\
+    \hline
+    $5$   & $+0{,}165$ & $+0{,}732$ & $+0{,}968$ & $+0{,}326$ \\
+    $10$  & $+0{,}143$ & $+0{,}956$ & $+0{,}403$ & $+0{,}288$ \\
+    $20$  & $+0{,}086$ & $+1{,}068$ & $+0{,}239$ & $+0{,}190$ \\
+    $40$  & $+0{,}077$ & $+1{,}231$ & $+0{,}191$ & $+0{,}169$ \\
+    $64$  & $+0{,}077$ & $+1{,}157$ & $+0{,}050$ & $+0{,}086$ \\
+    $100$ & $+0{,}045$ & $+0{,}972$ & $+0{,}056$ & $+0{,}049$ \\
+    $128$ & $+0{,}031$ & $+1{,}174$ & $+0{,}016$ & $+0{,}044$ \\
+    \hline
+    \end{tabular}
+    \captionof{table}{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce velikosti kontextu $n$ ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí, \emph{oracle} má z definice hodnotu $0$). PFN je nejblíže \emph{oracle} pro všechna $n \leq 40$, teprve od $n = 64$ jej mírně porazí GP\_ML.}
+    \label{tab:exp7_dnll_n}
+    \end{minipage}
+    \vfill
     \includegraphics[width=0.64\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n.png}
     \caption{Vliv velikosti kontextu při misspecifikaci kernelu (data z Matérn $2{,}5$, $\ell_{\text{true}} = 0{,}3$). Nahoře: MSE jako funkce $n$, černá tečkovaná čára je \emph{GP\_oracle}. Dole: $\Delta$NLL vůči \emph{oracle}, tečkovaná čára značí nulu (\emph{oracle}). Chybové úsečky $\pm 1$ směrodatná chyba. PFN (modrá) se v MSE drží těsně u \emph{oracle} a v $\Delta$NLL je pro malé a střední kontexty ze všech metod nejníže.}
     \label{fig:exp7_q1}
 \end{figure}
-
-\begin{table}[!tb]
-\centering
-\begin{tabular}{ccccc}
-\hline
-$n$ & PFN & GP\_fixed & GP\_ML & GP\_Bayes \\
-\hline
-$5$   & $+0{,}165$ & $+0{,}732$ & $+0{,}968$ & $+0{,}326$ \\
-$10$  & $+0{,}143$ & $+0{,}956$ & $+0{,}403$ & $+0{,}288$ \\
-$20$  & $+0{,}086$ & $+1{,}068$ & $+0{,}239$ & $+0{,}190$ \\
-$40$  & $+0{,}077$ & $+1{,}231$ & $+0{,}191$ & $+0{,}169$ \\
-$64$  & $+0{,}077$ & $+1{,}157$ & $+0{,}050$ & $+0{,}086$ \\
-$100$ & $+0{,}045$ & $+0{,}972$ & $+0{,}056$ & $+0{,}049$ \\
-$128$ & $+0{,}031$ & $+1{,}174$ & $+0{,}016$ & $+0{,}044$ \\
-\hline
-\end{tabular}
-\caption{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce velikosti kontextu $n$ ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí, \emph{oracle} má z definice hodnotu $0$). PFN je nejblíže \emph{oracle} pro všechna $n \leq 40$, teprve od $n = 64$ jej mírně porazí GP\_ML.}
-\label{tab:exp7_dnll_n}
-\end{table}
 
 \textbf{Diskuze:}
 
@@ -223,7 +223,7 @@ Pro dlouhé korelační délky jsou realizace hladké, RBF s $\ell = 0{,}7$ se s
 Za druhé, PFN je nejlépe kalibrované v okolí pravé hodnoty $\ell_{\text{true}} \approx 0{,}3$, tedy uprostřed svého trénovacího rozsahu.
 Pro extrémně krátké délky ji přebijí ostatní adaptivní metody, kterým hrubá data poskytují silný signál pro odhad $\ell$.
 Za třetí, mimo trénovací rozsah ($\ell_{\text{true}} > 1{,}0$) PFN degraduje jen zlehka.
-Její $\Delta$NLL zůstává malé i pro dvojnásobek horní hranice trénovacího rozdělení, žádný náhlý kolaps nenastává.
+Jeho $\Delta$NLL zůstává malé i pro dvojnásobek horní hranice trénovacího rozdělení, žádný náhlý kolaps nenastává.
 To je stejná plynulá degradace, jakou jsme u identifikace hyperparametrů pozorovali v sekci~\ref{sec:pfn-random-hp}.
 \par
 
@@ -288,13 +288,14 @@ $5{,}00$ & $0{,}00192$ & $0{,}01024$ & $0{,}188$ & mimo rozsah \\
 
 \textbf{Diskuze:}
 
-Z tabulky~\ref{tab:exp7_ood} může udělat jasné závěry.
+Z tabulky~\ref{tab:exp7_ood} můžeme učinit jasné závěry.
 Uvnitř trénovacího rozsahu je relativní MSE hluboko pod referenční hodnotou $\text{rel\_MSE} = 1$, tedy pod úrovní chyby způsobené samotným šumem v datech.
-Nejmenší je uprostřed rozsahu, kde model zřejmě viděl při tréninku nejvíce dat (těžiště rozdělení).
+Nejmenší je uprostřed rozsahu.
+Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji, jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
 Mimo rozsah chyba na obou stranách roste, ale referenční hodnotu nikde nepřekročí.
 Odchylka PFN od \emph{oracle} tedy zůstává menší než chyba způsobená samotným šumem v datech.
 A to pro případy, které jsou hodně vzdálené od hranice trénovací množiny, ale to opět může být způsobeno tím ,že pro tato $\ell$ je tato úloha výrazně jednodušší.
-Z experimentu vyplývá, že sice degradace má místo být, ale na druhou stranu žádný náhlý kolaps nenastává.
+Z experimentu vyplývá, že k degradaci sice dochází, ale žádný náhlý kolaps nenastává.
 \par
 
 Z toho usuzujeme, že implicitní prior PFN nefunguje jako ostrá hranice, za kterou model přestává fungovat.

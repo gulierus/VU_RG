@@ -23,9 +23,9 @@ V tomto okamžiku před námi stojí několik otázek:
   \item Jak moc složitý model zvolit, aby dobře fitoval trénovací data, ale zároveň dobře generalizoval na nová data
 \end{itemize}
 Nakonec z toho vyplývá i formulace daného problému: proces výběru modelu je proces systematického výběru optimálního modelu.
-Během tohoto procesu vzniká i základní trade-off dilema. 
-Zvolíme-li příliš jednoduchý model, nebude schopen zachytit strukturu dat a bude mít špatný fit i špatnou generalizaci (underfitting).
-Naopak zvolíme-li příliš složitý model, bude perfektně fitovat (interpolovat) trénovací data, ale bude špatně generalizovat na nová data (overfitting).
+Během tohoto procesu vzniká i základní \emph{trade-off}, tedy kompromis mezi příliš jednoduchým a příliš složitým modelem. 
+Zvolíme-li příliš jednoduchý model, nebude schopen zachytit strukturu dat a bude mít špatný fit i špatnou generalizaci (tzv. \emph{underfitting}).
+Naopak zvolíme-li příliš složitý model, bude perfektně fitovat (interpolovat) trénovací data, ale bude špatně generalizovat na nová data (tzv. \emph{overfitting}).
 Cílem je najít optimální model z těchto hledisek.
 \par
 
@@ -52,60 +52,61 @@ Je zvykem použít hierarchický princip při zavádění Bayesovského výběru
 Označme tedy $\mathbf{w} \in \mathcal{W}$ jako parametry modelu, kde $\mathcal{W}$ je prostor parametrů modelu, mohou to být např. váhy v lineární regresi nebo v neuronové síti.
 Dále nechť $\boldsymbol{\theta} \in \Theta $ jsou hyperparametry modelu, kde $\Theta$ je prostor hyperparametrů modelu, např. počet vrstev v neuronové síti.
 Nakonec označme $\mathcal{H}_i \in \mathcal{H}$ jako různé struktury modelu, kde $\mathcal{H}$ je prostor modelů, např. různé architektury neuronových sítí.
-V Bayesovském přístupu k výběru modelu používáme tzv. Bayesovskou inferenci k odhadu pravděpodobnostního rozdělení parametrů, hyperparametrů a modelů na základě pozorovaných dat $\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^n$, kde $\mathbf{x}_i$ jsou vstupní data a $y_i$ jsou odpovídající cílové hodnoty, anebo alternativně lze označit jako $\mathcal{D} = \{(\mathbf{X}, \mathbf{y})\}$.
+V Bayesovském přístupu k výběru modelu používáme tzv. Bayesovskou inferenci k odhadu pravděpodobnostního rozdělení parametrů, hyperparametrů a modelů na základě pozorovaných dat $\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^n$, kde $\mathbf{x}_i$ jsou vstupní data a $y_i$ jsou odpovídající cílové hodnoty, anebo alternativně jej lze zapsat jako $\mathcal{D} = (\mathbf{X}, \mathbf{y})$.
 Tj. cílem je na základě pozorovaných dat dojít k závěru, který model s kterými parametry a hyperparametry nejlépe vysvětluje pozorovaná data.
 \par
 
 Na první úrovni hierarchie odhadneme pravděpodobnostní rozdělení parametrů modelu $\mathbf{w}$ pro dané (fixní) hyperparametry $\boldsymbol{\theta}$ a model $\mathcal{H}_i$.
 Zde používáme pojem posteriorního rozdělení, tj. ptáme se, jaké je pravděpodobnostní rozdělení parametrů modelu $\mathbf{w}$ vzhledem k pozorovaným datům $\mathbf{X}$, fixním hyperparametrům $\boldsymbol{\theta}$ a modelu $\mathcal{H}_i$.
-Předpokládejme, že chceme získat predikci pro vstupní data $\mathbf{y}$.
+Předpokládejme, že chceme získat predikci pro výstupní data $\mathbf{y}$.
 Potom podle Bayesovy věty platí:
 
 \begin{equation}
-  P(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = \frac{P( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) P(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)}{P(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)},     
+  p(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = \frac{p( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) p(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)}{p(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)},     
 \end{equation}
-kde $P( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je pravděpodobnost výstupních dat $\mathbf{y}$ podmíněná vstupními daty $\mathbf{X}$, parametrům modelu $\mathbf{w}$, hyperparametrům $\boldsymbol{\theta}$ a modelu $\mathcal{H}_i$ (tzv. likelihood), $P(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)$ je apriorní rozdělení parametrů modelu $\mathbf{w}$ vzhledem k hyperparametrům $\boldsymbol{\theta}$ a modelu $\mathcal{H}_i$, a $P(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je tzv. evidence dat.
+kde $p( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je pravděpodobnost výstupních dat $\mathbf{y}$ podmíněná vstupními daty $\mathbf{X}$, parametry modelu $\mathbf{w}$, hyperparametry $\boldsymbol{\theta}$ a modelem $\mathcal{H}_i$ (tzv. \emph{likelihood}), $p(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)$ je apriorní rozdělení parametrů modelu $\mathbf{w}$ vzhledem k hyperparametrům $\boldsymbol{\theta}$ a modelu $\mathcal{H}_i$, a $p(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je tzv. \emph{evidence} dat.
 \par
 
 Na druhé úrovni hierarchie odhadneme pravděpodobnostní rozdělení hyperparametrů modelu $\boldsymbol{\theta}$ pro daný (fixní) model $\mathcal{H}_i$.
 Podobně jako na první úrovni používáme Bayesovu větu:
 \begin{equation}
-  P(\boldsymbol{\theta} | \mathbf{y}, \mathbf{X}, \mathcal{H}_i) = \frac{P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) P(\boldsymbol{\theta} | \mathcal{H}_i)}{P(\mathbf{y} |\mathbf{X}, \mathcal{H}_i)},     
+  p(\boldsymbol{\theta} | \mathbf{y}, \mathbf{X}, \mathcal{H}_i) = \frac{p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) p(\boldsymbol{\theta} | \mathcal{H}_i)}{p(\mathbf{y} |\mathbf{X}, \mathcal{H}_i)},     
   \label{eq:2_uroven}
 \end{equation}
-kde $P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je pravděpodobnost dat vzhledem k vstupním datům $\mathbf{y}$, hyperparametrům $\boldsymbol{\theta}$ a modelu $\mathcal{H}_i$ (tzv. likelihood), $P(\boldsymbol{\theta} | \mathcal{H}_i)$ je apriorní rozdělení hyperparametrů modelu $\boldsymbol{\theta}$
-    vzhledem k modelu $\mathcal{H}_i$, a $P(\mathbf{y} |\mathbf{X}, \mathcal{H}_i)$ je evidence dat.   
+kde $p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ je pravděpodobnost výstupních dat $\mathbf{y}$ podmíněná vstupními daty $\mathbf{X}$, hyperparametry $\boldsymbol{\theta}$ a modelem $\mathcal{H}_i$ (tzv. \emph{likelihood}), $p(\boldsymbol{\theta} | \mathcal{H}_i)$ je apriorní rozdělení hyperparametrů modelu $\boldsymbol{\theta}$
+    vzhledem k modelu $\mathcal{H}_i$, a $p(\mathbf{y} |\mathbf{X}, \mathcal{H}_i)$ je \emph{evidence} dat.   
 \par
 
 Na třetí úrovni hierarchie odhadneme pravděpodobnostní rozdělení modelů $\mathcal{H}_i$.
 Opět používáme Bayesovu větu:
 \begin{equation}
-  P(\mathcal{H}_i | \mathbf{y}, \mathbf{X}) = \frac{P( \mathbf{y} | \mathbf{X}, \mathcal{H}_i) P(\mathcal{H}_i)}{P(\mathbf{y} |\mathbf{X})},     
+  P(\mathcal{H}_i | \mathbf{y}, \mathbf{X}) = \frac{p( \mathbf{y} | \mathbf{X}, \mathcal{H}_i) P(\mathcal{H}_i)}{p(\mathbf{y} |\mathbf{X})},     
 \end{equation}
-kde $P( \mathbf{y} | \mathbf{X}, \mathcal{H}_i)$ je pravděpodobnost dat vzhledem k výstupním hodnotám $\mathbf{y}$ podmíněná vstupními daty $\mathbf{X}$ a modelu $\mathcal{H}_i$ (tzv. marginal likelihood), $P(\mathcal{H}_i)$ je apriorní rozdělení modelů $\mathcal{H}_i$, a $P(\mathbf{y} |\mathbf{X})$ je evidence dat.
+kde $p( \mathbf{y} | \mathbf{X}, \mathcal{H}_i)$ je pravděpodobnost výstupních dat $\mathbf{y}$ podmíněná vstupními daty $\mathbf{X}$ a modelem $\mathcal{H}_i$ (tzv. \emph{marginal likelihood}), $P(\mathcal{H}_i)$ je apriorní rozdělení modelů $\mathcal{H}_i$, a $p(\mathbf{y} |\mathbf{X})$ je \emph{evidence} dat.
 \par
 Celý tento postup nám umožňuje systematicky vyhodnotit různé modely, jejich hyperparametry a parametry na základě pozorovaných dat a vybrat ten, který nejlépe vysvětluje data podle Bayesovského principu.
-Zde je dokonce vidět, proč jsme použili hierarchický přístup - na každé úrovni hierarchie odhadujeme pravděpodobnostní rozdělení na základě předchozí úrovně, což nám umožňuje efektivně zachytit nejistotu na různých úrovních modelování.
-Postupujeme tedy od nejvyšší úrovně nejistoty, což je vůbec výběr modelu, přes střední úroveň, což je výběr hyperparametrů, až k nejnižší úrovni, což je odhad parametrů modelu, tj. se náš problém na každé úrovni zúžuje, tedy jdeme do hloubky nastavení modelu. 
+Zde je dokonce vidět, proč jsme použili hierarchický přístup.
+Na každé úrovni hierarchie odhadujeme pravděpodobnostní rozdělení na základě předchozí úrovně, což nám umožňuje efektivně zachytit nejistotu na různých úrovních modelování.
+Postupujeme tedy od nejvyšší úrovně nejistoty, což je vůbec výběr modelu, přes střední úroveň, což je výběr hyperparametrů, až k nejnižší úrovni, což je odhad parametrů modelu, tj. náš problém se na každé úrovni zúžuje. 
 \par
 
-Avšak v praxi při výpočtech hustot pravděpodobností na jednotlivých úrovních hierarchie můžeme narazit na problém, že ten integrál neumíme spočítat analyticky, např. protože tato hustota není normalizovaná (neboli tzv. nevlastní).
+Avšak v praxi při výpočtech hustot pravděpodobností na jednotlivých úrovních hierarchie můžeme narazit na problém, že tento integrál neumíme spočítat analyticky, např. protože tato hustota není normalizovaná.
 Takovým integrálem je např. normalizační konstanta na první úrovni hierarchie:
 \begin{equation}
-  P(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = \int_{\mathcal{W}} P( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) P(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i) d\mathbf{w},
+  p(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = \int_{\mathcal{W}} p( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) p(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i) d\mathbf{w},
   \label{eq:normalizační_konst_1_uroven}
 \end{equation}
 
 anebo na druhé úrovni hierarchie:
 
 \begin{equation}
-  P(\mathbf{y} |\mathbf{X}, \mathcal{H}_i) = \int_{\Theta} P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) P(\boldsymbol{\theta} | \mathcal{H}_i) d\boldsymbol{\theta}
+  p(\mathbf{y} |\mathbf{X}, \mathcal{H}_i) = \int_{\Theta} p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) p(\boldsymbol{\theta} | \mathcal{H}_i) d\boldsymbol{\theta}
   \label{eq:normalizační_konst_2_uroven}
 \end{equation} 
 
-Tyto integrály je nutné aproximovat numericky pomocí takových metod jako Markov chain Monte Carlo (MCMC) nebo pokročilejším No-U-Turn Sampler (NUTS), pokud chceme odhadnou integrál z nenormalizovaných hustot pravděpodobnostní, jako je integrál (\ref{eq:normalizační_konst_2_uroven}), nebo např. Type II maximum likelihood (Type II – MLE), chceme-li odhadnout pouze posteriorní pravděpodobnost pro hyperparametry modelu, což spočívá v Laplaceově aproximaci integrálu (\ref{eq:normalizační_konst_1_uroven}) a následné maximalizaci $P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$.
+Tyto integrály je nutné aproximovat numericky pomocí takových metod jako Markov chain Monte Carlo (MCMC) nebo pokročilejším No-U-Turn Sampler (NUTS), pokud chceme odhadnou integrál z nenormalizovaných hustot pravděpodobnostní, jako je integrál~\eqref{eq:normalizační_konst_2_uroven}, nebo např. Type II maximum likelihood (Type II – MLE), chceme-li odhadnout pouze bodovou hodnotu hyperparametrů modelu, což spočívá v maximalizaci marginal likelihood $p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ přes $\boldsymbol{\theta}$.
 Všechny tyto metody jsou však dost výpočetně náročné a může trvat značné množství času, než se podaří najít vhodný model pro daná data.
-Jedním z účelů této práce je ukázat, jak lze tyto pravděpodobnostní hustoty efektivně aproximovat pomocí úplně nového postupu, a to pomocí architektury transformer.
+Jedním z účelů této práce je ukázat, jak lze tyto pravděpodobnostní hustoty efektivně aproximovat pomocí nového postupu, a to pomocí architektury transformer.
 
 \section{GP regrese}
 \label{sec:gp-regrese}
@@ -122,7 +123,8 @@ Nejdříve ve zkratce zavedeme pojem GP regresi.
 \par
 
 Zvykem je definovat Gaussovský proces pomocí vícerozměrného normálního rozdělení.
-Mějme tedy vícerozměronou náhodnou veličinu $\mathbf{X} = (X_1, \dots, X_n)$ a nechť $X_i \sim \mathcal{N}(\mu_i, \sigma_i^2)$ pro $\forall i = 1 \dots n$, pak říkáme, že $\mathbf{X}$ má vícerozměrné normální rozdělení s vektorem středních hodnot $\boldsymbol{\mu} = (\mu_1, \dots, \mu_n)$ a kovarianční maticí $\boldsymbol{\Sigma}$, pokud její hustota pravděpodobnosti je dána vztahem:
+Mějme tedy vícerozměrnou náhodnou veličinu $\mathbf{X} = (X_1, \dots, X_n)$.
+Říkáme, že $\mathbf{X}$ má vícerozměrné normální rozdělení s vektorem středních hodnot $\boldsymbol{\mu} = (\mu_1, \dots, \mu_n)$ a kovarianční maticí $\boldsymbol{\Sigma}$, pokud její sdružená hustota pravděpodobnosti je dána vztahem:
 \begin{equation}
   p(\mathbf{x}) = \frac{1}{(2\pi)^{n/2} |\boldsymbol{\Sigma}|^{1/2}} \exp\left( -\frac{1}{2} (\mathbf{x} - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu}) \right),
 \label{eq:vicerozmernyGauss}
@@ -137,16 +139,12 @@ Z toho vztahu plyne i definice Gaussovského procesu [Rasmussen]:
 
 Dalším klíčovým pojmem je tzv. kovarianční funkce (nebo jádro), která určuje vlastnosti GP.
 Ta se definuje jako funkce $k: \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}$, která pro každé dva vstupy $\mathbf{x}, \mathbf{x'} \in \mathbb{R}^d$ vrací hodnotu $k(\mathbf{x}, \mathbf{x'})$, která udává míru podobnosti mezi těmito dvěma vstupy.
-Je to jistá modifikace kovarianční matice, která je částí klasického vícerozměrného normálního rozdělení, a které vznikne po aplikaci tzv. Kernel triku.
-Máme-li nějaký proces $f(\mathbf{x})$, teď stejný proces chceme zkoumat i pro jiný vstup, tj. nás zajímá $f(\mathbf{x'})$.
-Teď je před námi otázka, jaká je kovariance mezi $f(\mathbf{x})$ a $f(\mathbf{x'})$?
-Potom se skrz funkční prostor vah a kovarianční matice $\boldsymbol{\Sigma}$ ukáže, že kovarianční funkce je definovaná jako:
-\begin{equation}
-  k(\mathbf{x}, \mathbf{x'}) = \phi(\mathbf{x})^T \boldsymbol{\Sigma} \phi(\mathbf{x'}),
-\end{equation}
-kde $\phi(\mathbf{x})^T \boldsymbol{\Sigma} \phi(\mathbf{x'})$ je součin v prostoru vah s kovarianční maticí dvou různých vstupů.
+Je to jistá modifikace kovarianční matice z klasického vícerozměrného normálního rozdělení, která vznikne po aplikaci tzv. \emph{kernel triku}.
+Máme-li nějaký proces $f(\mathbf{x})$ a chceme ho zkoumat i pro jiný vstup $\mathbf{x'}$, ptáme se, jaká je kovariance mezi $f(\mathbf{x})$ a $f(\mathbf{x'})$.
+Tuto kovarianci lze odvodit v~prostoru vah pomocí tzv. \emph{feature mapy}, odvození ale vynecháme a odkážeme čtenáře na [Rasmussen].
+Pro naše účely postačí, že kovarianční funkci definujeme přímo pomocí středních hodnot.
 
-Nakonec platí, že Gaussovský process je plně definován svou střední funkcí $m(\mathbf{x})$ a kovarianční funkcí $k(\mathbf{x}, \mathbf{x'})$.
+Gaussovský proces je totiž plně definován svou střední funkcí $m(\mathbf{x})$ a kovarianční funkcí $k(\mathbf{x}, \mathbf{x'})$.
 Střední funkci a kovarianční funkci tohoto procesu definujeme jako:
 \begin{equation}
   m(\mathbf{x}) = \mathbb{E}[f(\mathbf{x})],\qquad
@@ -159,46 +157,47 @@ a následně říkáme, že proces $f(\mathbf{x})$ je Gaussovský proces a znač
 Platí dále, že kovarianční funkce, které se také říká kernel (jádro), může mít různé formy.
 Mezi nejčastěji používané patří např. Radial Basis Function (RBF) kernel (někdy squared exponential kernel), který je definován jako:
 \begin{equation}
-  k(\mathbf{x}, \mathbf{x'}) = \sigma_f^2 \exp\left( -\frac{||\mathbf{x} - \mathbf{x'}||^2}{2l^2} \right),
+  k(\mathbf{x}, \mathbf{x'}) = \sigma_f^2 \exp\left( -\frac{||\mathbf{x} - \mathbf{x'}||^2}{2\ell^2} \right),
 \end{equation}
-kde $\sigma_f^2$ je rozptyl funkce a $l$ je délka škály.
-Pak existuje spousta dalších kernelů, jako je Matérn kernel, Periodic kernel nebo Linear kernel, každý s různými vlastnostmi a aplikacemi, ale pro naše účely postačí základní RBF kernel.
+kde $\sigma_f^2$ je rozptyl funkce a $\ell$ je tzv. korelační délka (\emph{lengthscale}).
+Pak existuje řada dalších kernelů, jako je Matérn kernel, Periodic kernel nebo Linear kernel, každý s různými vlastnostmi a aplikacemi, ale pro naše účely postačí základní RBF kernel.
 RBF kernel má řadu výhod: je hladký, nekonečně diferencovatelný a má tendenci dobře aproximovat širokou škálu funkcí.
 Současně platí, že každý datový bod můžeme představit jako střed Gaussovského rozdělení.
 Z předchozí myšlenky plyne i velmi intuitivní myšlenka o tom, jak funguje GP regrese: každý datový bod přispívá k predikci nového bodu podle své vzdálenosti od něj, přičemž váha tohoto přispění je určena kovarianční funkcí (jádrem).
-Tím pádem, čím blíž je nějaký bod k jinému bodu, tím větší vliv na něj má: body blízko sebe mají hodnotu blízkou $1$, vzdálené body mají hodnotu blízkou $0$ a funguje to jako "měřítko podobnosti" mezi body.
-Pokud bychom tedy chtěli predikovat např. počasí, tak je jasno, že pokud před $5$ hodinami bylo $-6$ stupňů Celsia, před dvěma hodinami $-4$ stupňů Celsia a před hodinou $-5$ stupně Celsia, tak je zjevné, že tyto hodnoty budou mít vliv na predikci počasí za hodinu a ta teplota bude někde mezi $-6$ a $-4$ stupňů Celsia a určitě nestoupne nebo neklesne o víc než $5$ hodnot.
+Tím pádem, čím blíž je nějaký bod k jinému bodu, tím větší vliv na něj má, a to tak, že body blízko sebe mají hodnotu blízkou $1$, vzdálené body mají hodnotu blízkou $0$ a celé to funguje jako „měřítko podobnosti“ mezi body.
+Pokud bychom tedy chtěli předpovědět počasí, pomůže nám, že teploty naměřené v~blízkých časech jsou si podobné.
+Naměříme-li v~posledních hodinách teploty kolem $-5$ stupňů Celsia, bude i predikce pro příští hodinu ležet poblíž těchto hodnot.
 \par
 
 \section{Výběr modelu pro GP regresi}
 \label{sec:vyber-gp}
-V předchozí kapitole jsme si avšak ukázali, že hledat matematické modely, které přesně popisují data, není vůbec jednoduché nebo dokonce nemožné a je potřeba použít různé metody při hledání vhodného modelu.
+V~sekci~\ref{sec:bayes-vyber} jsme však ukázali, že hledat matematické modely, které přesně popisují data, není vůbec jednoduché nebo dokonce nemožné a je potřeba použít různé metody při hledání vhodného modelu.
 Hlavní potíží je výpočet integrálů, které se objevovaly při sestavování Bayesovské hierarchie.
-Zde si ukážeme tři přístupy: nejprve obecný rámec variační inference, poté Type II – MLE jako jeho speciální případ a nakonec MCMC jako alternativní metodu.
+Zde si ukážeme tři přístupy: nejprve obecný rámec variační inference, poté Type II – MLE jako úzce související bodovou alternativu a nakonec MCMC jako další metodu.
 
 \subsection{Variační inference}
 \label{subsec:variacni-inference}
 Variační inference (také Variační Bayes) je obecný přístup k aproximaci těžce vypočítatelných posteriorních rozdělení, které jsme uvedli v předchozí sekci.
-Místo přímého výpočtu posteriorního rozdělení $P(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$, který dle (\ref{eq:normalizační_konst_1_uroven}) vyžaduje integraci přes celý prostor parametrů, hledáme jeho aproximaci z vhodné parametrické rodiny rozdělení.
+Místo přímého výpočtu posteriorního rozdělení $p(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$, který dle~\eqref{eq:normalizační_konst_1_uroven} vyžaduje integraci přes celý prostor parametrů, hledáme jeho aproximaci z vhodné parametrické rodiny rozdělení.
 \par
 
 Konkrétně zavádíme variační rozdělení $q(\mathbf{w})$ z rodiny $\mathcal{Q}$ (typicky např. normálních rozdělení se strukturovanou kovarianční maticí) a snažíme se ho co nejvíce přiblížit skutečnému posteriornímu rozdělení minimalizací KL divergence:
 \begin{equation}
-  q^*(\mathbf{w}) = \underset{q \in \mathcal{Q}}{\argmin}\; \mathrm{KL}\!\left(q(\mathbf{w}) \,\|\, P(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)\right).
+  q^*(\mathbf{w}) = \underset{q \in \mathcal{Q}}{\argmin}\; \mathrm{KL}\!\left(q(\mathbf{w}) \,\|\, p(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)\right).
 \end{equation}
-Avšak přímá minimalizace KL divergence je opět náročná pro výpočet, neboť vyžaduje znalost normalizační konstanty (\ref{eq:normalizační_konst_1_uroven}).
+Avšak přímá minimalizace KL divergence je opět náročná pro výpočet, neboť vyžaduje znalost normalizační konstanty~\eqref{eq:normalizační_konst_1_uroven}.
 Namísto toho se maximalizuje tzv. \textit{Evidence Lower BOund} (ELBO):
 \begin{equation}
-  \mathcal{L}(q, \boldsymbol{\theta}) = \mathbb{E}_{q(\mathbf{w})}\!\left[\log P(\mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)\right] - \mathrm{KL}\!\left(q(\mathbf{w}) \,\|\, P(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)\right).
+  \mathcal{L}(q, \boldsymbol{\theta}) = \mathbb{E}_{q(\mathbf{w})}\!\left[\log p(\mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)\right] - \mathrm{KL}\!\left(q(\mathbf{w}) \,\|\, p(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)\right).
   \label{eq:elbo}
 \end{equation}
 Lze totiž ukázat, že:
 \begin{equation}
-  \log P(\mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = \mathcal{L}(q, \boldsymbol{\theta}) + \mathrm{KL}\!\left(q(\mathbf{w}) \,\|\, P(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)\right) \geq \mathcal{L}(q, \boldsymbol{\theta}),
+  \log p(\mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = \mathcal{L}(q, \boldsymbol{\theta}) + \mathrm{KL}\!\left(q(\mathbf{w}) \,\|\, p(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)\right) \geq \mathcal{L}(q, \boldsymbol{\theta}),
   \label{eq:elbo_dekompozice}
 \end{equation}
 kde nerovnost plyne z nezápornosti KL divergence.
-ELBO tedy tvoří dolní mez log-evidence a maximalizace $\mathcal{L}(q, \boldsymbol{\theta})$ přes $q$ odpovídá minimalizaci KL divergence od skutečného posteriorního rozdělení – přičemž normalizační konstantu znát už nepotřebujeme.
+ELBO tedy tvoří dolní mez log-evidence a maximalizace $\mathcal{L}(q, \boldsymbol{\theta})$ přes $q$ odpovídá minimalizaci KL divergence od skutečného posteriorního rozdělení, přičemž normalizační konstantu znát už nepotřebujeme.
 \par
 
 Nevýhoda variační inference spočívá v tom, že výsledná aproximace je omezena volbou rodiny $\mathcal{Q}$. 
@@ -206,38 +205,35 @@ Příliš úzká rodina nemusí skutečné posteriorní rozdělení dobře zachy
 
 \subsection{Type II – MLE}
 \label{subsec:type2-mle}
-Pokud bychom chtěli rychlejší a jednodušší řešení, a namísto hledání celé distribuce nám stačí pouze bodový MLE odhad parametrů, použijeme tzv. Type II maximum likelihood (Type II – MLE), což je speciálním případem variační inference.
-Tato metoda spočívá v tom, že maximalizujeme tzv. marginal likelihood, což je pravděpodobnost dat daná modelem, integrovaná přes všechny možné hodnoty parametrů modelu.
-V případě GP regrese je marginal likelihood dána vztahem:
+Pokud bychom chtěli rychlejší a jednodušší řešení, a namísto hledání celého rozdělení nám stačí pouze bodový MLE odhad parametrů, použijeme tzv. Type II maximum likelihood (Type II – MLE), což je úzce související bodová alternativa k variační inferenci.
+Tato metoda spočívá v tom, že maximalizujeme tzv. \emph{marginal likelihood}, což je pravděpodobnost dat daná modelem, integrovaná přes všechny možné hodnoty parametrů modelu.
+V případě GP regrese je \emph{marginal likelihood} dána stejným vztahem jako normalizační konstanta na první úrovni hierarchie, tedy rovnicí~\eqref{eq:normalizační_konst_1_uroven}, kde $\boldsymbol{\theta}$ jsou hyperparametry modelu, $\mathcal{H}$ je struktura modelu, $\mathbf{w}$ jsou parametry modelu, $\mathbf{X}$ jsou vstupní data a $\mathbf{y}$ jsou odpovídající cílové hodnoty.
+To znamená následující, vzpomeňme si na $2.$ úroveň hierarchie v Bayesovském přístupu, tj. na rovnici~\eqref{eq:2_uroven}.
+Místo celého posteriorního rozdělení hyperparametrů hledáme jen jeho bodový odhad, a to maximalizací marginal likelihood:
 \begin{equation}
-  P(\mathbf{y} |\mathbf{X}, \boldsymbol{\theta}, \mathcal{H}) = \int_{\mathcal{W}} P( \mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}) P(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}) d\mathbf{w},
+  \hat{\boldsymbol{\theta}} = \underset{\boldsymbol{\theta} \in \Theta}{\argmax}\; p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i).
 \end{equation}
-kde $\boldsymbol{\theta}$ jsou hyperparametry modelu, $\mathcal{H}$ je struktura modelu, $\mathbf{w}$ jsou parametry modelu, $\mathbf{X}$ jsou vstupní data a $\mathbf{y}$ jsou odpovídající cílové hodnoty.
-To znamená následující, vzpomeňme si na $2.$ úroveň hierarchie v Bayesovském přístupu, tj. na rovnici \ref{eq:2_uroven}. 
-Pak posteriorní rozdělení odhadujeme takto:
-\begin{equation}
-  \hat{\boldsymbol{\theta}} = \underset{\boldsymbol{\theta} \in \Theta}{\argmax}\; P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)
-\end{equation}
+Za předpokladu rovnoměrného prioru $p(\boldsymbol{\theta} \mid \mathcal{H}_i)$ toto maximum odpovídá i maximu posteriorního rozdělení hyperparametrů.
 \par
 
 Principem tohoto přístupu je, že na základě napozorovaných dat hledáme hyperparametry pro náš model, se kterými on popisuje naše data co nejlépe pro dané modely.
 Tato metoda ale má řadu nevýhod.
-Náš odhad totiž skončí v lokálním maximu a nemusí vždy dosáhnout optimálních hodnot.
+Náš odhad totiž může skončit v lokálním maximu a nemusí vždy dosáhnout optimálních hodnot.
 To samozřejmě vynucuje nás zkoušet různé startovní body, zkoumat citlivost odhadu a patrně ladit parametry hledání.
-To už nemluvě o ne úplně jednoduchých výpočtech, které také vyžadují jisté množství výkonu a času.
+Tyto výpočty navíc nejsou triviální a vyžadují nemalé množství výpočetního výkonu a času.
 \par
 
 Ze statistiky víme, že jedním ze způsobů, jak najít ML odhad, je použít logaritmickou transformaci a pak najít maximum této funkce.
-Ukážeme to na konkrétním příkladě a pro to použijeme již definovaný v~oddílu~\ref{sec:gp-regrese} Gaussovský proces s RBF kernelem.
-Zkusme tedy rozepsat výraz $\log P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta})$ (člen $\mathcal{H}_i$ můžeme vynechat pro lepší čitelnost).
-Vzpomeňme si, že při definici Gaussovského procesu jsme použili vícerozměrnou Gaussovskou hustotu \ref{eq:vicerozmernyGauss}.
-Zlogaritmujeme tento výraz a obdržíme:
+Ukážeme to na konkrétním příkladě a použijeme k~tomu Gaussovský proces s RBF kernelem, který jsme definovali v~sekci~\ref{sec:gp-regrese}.
+Zkusme tedy rozepsat výraz $\log p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta})$ (člen $\mathcal{H}_i$ můžeme vynechat pro lepší čitelnost).
+Vzpomeňme si, že při definici Gaussovského procesu jsme použili vícerozměrnou Gaussovskou hustotu~\eqref{eq:vicerozmernyGauss}.
+Zlogaritmujeme tento výraz, přičemž předpokládáme nulovou střední funkci $m(\mathbf{x}) = 0$, kterou v~celé práci používáme, a obdržíme:
 \begin{equation}
   \log p(\mathbf{y}) = -\frac{1}{2}\mathbf{y}^\top \boldsymbol{\Sigma}^{-1}\mathbf{y} - \frac{1}{2}\log|\boldsymbol{\Sigma}| - \frac{n}{2}\log 2\pi
 \end{equation}
-Jediné, co nám tedy zbývá v případě Gaussovského procesu, dosadit za kovarianční matici kernelovou matici $\mathbf{K}_y = \mathbf{K}(\mathbf{X}, \mathbf{X}) + \sigma_n^2 \mathbf{I}$, kde $\mathbf{K}(\mathbf{X},\mathbf{X})_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$ a $\sigma_n^2$ je rozptyl šumu, čímž obdržíme:
+Jediné, co nám tedy zbývá v případě Gaussovského procesu, je dosadit za kovarianční matici kernelovou matici $\mathbf{K}_y = \mathbf{K}(\mathbf{X}, \mathbf{X}) + \sigma_n^2 \mathbf{I}$, kde $\mathbf{K}(\mathbf{X},\mathbf{X})_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$ a $\sigma_n^2$ je rozptyl šumu, čímž obdržíme:
 \begin{equation}
-  \log P( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = -\frac{1}{2}\mathbf{y}^\top \mathbf{K}_y^{-1}\mathbf{y} - \frac{1}{2}\log|\mathbf{K}_y| - \frac{n}{2}\log 2\pi
+  \log p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = -\frac{1}{2}\mathbf{y}^\top \mathbf{K}_y^{-1}\mathbf{y} - \frac{1}{2}\log|\mathbf{K}_y| - \frac{n}{2}\log 2\pi
 \end{equation}
 Chceme-li najít extrém této funkce, musíme tento výraz derivovat podle hyperparametrů, čímž dostáváme:
 \begin{align}
@@ -247,60 +243,67 @@ Chceme-li najít extrém této funkce, musíme tento výraz derivovat podle hype
 \end{align}
 kde $\boldsymbol{\alpha} = \mathbf{K}_y^{-1}\mathbf{y}$.
 Zde je dokonce vidět, proč tento model není optimální z výpočetního hlediska. 
-Je totiž známo, že najít inverzní matici je dost náročná operace.
+Je totiž známo, že najít inverzní matici je značně náročná operace.
 Pro standardní algoritmy platí, že jejich složitost je $\mathcal{O}(n^3)$, kde $n$ je velikost matice.
-V praxi ovšem $n$ nabývá dost velkých hodnot.
-Avšak lze vyhnout výpočtu přímé inverze, místo toho se může použít např. Choleského rozklad, který tento výpočet může usnadnit.
+V praxi ovšem $n$ nabývá velkých hodnot.
+Avšak lze se vyhnout výpočtu přímé inverze, místo toho se může použít např. Choleského rozklad, který tento výpočet může usnadnit.
 Máme-li spočítanou inverzi, pak je složitost zbylých výpočtů $\mathcal{O}(n^2)$.
-Další nevýhodou je to, že nemusíme spadnout do globálního optima a skončit v lokálním optimu, což opět vyžaduje větší pozornost.
 
 \subsection{Markov Chain Monte Carlo}
 \label{subsec:mcmc}
 Další metodou je Markov Chain Monte Carlo (MCMC).
 Její princip spočívá v tom, že integrál, který neumíme vyřešit analyticky, aproximujeme náhodným vzorkováním z příslušného rozdělení.
-Konkrétně už jsme si říkali, že integrály \ref{eq:normalizační_konst_1_uroven} a \ref{eq:normalizační_konst_2_uroven} nemusíme umět spočítat.
+Konkrétně už jsme si říkali, že integrály~\eqref{eq:normalizační_konst_1_uroven} a~\eqref{eq:normalizační_konst_2_uroven} nemusíme umět spočítat.
 Místo přímého výpočtu proto generujeme posloupnost vzorků, tzv. \textit{Markovův řetězec}, zkonstruovanou tak, aby její rozdělení konvergovalo k cílovému posteriornímu rozdělení.
 Z vygenerovaných vzorků pak můžeme aproximovat samotné rozdělení i libovolné jeho statistiky.
-Existuje celá řada variant MCMC, např. \textit{Metropolis-Hastings algoritmus}, \textit{Gibbs sampling} nebo modernější \textit{Hamiltonian Monte Carlo}.
-Není účelem této práce rozebírat je dopodrobna.
-Podrobněji se zastavíme jen u varianty \textit{No U-Turn Sampler} (NUTS), která staví na Hamiltonian Monte Carlo a při hledání aposteriorních rozdělení patří k nejpoužívanějším.
-Hamiltonian Monte Carlo využívá gradient aposteriorního rozdělení.
+Existuje celá řada variant MCMC, např. \textit{Metropolis-Hastings algoritmus}, \textit{Gibbs sampling} nebo modernější \textit{Hamiltonian Monte Carlo} (Neal, 2011).
+Jejich podrobný rozbor však přesahuje rámec této práce, ucelený přehled poskytuje např. (Brooks a kol., 2011).
+Podrobněji se zastavíme jen u varianty \textit{No U-Turn Sampler} (NUTS) (Hoffman a Gelman, 2014), která staví na Hamiltonian Monte Carlo a při hledání posteriorních rozdělení patří k nejpoužívanějším.
+Hamiltonian Monte Carlo využívá gradient posteriorního rozdělení.
 Základní myšlenkou je pohyb v parametrickém prostoru.
 \par
 
 Tento proces vnímáme jako fyzikální systém:
 \begin{itemize}
     \item $\boldsymbol{\theta}$ = poloha částice,
-    \item zavádíme pomocnou momentum proměnnou $\mathbf{r}$ (někdy $\mathbf{p}$),
+    \item zavádíme pomocnou proměnnou \emph{momentum} $\mathbf{r}$,
     \item pohyb řídí Hamiltonovy rovnice s energií:
     \[ 
     H(\boldsymbol{\theta}, \mathbf{r}) = -\log p(\boldsymbol{\theta} | \mathcal{D}) + \frac{1}{2}\mathbf{r}^T \mathbf{M}^{-1} \mathbf{r},
     \]
-    kde první člen je potenciální energie (negativní log-posterior) a druhý je kinetická energie.
+    kde první člen je potenciální energie (negativní log-posterior) a druhý je kinetická energie, přičemž matice $\mathbf{M}$ (tzv. \emph{mass matrix}) je volný parametr metody, který škáluje momentum a typicky se volí jako jednotková matice.
 \end{itemize}
 
-Rovněž si musíme uvědomit, že částice má tendenci se pohybovat po hladinách konstantní energie, a proto zkoumá prostor efektivněji než náhodné procházky, které používají předchozí algoritmy!
+Rovněž si musíme uvědomit, že částice má tendenci se pohybovat po hladinách konstantní energie, a proto zkoumá prostor efektivněji než náhodné procházky, které používají předchozí algoritmy.
+
+Jednotlivé kroky metody Hamiltonian Monte Carlo shrnuje algoritmus~\ref{alg:hmc}.
 
 \begin{algorithm}
-\caption{Hamiltonian Monte Carlo }
+\caption{Hamiltonian Monte Carlo}
+\label{alg:hmc}
 \begin{algorithmic}[1]
-\State Vzorkuj náhodný momentum: $\mathbf{r} \sim \mathcal{N}(\mathbf{0}, \mathbf{M})$
-\State Simuluj Hamiltonovy rovnice pomocí leapfrog integrace na $L$ kroků délky $\epsilon$
-\State Metropolis accept/reject krok (zachovává přesnou stacionaritu)
+\State Vzorkuj náhodný \emph{momentum}: $\mathbf{r} \sim \mathcal{N}(\mathbf{0}, \mathbf{M})$
+\State Simuluj Hamiltonovy rovnice pomocí \emph{leapfrog} integrace na $L$ kroků délky $\epsilon$
+\State Metropolis \emph{accept/reject} krok (zachovává přesnou stacionaritu)
 \end{algorithmic}
 \end{algorithm}
 
 Hamiltonian Monte Carlo avšak má dva hyperparametry, které je těžké nastavit:
 \begin{itemize}
-    \item délka kroku $\epsilon$ (step size)
+    \item délka kroku $\epsilon$ (\emph{step size})
     \item počet kroků $L$ (\emph{trajectory length})
 \end{itemize}
 
-NUTS řeší oba problémy tím, že automaticky volí délky trajektorie.
-To znamená, že pokračuje v simulaci, dokud trajektorie nezačne dělat tzv. \textit{U-turn}, což znamená, že částice se po trajektorii otočí a začne se vracet zpět směrem k místu, odkud vyšla.
+NUTS oba problémy řeší automaticky, každý ale jiným mechanismem.
+Délku kroku $\epsilon$ ladí během zahřívací fáze metodou duálního průměrování (\emph{dual averaging}), délku trajektorie pak volí podle tzv. \emph{U-turn kritéria}.
+To znamená, že pokračuje v simulaci, dokud trajektorie nezačne dělat tzv. \emph{U-turn}, což znamená, že částice se po trajektorii otočí a začne se vracet zpět směrem k místu, odkud vyšla.
 Toto \emph{U-turn kritérium} lze vyjádřit takto: směr pohybu začne být opačný než směr od startovní pozice, matematicky to znamená $(\boldsymbol{\theta}_{\text{forward}} - \boldsymbol{\theta}_{\text{backward}}) \cdot \mathbf{r}_{\text{forward}} < 0$, kde skalární součin vektoru mezi krajními body trajektorie a momentem je záporný, což signalizuje, že se pohybujeme zpět.
 A tento princip má dobrý smysl, jakmile se částice vrací zpět, už není efektivní pokračovat, znamená to, že jsme plně prozkoumali danou "energetickou hladinu".
 Další kroky by jen ztrácely výpočetní čas tím, že by procházely oblasti, které už jsme navštívili. 
 NUTS tedy automaticky zastaví simulaci v optimálním bodě, když jsme prozkoumali maximum užitečného prostoru, ale ještě před tím než začneme ztrácet efektivitu návratem zpět.
+\par
+
+Společným rysem všech těchto přístupů je jejich vysoká výpočetní cena.
+V~následující kapitole proto ukážeme alternativu, která ji amortizuje předtréninkem.
 
 

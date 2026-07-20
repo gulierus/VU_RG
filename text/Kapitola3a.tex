@@ -3,7 +3,7 @@
 
 V této kapitole provedeme řádu experimentu, ve kterých budeme zkoumat a ověřovat různé hypotézy o tom, jak funguje PFN.
 Ačkoli Nagler se snaží ve své práci matematicky popsat principy PFN a naznačit jeho principy fungování, ale uvažuje model s jednou vrstvou a navíc popisuje, co PFN transformer ve výsledku vůbec dělá a jak fungují jeho vnitřní mechanismy, jenom částečně.
-Proto se pokusíme tyto otevřené otázky probrat jestli ne skrz matematický aparát, tak alespoň pomocí empirických pozorování.
+Proto se pokusíme tyto otevřené otázky probrat ne-li matematickým aparátem, pak alespoň empirickými pozorováními.
 Všechny experimenty budou provdeny jenom pro architekturu typu transformer. 
 Bude nás většinou zajímat jak vnitřní struktura PFN, tak i jeho některé vlastnosti jakožto nástroje pro Bayesovskou inferenci.
 Rovněž prozkoumáme mechanismy pomocí kterých PFN vyhodnocuje vstupní data a čím se tyto mechanismy liší od regrese pomocí Gaussovských procesů.
@@ -12,7 +12,7 @@ Rovněž prozkoumáme mechanismy pomocí kterých PFN vyhodnocuje vstupní data 
 \label{sec:vnitrni-struktura}
 
 Nejdříve uvedeme základní analýzu PFN transformeru.
-Zaměříme se zde na to, co přesně děla se vstupními daty, podíváme se, zde se snaží nakopírovat stejné mechanismy jako GP, anebo zda dělá něco jiného.
+Zaměříme se zde na to, co přesně dělá se vstupními daty, podíváme se, zda se snaží nakopírovat stejné mechanismy jako GP, anebo zda dělá něco jiného.
 Experimenty jsme prováděli na dvou typech modelů.
 Oba sdílí identickou architekturu transformeru: $6$ vrstev, $8$ \emph{attention hlav}, dimenze embeddingu $512$, dimenze skrytých vrstev dopředné sítě $1024$ a výstupní \texttt{FullSupportBarDistribution} s $1000$ biny.
 Architektura je nastavena s parametry \lstinline|features_per_group=1| a \lstinline|attention_between_features=False|, tedy přesně tak, jak jsme ji popsali v předchozí kapitole pro případ $1$D regrese.
@@ -65,7 +65,7 @@ Query: Test  & Test$\to$Train  & Test$\to$Test  \\
 \end{center}
 
 Kvadrant \textit{Test$\to$Train} je pro nás klíčový, ten nám totiž říká, jak moc testovací body „čerpají“ informaci z trénovacích dat při budování své predikce.
-Z pohledu GP inference bychom očekávali, že právě tento kvadrant bude dominantní – predikce v novém bodě $x^*$ závisí na pozorovaných párech $(X, y)$, nikoli naopak.
+Z pohledu GP inference bychom očekávali, že právě tento kvadrant bude dominantní. Predikce v novém bodě $x^*$ totiž závisí na pozorovaných párech $(X, y)$, nikoli naopak.
 \par
 
 Na obrázku~\ref{fig:attention_all_layers} je vidět, jak se struktura \emph{attention matic} vyvíjí přes vrstvy:
@@ -99,7 +99,7 @@ Tato asymetrie je přesně to, co bychom čekali od GP inference: testovací bod
 
 Podstatné je, že tuto kauzální asymetrii model neměl explicitně zakódovanou a tudíž vyplynula přirozeně z optimalizace na syntetických GP datech.
 Kdybychom totiž model trénovali na datech bez této struktury, \emph{attention mechanismus} by zůstal symetrický.
-Samotná existence asymetrie v poslední vrstvě je tak prvním experimentálním důkazem, že PFN provádí Bayesovskou inferenci a nikoliv pouhý \emph{pattern matching}, neboli učení příkladu nazpaměť.
+Samotná existence asymetrie v poslední vrstvě je tak prvním experimentálním dokladem, že PFN provádí Bayesovskou inferenci a nikoliv pouhý \emph{pattern matching}, neboli učení příkladu nazpaměť.
 \par
 
 Na maticích na obrázku~\ref{fig:attention_all_layers} si lze všimnout ještě jednoho nápadného jevu, konkrétně svislých pruhů.
@@ -173,7 +173,8 @@ Každá metrika je průměrována přes $5$ nezávislých \emph{seedů}, přiče
 MSE je počítáno jako střední kvadratická odchylka mezi střední hodnotou predikce PFN a analytickým GP posteriorem přes všech $100$ testovacích bodů.
 Korelace \emph{attention} vs.\ RBF je pro každý testovací bod $x^*$ spočítána jako Pearsonova korelace mezi \emph{attention vahami} poslední vrstvy (průměr přes $8$ hlav) a normalizovanými RBF vahami $\exp(-d^2/2\ell^2)$, zprůměrovaná přes všechny testovací body.
 Jako referenční metodu zahrnujeme rovněž Nadaraya-Watsonův estimátor: \textrm{MSE(NW, GP)} měří jeho odchylku od analytického GP posterioru a slouží jako dolní mez kvality nejjednoduššího \emph{kernel smoothingu}.
-\textrm{MSE(PFN, NW)} pak kvantifikuje, o kolik se predikce PFN od NW liší, pokud $\textrm{MSE(PFN, NW)} \approx \textrm{MSE(NW, GP)}$, znamená to, že PFN a NW predikují zcela odlišné hodnoty, a tedy že PFN neprovádí prostý \emph{kernel smoothing}.
+\textrm{MSE(PFN, NW)} pak kvantifikuje, o kolik se predikce PFN od NW liší.
+Je-li současně $\textrm{MSE(PFN, GP)} \approx 0$, tedy PFN sedí na GP posterioru, a přitom $\textrm{MSE(PFN, NW)} \approx \textrm{MSE(NW, GP)}$, znamená to, že PFN a NW predikují zcela odlišné hodnoty, a tedy že PFN neprovádí prostý \emph{kernel smoothing}.
 Naměřené hodnoty jsou shrnuty v tabulce~\ref{tab:exp3}.
 
 \begin{table}[htbp]
@@ -257,7 +258,7 @@ PFN ji spočítá jedním dopředným průchodem z~kontextu.
 Slouží tedy jako horní hranice toho, čeho lze na daných datech dosáhnout, s~níž PFN porovnáváme.
 
 Kvalitu predikce měříme pomocí MSE zprůměrované přes všechny testovací body dané realizace.
-Abychom výsledek nezáviseli na jedné konkrétní realizaci, celý postup zopakujeme a metriky nakonec zprůměrujeme přes $5$ \emph{seedů} $\times$ $20$ realizací $=$ $100$ instancí pro každou hodnotu $n_{\text{ctx}}$.
+Aby výsledek nezávisel na jedné konkrétní realizaci, celý postup zopakujeme a metriky nakonec zprůměrujeme přes $5$ \emph{seedů} $\times$ $20$ realizací $=$ $100$ instancí pro každou hodnotu $n_{\text{ctx}}$.
 \par
 
 \begin{table}[htbp]
@@ -292,7 +293,7 @@ To je očekávané: \emph{oracle} zná přesné hyperparametry a provádí exakt
 
 Za druhé, rozdíl se zvětšuje se středním $n_{\text{ctx}}$.
 Při $n = 5$ je převaha \emph{GP oracle} malá ($0{,}034$ vs $0{,}041$); při $n = 15$ již GP dosahuje $0{,}003$ oproti $0{,}006$ u PFN.
-Příčinou je, že s více kontextovými body disponuje \emph{GP oracle} přesnou inversí kernelové matice $\mathbf{K}^{-1}$, zatímco PFN tuto operaci pouze aproximuje.
+Příčinou je, že s více kontextovými body disponuje \emph{GP oracle} přesnou inverzí kernelové matice $\mathbf{K}^{-1}$, zatímco PFN tuto operaci pouze aproximuje.
 Při malém kontextu je $\mathbf{K}^{-1}$ málo informativní a obě metody jsou si blízko.
 
 Za třetí, od $n = 20$ se obě metody přibližují: MSE($0{,}0021$ vs $0{,}0017$) jsou si prakticky rovnocenné.
@@ -304,14 +305,14 @@ Toto je jedním z klíčových empirických potvrzení toho, že PFN provádí p
 
 V tomto experimentu ověřujeme, zda PFN správně zachytí nejen střední hodnotu predikce, ale také tvar profilu nejistoty (tzv. \emph{uncertainty}), tedy kde si byl model jistější a kde méně.
 Trénovací data jsou omezena na oblast $x \in [0{,}3,\, 0{,}7]$ ($n_{\text{ctx}} = 20$), testovací body pokrývají celý interval $[0, 1]$ ($n_{\text{test}} = 100$).
-Výsledek experimentu jsme opět dostali tímto způsobem – průměrování přes $5$ realizací $\times$ $5$ \emph{seedů} $= 25$ instancí celkem.
+Výsledek experimentu jsme opět dostali tímto způsobem, průměrováním přes $5$ realizací $\times$ $5$ \emph{seedů} $= 25$ instancí celkem.
 Metriky kalibrace: $\text{Corr}(\hat{\sigma}_{\text{PFN}},\, \sigma_{\text{GP}})$ (korelace směrodatných odchylek) a $\text{MSE}(\hat{\sigma}_{\text{PFN}},\, \sigma_{\text{GP}})$ (absolutní chyba kalibrace).
 Dále uvádíme \textit{ratio far/near}, což je poměr průměrné směrodatné odchylky (\emph{std}) v oblasti extrapolace ($x \in [0,\, 0{,}2] \cup [0{,}8,\, 1]$) ke směrodatné odchylce v centru dat ($x \in [0{,}4,\, 0{,}6]$), který měří, jak výrazně model zvyšuje nejistotu mimo oblast trénovacích dat.
 Naměřené hodnoty shrnuje tabulka~\ref{tab:exp1}.
 \par
 
 Střední hodnota PFN sleduje GP posterior s vysokou přesností v oblasti s daty, jak ukazuje obrázek~\ref{fig:exp1_combined}.
-Mimo trénovací sadu ($x < 0{,}3$, $x > 0{,}8$) PFN správně konverguje k prioru (hodnota~$0$), stejně jako GP.
+Mimo trénovací sadu ($x < 0{,}3$, $x > 0{,}7$) PFN správně konverguje k prioru (hodnota~$0$), stejně jako GP.
 Avšak poznamenejme, že pro realizace s vysokou amplitudou ($|m_{\text{train}}| > 1{,}5$), dochází k neúplné konvergenci, GP se v takových případech chová identicky.
 
 \begin{table}[htbp]
@@ -344,7 +345,7 @@ $\text{MSE}(\hat{\sigma}) = 0{,}0038$ signalizuje, že absolutní kalibrace je p
 \textit{Ratio far/near} u PFN ($21{,}3\times$) dosahuje přibližně $82\,\%$ dynamického rozsahu GP ($25{,}9\times$).
 Z toho usuzujeme, že PFN mírně podhodnocuje míru zvýšení \emph{uncertainty} v oblasti extrapolace, avšak můžeme tvrdit, že charakter chování je zachován.
 Toto je zásadní vlastnost.
-Model bez explicitní representace GP posterioru přesto generuje uncertainty, která odpovídá bayesovskému výpočtu.
+Model bez explicitní reprezentace GP posterioru přesto generuje uncertainty, která odpovídá Bayesovskému výpočtu.
 
 \subsection{Shrnutí}
 \label{subsec:shrnuti-fixni}

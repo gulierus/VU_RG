@@ -325,7 +325,7 @@ Rychle oscilující funkce ($\ell = 0.05$) vyžaduje hustou vzorkovací mřížk
 > *"Čím divočejší je ta funkce, tím hůř PFN odhaduje lengthscale. Nepomáhá ani přidání množství kontext bodů."*
 
 ![MSE napříč lengthscale hodnotami](figures/GP1_random_model/fig_rand_06_ls_accuracy.png)
-*Obrázek 14: Experiment 5 — MSE(PFN, GP) jako funkce $\ell$ (random-HP model, $n_{\text{context}}=30$). Krabicové grafy ukazují distribuci přes 50 instancí. Výrazný nárůst MSE pro $\ell=0.05$.*
+*Obrázek 14: Experiment 5 — MSE(PFN, GP) jako funkce $\ell$ (random-HP model, $n_{\text{context}}=30$, medián přes 50 instancí, logaritmická svislá osa). Výrazný nárůst MSE pro $\ell=0.05$.*
 
 ![Predikce pro různé lengthscale hodnoty](figures/GP1_random_model/fig_rand_06b_ls_predictions.png)
 *Obrázek 15: Experiment 5 — vizualizace predikcí PFN pro různé $\ell$. Pro malé $\ell$ PFN "přehlazuje" rychlé oscilace.*

@@ -2,7 +2,7 @@
 \label{sec:hloubka-reseni}
 
 V předchozí sekci jsme ukázali, co jednotlivé vrstvy dělají.
-Tam jsme ukázali, že rané vrstvy čtou \emph{labely}, střední vrstvy porovnávají vstupní vzdálenosti a hloubka odstraňuje ireducibilní bias jednovrstvého modelu.
+Tam jsme ukázali, že rané vrstvy čtou \emph{labely}, střední vrstvy porovnávají vstupní vzdálenosti a hloubka odstraňuje neredukovatelný bias jednovrstvého modelu.
 Zůstává však hlubší otázka, proč vlastně přidávání vrstev pomáhá a jaký výpočet odpovídá jedné vrstvě.
 Připomeňme, že GP \emph{posterior mean} (tj. střední hodnota posteriorního rozdělení, kterou GP vrací jako svou predikci) není nic jiného než řešení lineární soustavy
 $$\mu(x^*) = k(x^*, \mathbf{X})\,\boldsymbol{\alpha}, \qquad \boldsymbol{\alpha} = (\mathbf{K} + \sigma^2 \mathbf{I})^{-1} \mathbf{y},$$
@@ -29,7 +29,7 @@ Odtud plyne i následující hypotéza, kterou bychom chtěli otestovat.
 Pokud každá vrstva PFN transformeru odpovídá jednomu kroku iterativního řešiče, větší počet vrstev bychom potřebovali pro hůře podmíněné úlohy (tj. s větším $\kappa$).
 \par
 
-K ověření této hypotézy potřebujeme kontrolovaně měnit $\kappa$, aniž bychom měnili cokoli jiného a jiné předpoklady nebo charakteristiky modelů.
+K ověření této hypotézy potřebujeme kontrolovaně měnit $\kappa$, aniž bychom měnili cokoli jiného.
 Toho dosáhneme přes šum $\sigma^2$ a k tomu využijeme následujícího triku.
 Numericky totiž platí $\lambda_{\min}(\mathbf{K}) \approx 0$, takže z rovnice definice pro $\kappa$ plyne, že $\kappa \approx 1 + \lambda_{\max}(\mathbf{K})/\sigma^2$ a samotný šum nastavuje podmíněnost prakticky přímo.
 Pracujeme proto se dvěma sadami pěti modelů ($1$, $2$, $4$, $6$ a $8$ vrstev), které se liší výhradně šumem, na kterém byly trénovány i testovány:
