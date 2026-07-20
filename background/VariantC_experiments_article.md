@@ -35,8 +35,9 @@ tento model.)
 
 **Skutečný PFN natrénovaný na explicitním prioru je in-distribution skoro Bayes-optimální a věrně
 aproximuje pravý Bayesovský posterior — v průměru i v nejistotě.** Excess risk nad Bayes floor je
-na trénovaných režimech jen ~0,004–0,006 BCE. Amortizační chyba se koncentruje do tvrdých / OOD
-úloh (ne do počtu kontextu); variance s kontextem mizí, bias je malý, ale strukturálně přetrvává;
+in-distribution ~0,004–0,015 BCE (Hard/Medium nejníž ~0,005, Easy ~0,015; Easy je horní kraj Π,
+tedy stále in-distribution). Amortizační chyba je nejnižší na tvrdých a interiérových úlohách a
+roste do OOD (ne do počtu kontextu); variance s kontextem mizí, bias je malý, ale strukturálně přetrvává;
 kalibrace je dobrá s mírnou over-sharpness na hranicích. To je pozitivní 2D validace jádra PFN
 myšlenky proti oraclu — pokračování GP2 měřené proti pravdě.
 
@@ -81,8 +82,9 @@ Fixní query, $n_{\text{draws}}=24$ tahů support setu.
 | Easy | 0,0036 → 0,0035 | 0,0039 → ~0,0000 |
 | Hard | 0,0016 → 0,0017 | 0,0009 → ~0,0000 |
 
-**Variance s kontextem mizí** s log-log sklonem $\approx-1$, tj. $\mathrm{Var}\sim n^{-1}$ —
-**přesná shoda s Naglerovým Thm 6.2** (deviace $\lesssim n^{-1/2}$), ne překonání teorie. Naopak
+**Variance s kontextem mizí aspoň jako $n^{-1}$** (log-log sklony −0,96 Hard až −1,30 Easy, oba
+≤ −1), konzistentně s Naglerovým Thm 6.2 (str. 7; bounduje deviaci $\lesssim n^{-1/2}$, tj. horní
+mez — Easy klesá o něco rychleji, což mez neporušuje). Naopak
 **bias² se drží na malé kladné hodnotě** (plateau), konzistentní s Naglerovou predikcí
 neredukovatelného biasu (globální attention porušuje locality). Bias je malý, konzistentní s dobrou
 fidelitou. (Nefitujeme degenerovaný joint `bias²+c/n` — past z Ch.3.)
@@ -131,11 +133,12 @@ BCE PFN i oraclu vůči **pravé** tvrdé masce (S=16, $\sigma$ mix, 40 úloh/re
 | Easy | 0,0480 | 0,0327 | +0,0153 |
 | OOD-long | 0,0403 | 0,0272 | +0,0131 |
 
-**Čtení:** in-distribution (Hard, Medium) je PFN od Bayes floor vzdálený jen ~0,004–0,006 → naučil
-se **skoro Bayes-optimální** prediktor. Trénovací plató na loss ~0,019 tedy **není zaseknutí — je
-to sezení těsně nad Bayes floor**. Excess risk (= amortizační cena) vyskočí ~9× až **OOD-short**,
-přesně kde amortizace selhává. Easy má mírně vyšší excess než Hard, protože hladká pole mají široké
-nejisté hranice, kde ta mírná over-sharpness (sekce 4) stojí nejvíc BCE.
+**Čtení:** in-distribution je excess 0,004–0,015 (Hard/Medium nejníž ~0,005, **Easy ~0,015** —
+`ℓ/L=0,40` je horní kraj Π, tedy stále in-distribution, ne OOD) → PFN se naučil **skoro
+Bayes-optimální** prediktor, ale ne uniformně. Trénovací plató na loss ~0,019 **není zaseknutí — je
+to sezení těsně nad Bayes floor**. Excess vyskočí **~13× (vs Hard)** až **OOD-short**, přesně kde
+amortizace selhává. Easy má ~3× vyšší excess než Hard, protože hladká pole mají široké nejisté
+hranice, kde ta mírná over-sharpness (sekce 4) stojí nejvíc BCE.
 
 ## Obrázky (`figures/VariantC_pfn_seg/`)
 
@@ -161,9 +164,9 @@ nejisté hranice, kde ta mírná over-sharpness (sekce 4) stojí nejvíc BCE.
   procedury** (explicitní prior + PPD/BCE loss).
 
 **Závěr C:** *Skutečný PFN na explicitním prioru je in-distribution skoro Bayes-optimální (excess
-risk nad Bayes floor ~0,004–0,006) a věrně aproximuje pravý posterior (fidelita vysoká, nejistota
-zachycená); amortizační chyba roste s tvrdostí a OOD hyperparametrů (asymetricky
-v $\ell$), ne s počtem hustého kontextu; variance mizí jako $n^{-1}$ (přesně Thm 6.2), bias je malý,
+risk nad Bayes floor ~0,004–0,015, Easy nejvýš) a věrně aproximuje pravý posterior (fidelita vysoká,
+nejistota zachycená); amortizační chyba roste s tvrdostí a OOD hyperparametrů (asymetricky
+v $\ell$), ne s počtem hustého kontextu; variance mizí aspoň jako $n^{-1}$ (sklony −0,96 až −1,30, Thm 6.2), bias je malý,
 ale **strukturální** (shodné plateau přes 3 seedy, CV 1,6 %/4,4 %); kalibrace dobrá s mírnou
 over-sharpness na hranicích. Klíčový caveat:
 „near-optimalita" platí jen v čistém hustém matched režimu (úloha je skoro identifikovatelná);

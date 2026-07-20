@@ -18,6 +18,7 @@
 \pagestyle{headings}
 \raggedbottom % neroztahovat stranky do plne vysky (brani velkym mezeram kolem obrazku)
 \usepackage{graphicx}
+\usepackage{placeins} % \FloatBarrier — zabrání obrázkům utéct do jiné (pod)sekce
 % Obrázky se generují notebooky do ../figures/ (kořen projektu); loga/PDF titulky jsou v ./Images a ./PDF_k_vlozeni.
 \graphicspath{{../}{./}}
 \usepackage{pdfpages} % pokud nemáte formulář "Zadání bak./dipl. práce" naskenovaný jako PDF, tak ZAKOMENTUJTE
@@ -348,6 +349,8 @@ Text úvodu....
 \input{Kapitola3d}
 
 \input{Kapitola3e}
+
+\input{Kapitola4}
 
 
 

@@ -285,25 +285,26 @@ přímo v log-log a $\mathrm{bias}^2$ jako plateau.)
   má tzv. tilted-measure limit, který se nelokalizuje kolem $x_\star$ → **neredukovatelný bias**.
   V našem 2D CrossBlocku má feature-averaging přes support globální dosah, takže očekáváme
   strukturální bias soustředěný na hranicích masky.
-- **Variance (Thm 6.2).** Nagler bounduje **absolutní deviaci** predikce (doslovné znění, str. 6):
+- **Variance (Thm 6.2, str. 7).** Nagler bounduje **absolutní deviaci** predikce (doslovné znění):
   $$\big|q_\theta(y\mid x,D_n)-\mathbb E[q_\theta(y\mid x,D_n)]\big|\lesssim n^{-1/2}\quad\text{s vysokou pravděpodobností.}$$
   Bounded je tedy **magnituda fluktuace** (std-škála), ne přímo rozptyl; „the variance vanishes"
-  je Naglerův prozaický popisek. Protože $q_\theta\in[0,1]$ je omezené, deviace $\sim n^{-1/2}$
-  implikuje **rozptyl** $\mathrm{Var}\sim n^{-1}$. Formálně (Appendix A.8 / Thm A.1) síť splňuje
-  podmínku (5) s $\alpha=1$, což dává právě $n^{1/2-\alpha}=n^{-1/2}$. Mizení variance je dle
-  Naglera *strukturální* (vlastnost architektury, nezávislá na $\theta$; attention dává každému
-  vzorku váhu řádu $1/n$).
+  je Naglerův prozaický popisek. Je to **horní mez**: protože $q_\theta\in[0,1]$ je omezené,
+  deviace $\lesssim n^{-1/2}$ dává **rozptyl** $\mathrm{Var}\lesssim n^{-1}$ (klesá *aspoň* takto
+  rychle, případně rychleji). Formálně (Appendix A.8 / Thm A.1, str. 13) síť splňuje podmínku (5)
+  s $\alpha=1$, což dává $n^{1/2-\alpha}=n^{-1/2}$. Mizení variance je dle Naglera *strukturální*
+  (vlastnost architektury, nezávislá na $\theta$; attention dává každému vzorku váhu řádu $1/n$).
 
-  *Nezávislý argument (proč $-1$ dává smysl i bez Naglera):* prediktor je v jádru vážený průměr
-  přes $\sim n$ support příspěvků s vahami $O(1/n)$; rozptyl takového průměru je $\mathrm{Var}[\bar\cdot]\sim1/n$
-  elementárně (jako CLT-škála). Sklon $-1$ tedy potvrzují dvě nezávislé úvahy.
+  *Nezávislý argument (proč $\approx-1$ dává smysl i bez Naglera):* prediktor je v jádru vážený
+  průměr přes $\sim n$ support příspěvků s vahami $O(1/n)$; rozptyl takového průměru je
+  $\mathrm{Var}[\bar\cdot]\sim1/n$ elementárně (CLT-škála). Sklon $\lesssim-1$ tedy podporují dvě
+  nezávislé úvahy.
 
-Naše měření (§7): log-log sklon $\overline{\mathrm{var}}$ je $\approx-1$, což je **přesná shoda**
-s Thm 6.2 (deviace $\lesssim n^{-1/2}\Leftrightarrow\mathrm{Var}\sim n^{-1}$) — ne překonání teorie.
-$\overline{\mathrm{bias}^2}$ drží malé kladné plateau, konzistentní s Naglerovou predikcí
-neredukovatelného biasu. Že plateau odpovídá **strukturálnímu** biasu (a ne optimalizačnímu
-reziduu jednoho běhu), je ověřeno přes **3 nezávislé seedy**: plateau se shoduje na jednotky
-procent (CV 1,6 % Easy / 4,4 % Hard, §7f).
+Naše měření (§7): log-log sklon $\overline{\mathrm{var}}$ je $-0{,}96$ (Hard) až $-1{,}30$ (Easy) —
+oba $\le-1$, tj. variance klesá **aspoň jako $n^{-1}$**, konzistentně s Thm 6.2 (horní mez na
+deviaci; Easy klesá o něco rychleji, což mez nijak neporušuje). $\overline{\mathrm{bias}^2}$ drží
+malé kladné plateau, konzistentní s Naglerovou predikcí neredukovatelného biasu. Že plateau
+odpovídá **strukturálnímu** biasu (a ne optimalizačnímu reziduu jednoho běhu), je ověřeno přes
+**3 nezávislé seedy**: plateau se shoduje na jednotky procent (CV 1,6 % Easy / 4,4 % Hard, §7f).
 
 ---
 
@@ -325,10 +326,12 @@ identifikovatelné z jednoho páru; strukturní rozdíl vůči řídké GP regre
 | Easy | 0,0480 | 0,0327 | +0,0153 |
 | OOD-long | 0,0403 | 0,0272 | +0,0131 |
 
-In-distribution je excess risk $\approx0{,}004$–$0{,}006$ nat/pixel → v čistém matched režimu je PFN
-**skoro Bayes-optimální**. OOD-short: excess $\approx9\times$ vyšší. Easy $>$ Hard, protože hladká
-pole mají široké nejisté hranice (velké $\overline{H_b(p_{\mathrm{oracle}})}$), kde mírná
-over-sharpness stojí nejvíc KL.
+In-distribution je excess risk $\approx0{,}004$–$0{,}015$ nat/pixel (Hard/Medium nejníž $\sim0{,}005$,
+**Easy $\sim0{,}015$** — pozor, $\ell/L=0{,}40$ je *horní kraj* $\Pi$, tedy stále in-distribution,
+ne OOD). V čistém matched režimu je PFN tedy **skoro Bayes-optimální**, ale ne uniformně: Easy má
+excess $\sim3\times$ vyšší než Hard, protože hladká pole mají široké nejisté hranice (velké
+$\overline{H_b(p_{\mathrm{oracle}})}$), kde mírná over-sharpness stojí nejvíc KL. OOD-short je pořád
+jasně mimo ($\sim13\times$ Hard, $\sim4\times$ Easy).
 
 > **Pozor na čtení tabulky vs. tréninkové plató.** Tréninkové plató $0{,}0194$ je nižší než každý
 > floor v tabulce (min $0{,}025$), což zdánlivě porušuje excess $\ge0$. Není tomu tak: tabulkové
@@ -349,9 +352,9 @@ vyžadoval řídký neinformativní kontext (Varianta A); není to univerzálie 
 řídkosti dat.
 
 **(d) Bias–variance.** $\overline{\mathrm{var}}$ klesá s $n_{\mathrm{supp}}$ k $\approx0$ s log-log
-sklonem $\approx-1$ — tj. $\mathrm{Var}\sim n^{-1}$, **přesná shoda s Naglerovým Thm 6.2**.
-$\overline{\mathrm{bias}^2}$ drží malé plateau (~$0{,}0015$ Hard, ~$0{,}0031$ Easy): variance mizí,
-bias přetrvává.
+sklonem $-0{,}96$ (Hard) až $-1{,}30$ (Easy) — oba $\le-1$, tj. variance klesá **aspoň jako
+$n^{-1}$**, konzistentně s Naglerovým Thm 6.2 (horní mez na deviaci). $\overline{\mathrm{bias}^2}$
+drží malé plateau (~$0{,}0015$ Hard, ~$0{,}0031$ Easy): variance mizí, bias přetrvává.
 
 **(e) Kalibrace vs oracle.** Rozdělení $\hat p_{\mathrm{PFN}}$ a $p_{\mathrm{oracle}}$ se téměř
 překrývají; $\overline{H_b}$ srovnatelné i na nejisté množině (0,522 vs 0,552). ECE(oracle)
@@ -368,8 +371,11 @@ shodný config, mění se init i realizace dat) a změřili plateau na **stejné
 | Easy | 0,00311 / 0,00302 / 0,00309 | 0,00307 ± 0,00005 | 1,6 % | −1,30 |
 | Hard | 0,00147 / 0,00144 / 0,00156 | 0,00149 ± 0,00007 | 4,4 % | −0,96 |
 
-Plateau je napříč seedy shodné (CV $\ll$ 25 %) → **bias je strukturální**, ne artefakt běhu; sklon
-variance je taktéž stabilní. Naglerova predikce neredukovatelného biasu je tím potvrzena empiricky.
+Plateau je napříč seedy shodné (CV $\ll$ 25 %) → **bias je strukturální**, ne artefakt běhu.
+Nezávislost seedů je ověřena: config.seed $=0/1/2$ a relativní $L_2$ rozdíl vah $\approx1{,}41$
+($\approx\sqrt2$, podpis nekorelovaných modelů; duplikát by dal $0$). Sklon variance je stabilní
+*uvnitř* režimu (Hard $\approx-0{,}96$, Easy $\approx-1{,}30$ napříč seedy), byť se mezi režimy liší
+(oba ale $\le-1$). Naglerova predikce neredukovatelného biasu je tím potvrzena empiricky.
 
 ---
 
@@ -383,20 +389,23 @@ $\sigma$ (lokální rozptyl); jediné, co z něj nevyčteš, je práh $\tau$, a 
 support maska. Proto (i) neexistuje neinformativní režim, ve kterém by kolaps mohl nastat, a (ii)
 „near-Bayes-optimalita" je zčásti tím, že testujeme **snadný inferenční problém**. Patologie
 předpovězené teorií (kolaps, velký amortizační bias) proto vyžadují **řídký kontext** (Varianta A)
-nebo **OOD** — a přesně tam se v C i objevují (excess risk $\sim10\times$ u OOD-short, asymetricky
-v $\ell$, křížově konzistentní s 1D nálezem z GP2).
+nebo **OOD** — a přesně tam se v C i objevují (excess risk $\sim13\times$ u OOD-short vs Hard,
+asymetricky v $\ell$, křížově konzistentní s 1D nálezem z GP2).
 
 **Proč to tedy měřit (C jako kontrolní podmínka).** C není „nepovedlo se ukázat patologii", ale
 **clean baseline**: dokazuje, že v matched/hustém režimu je PFN *prokazatelně* skoro
-Bayes-optimální (excess $\approx0{,}006$ ověřený proti exaktnímu oraclu). Tím **vylučuje**, že by
+Bayes-optimální (excess in-distribution $\sim0{,}005$–$0{,}015$, $\Pi$-průměr $\approx0{,}006$
+ověřený proti exaktnímu oraclu). Tím **vylučuje**, že by
 kolaps ve Variantě A nebo selhání v OOD byly dílem vadné architektury či špatného tréninku — model
 umí být optimální, když je úloha identifikovatelná. Patologie jsou tedy **podmíněné režimem**
 (řídkost / OOD), ne defektem modelu. Bez C by tenhle rozdíl nešel odlišit.
 
 **Souhrn měření (formálně).** PFN realizuje amortizovaný posterior predictive; proti exaktnímu
-oraclu je $\mathbb E[\mathrm{KL}(\text{oracle}\Vert\text{PFN})]$ řádu $10^{-3}$ in-distribution
-a roste $\sim10\times$ OOD (asymetricky v $\ell$). Rozptyl $\to0$ jako $n^{-1}$ (přesně Thm 6.2),
-zbytkový bias přetrvává, kalibrace věrná s mírnou over-sharpness na hranicích.
+oraclu je $\mathbb E[\mathrm{KL}(\text{oracle}\Vert\text{PFN})]$ řádu $10^{-3}$ až $10^{-2}$
+in-distribution (Hard $\sim0{,}004$, Easy $\sim0{,}015$) a $\sim13\times$ výš u OOD-short
+(asymetricky v $\ell$). Rozptyl $\to0$ aspoň jako $n^{-1}$ (sklony $-0{,}96$ až $-1{,}30$,
+konzistentně s Thm 6.2), bias přetrvává (strukturální, 3 seedy), kalibrace věrná s mírnou
+over-sharpness na hranicích.
 
 **Limity (poctivě).**
 1. **Strukturálnost biasu — VYŘEŠENO (3 seedy).** Původní výtka „jeden seed → nelze prohlásit za
