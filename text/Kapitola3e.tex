@@ -95,9 +95,7 @@ Výsledky shrnují tabulky~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n} a obráz
 Horní panel obrázku ukazuje MSE jako funkci $n$, dolní panel $\Delta$NLL.
 Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které se chtějí všechny metody přiblížit.
 
-\begin{figure}[p]
-    \centering
-    \begin{minipage}{\linewidth}
+\begin{table}[!htb]
     \centering
     \begin{tabular}{cccccc}
     \hline
@@ -112,11 +110,11 @@ Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které 
     $128$ & $0{,}17385$ & $0{,}41661$ & $0{,}17169$ & $0{,}18200$ & $0{,}16918$ \\
     \hline
     \end{tabular}
-    \captionof{table}{MSE vůči skutečným hodnotám jako funkce velikosti kontextu $n$ při misspecifikaci kernelu ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí). PFN je pro $n \in \{10, 20, 40\}$ nejlepší ze všech misspecifikovaných metod, pro velká $n$ je s GP\_ML a GP\_Bayes prakticky shodné.}
+    \caption{MSE vůči skutečným hodnotám jako funkce velikosti kontextu $n$ při misspecifikaci kernelu ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí). PFN je pro $n \in \{10, 20, 40\}$ nejlepší ze všech misspecifikovaných metod, pro velká $n$ je s GP\_ML a GP\_Bayes prakticky shodné.}
     \label{tab:exp7_mse_n}
-    \end{minipage}
-    \vfill
-    \begin{minipage}{\linewidth}
+\end{table}
+
+\begin{table}[!htb]
     \centering
     \begin{tabular}{ccccc}
     \hline
@@ -131,10 +129,12 @@ Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které 
     $128$ & $+0{,}031$ & $+1{,}174$ & $+0{,}016$ & $+0{,}044$ \\
     \hline
     \end{tabular}
-    \captionof{table}{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce velikosti kontextu $n$ ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí, \emph{oracle} má z definice hodnotu $0$). PFN je nejblíže \emph{oracle} pro všechna $n \leq 40$, teprve od $n = 64$ jej mírně porazí GP\_ML.}
+    \caption{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce velikosti kontextu $n$ ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí, \emph{oracle} má z definice hodnotu $0$). PFN je nejblíže \emph{oracle} pro všechna $n \leq 40$, teprve od $n = 64$ jej mírně porazí GP\_ML.}
     \label{tab:exp7_dnll_n}
-    \end{minipage}
-    \vfill
+\end{table}
+
+\begin{figure}[!htb]
+    \centering
     \includegraphics[width=0.576\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n.png}
     \caption{Vliv velikosti kontextu při misspecifikaci kernelu (data z Matérn $2{,}5$, $\ell_{\text{true}} = 0{,}3$). Nahoře: MSE jako funkce $n$, černá tečkovaná čára je \emph{GP\_oracle}. Dole: $\Delta$NLL vůči \emph{oracle}, tečkovaná čára značí nulu (\emph{oracle}). Chybové úsečky $\pm 1$ směrodatná chyba. PFN (modrá) se v MSE drží těsně u \emph{oracle} a v $\Delta$NLL je pro malé a střední kontexty ze všech metod nejníže.}
     \label{fig:exp7_q1}
