@@ -37,6 +37,7 @@ režim \emph{Easy} ($\ell = 0{,}3$, $\sigma^2 = 0{,}5$) a režim \emph{Hard} ($\
 Na rozdíl od předchozích sekcí, kde jsme používali jediný model trénovaný na náhodných hyperparametrech, je zde každá sada trénována přesně na svých testovacích hyperparametrech.
 Měříme tedy výkon na trénovacím rozdělení, nikoli generalizaci.
 Všech pět hloubek v každé sadě bylo trénováno stejných $300$ epoch, takže výsledky by neměly být zkreslené nevyrovnaným tréninkem.
+Na rozdíl od sekce \ref{sec:pfn-random-hp} zdejší šesti- a osmivrstvé modely konvergovali i pro $300$ epoch, protože opět trénujeme modely na konkretních hodnotách hyperparametrů. 
 Výslednou podmíněnost obou režimů shrnuje tabulka~\ref{tab:ch2_kappa}.
 
 \begin{table}[htbp]
@@ -75,7 +76,7 @@ Plná čára v něm ukazuje naměřenou chybu PFN jako funkci hloubky $L$, přer
 
 \textbf{Diskuze:}
 
-Z obrázku plynou dvě pozorování.
+Z obrázku \ref{fig:ch2_neumann} plynou dvě pozorování.
 Za prvé, hloubka modelu skutečně a výrazně zlepšuje aproximaci.
 Normalizované MSE u obou režimů prudce klesá, přičemž největší pokles připadá na přechod z jedné na čtyři vrstvy, pak se pokles ustálí.
 Za druhé, empirický pokles je mnohem rychlejší než teoretická křivka $\rho^L$.
@@ -124,7 +125,7 @@ Cokoli nad touto čárou je horší, než kdybychom vůbec nepredikovali.
 
 \textbf{Diskuze:}
 
-Obrázek dává jednoznačnou odpověď, reálný gradientní sestup je pomalý i v predikčním prostoru.
+Obrázek \ref{fig:ch2_gd_baseline} dává jednoznačnou odpověď, reálný gradientní sestup je pomalý i v predikčním prostoru.
 Jeho normalizované MSE zůstává po prvních osm kroků nad triviální hranicí, tj. hůř než predikce konstantním průměrem.
 PFN je naproti tomu pod touto hranicí už s jedinou vrstvou.
 Tím je paradox z předchozí části vysvětlen.
@@ -147,7 +148,7 @@ $8$ & $91$ & $408$ \\
 \label{tab:ch2_gd_steps}
 \end{table}
 
-Tabulka ukazuje dvě věci najednou.
+Tabulka \ref{tab:ch2_gd_steps} ukazuje dvě věci najednou.
 Za prvé, jedna vrstva odpovídá řádově desítkám kroků obyčejného gradientního sestupu.
 Naivní hypotéza „vrstva $=$ jeden krok“ je tedy vyvrácena o celé řády.
 Za druhé, počet potřebných kroků prudce roste s podmíněností, přesně jak předpovídá $\mathcal{O}(\kappa)$ chování gradientního sestupu.

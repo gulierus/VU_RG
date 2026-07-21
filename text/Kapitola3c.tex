@@ -21,7 +21,7 @@ Motivace pro tuto analýzu vychází přímo z Naglerovy teoretické práce, kte
 Připomeňme, že v PFN je každý kontextový bod reprezentován \emph{tokenem} $V_j = (Y_j,\, X_j)^\top$, který v sobě slučuje jak vstupní souřadnici $X_j$, tak její pozorovanou hodnotu $Y_j$.
 \emph{Attention skóre} jednovrstvého modelu je proto lineární kombinací obojího, zhruba tvaru $\alpha X_j + \beta Y_j$.
 GP váha $k(x^*, X_j)$ naproti tomu závisí výhradně na vstupní souřadnici.
-Nagler odtud odvozuje, že jediná vrstva nemůže reprodukovat GP posterior přesně, tzv. \emph{tilted-measure limit} se totiž nikdy nelokalizuje kolem $x^*$, a v predikci proto zůstává nenulový bias.
+Nagler odtud odvozuje, že jediná vrstva nemůže reprodukovat GP posterior přesně, tzv. \emph{tilted-measure limit} (viz sekce \ref{subsec:pfn-transformer}) se totiž nikdy nelokalizuje kolem $x^*$, a v predikci proto zůstává nenulový bias.
 To přirozeně vede k hypotéze o rozdělování práce mezi vrstvy.
 Pokud jedna vrstva nestačí, mohly by se hlubší modely naučit tento úkol rozdělit, a to tak, že rané vrstvy budou číst hodnoty $Y_j$ (tzv. \emph{label reading}) a prostřední vrstvy porovnávat vzdálenosti ve vstupním prostoru $X$ (tzv. \emph{kernel-like chování}).
 Právě tuto hypotézu budeme v následujících experimentech testovat.
@@ -45,7 +45,7 @@ Experiment provedeme na $200$ instancích se sdílenými daty pro všechny model
 Ukazuje se totiž, že \emph{attention váhy} jsou silně zešikmené.
 Naprostá většina váhy leží na několika málo bodech a zbytek je skoro nulový.
 Pearsonova korelace je citlivá na absolutní hodnoty, a proto monotónní vztah mezi \emph{attention} a kernelem systematicky podhodnocuje.
-Přechodem na \textit{Spearmanovu} korelaci se \emph{kernelové korelace} ve středních vrstvách zvedly z přibližně $0{,}35$ na $\sim 0{,}8$.
+Přechodem na \textit{Spearmanovu} korelaci se \emph{kernelové korelace} ve středních vrstvách zvedly z přibližně $0{,}35$ na hodnoty kolem $0{,}8$.
 Trend zůstává stejný, ale je mnohem výraznější.
 V celé této sekci proto uvádíme Spearmanovy korelace.
 \par
@@ -81,8 +81,8 @@ $7$ & — & — & — & — & $0{,}293$ \\
 
 \textbf{Diskuze:}
 
-Z tabulky i obrázku vystupuje jasný a opakující se napříč modely vzor.
-Vrstva $0$ má u všech vícevrstvých modelů nejvyšší \emph{labelovou korelaci} ($|\text{corr}| = 0{,}22$ až $0{,}47$) a zároveň nejnižší \emph{kernelovou korelaci} ($-0{,}10$ až $0{,}17$).
+Z tabulky \ref{tab:ch2_corr_overview} a obrázku \ref{fig:ch2_overview} vystupuje jasný a opakující se napříč modely vzor.
+Vrstva $0$ má u všech vícevrstvých modelů nejvyšší \emph{labelovou korelaci} (tj. na dolním grafu obrázku \ref{fig:ch2_overview}) a zároveň nejnižší \emph{kernelovou korelaci}.
 U šesti- i osmivrstvého modelu je \emph{kernelová korelace} první vrstvy dokonce mírně záporná.
 První vrstva tedy primárně čte \emph{labely}, tj. shromažďuje informaci o pozorovaných hodnotách, nikoli o geometrii vstupů.
 Střední vrstvy tento obraz obracejí.
@@ -174,7 +174,7 @@ $$\text{rel} = \frac{\text{MSE}(\text{knockout},\, \mu_{\text{GP}}) - \text{MSE}
 Používáme tuto metriku, jelikož absolutní rozdíl MSE by mohl být zavádějící.
 Hluboké modely totiž aproximují GP posterior s velmi malou \emph{baseline chybou} (řádově $10^{-4}$), takže jejich absolutní zhoršení není výrazné pouze kvůli této architektonické vlastnosti, ať je hlava důležitá, nebo ne.
 Relativní metrika naproti tomu měří zhoršení v násobcích vlastní \emph{baseline chyby} modelu, a proto je mezi modely srovnatelná.
-Velká hodnota $\text{rel}$ znamená, že hlava je důležitá pro aproximaci GP posterioru.
+Velká hodnota \textit{rel} znamená, že hlava je důležitá pro aproximaci GP posterioru.
 Hodnota blízko nuly naopak značí, že model bez ní funguje prakticky stejně.
 Test provedeme na $50$ instancích s kontextem $n_{\text{ctx}} = 40$.
 Výsledky shrnuje tabulka~\ref{tab:ch2_knockout} a obrázek~\ref{fig:ch2_knockout}.
@@ -205,7 +205,7 @@ $8$ vrstev & $(1,\, 6)$ & $0{,}00006$ & $14{,}6\times$ \\
 
 \textbf{Diskuze:}
 
-Obrázek ilustruje jasnou strukturu, kauzálně důležité hlavy se koncentrují v raných vrstvách.
+Obrázek \ref{fig:ch2_knockout} ilustruje jasnou strukturu, kauzálně důležité hlavy se koncentrují v raných vrstvách.
 Je vidět, že dominantní hlava je u každého modelu ve vrstvě $0$ nebo $1$.
 To potvrzuje hypotézu o rozdělení práce z korelační analýzy.
 U hlubokých modelů je absolutní dopad \emph{knockoutu} malý a predikce zůstávají blízko GP posterioru.
@@ -234,12 +234,12 @@ Tímto usuzujeme, že funkční roli hlavy určuje až její skutečný dopad na
 \label{subsec:ch2-bias-variance}
 
 Celou tuto sekci jsme zkoumali modely s různým počtem vrstev. 
-Předchozí dvě části této sekce zkoumaly, \textit{co} vrstvy dělají.
-Nyní bychom se mohli ptát, \textit{kolik} jich vlastně potřebujeme, tedy jak hloubka ovlivňuje samotnou přesnost aproximace GP posterioru.
+Předchozí dvě části této sekce zkoumaly, co vrstvy dělají.
+Nyní bychom se mohli ptát, kolik jich vlastně potřebujeme, tedy jak hloubka ovlivňuje samotnou přesnost aproximace GP posterioru.
 K tomu použijeme rozklad střední kvadratické chyby na dvě složky, který přímo navazuje na \emph{bias-variance} rozklad (\ref{Bias_Variance}) z teoretické kapitoly.
 Pro každý model měříme MSE vůči GP posterioru při rostoucím počtu kontextových bodů $n \in \{5, 10, 20, 40, 80, 120\}$ ($200$ instancí pro každé $n$) a naměřené hodnoty proložíme modelem
 $$\text{MSE}(n) = \text{bias}^2 + \frac{c}{n}.$$
-Člen $\text{bias}^2$ zde představuje tzv. \textit{neredukovatelnou chybu} (\emph{irreducible}), tj. tu část chyby, která nezmizí ani při nekonečném kontextu ($n \to \infty$).
+Člen $\text{bias}^2$ zde představuje tzv. \textit{neredukovatelnou chybu} (anglicky \emph{irreducible}), tj. tu část chyby, která nezmizí ani při nekonečném kontextu ($n \to \infty$).
 Připomeňme si, že toto je jedna z vlastností, kterou Nagler popisuje u transformeru, jak jsme již zmiňovali v sekci~\ref{subsec:pfn-transformer}, bias transformeru totiž obecně nemůže úplně zmizet, zatímco jeho rozptyl s počtem dat klesá.
 Člen $c/n$ je naopak rozptyl, který s přibývajícími daty klesá.
 Odhadnuté koeficienty jsou v tabulce~\ref{tab:ch2_bias_variance}, proložení pak na obrázku~\ref{fig:ch2_msedecomp}.
@@ -270,7 +270,7 @@ $8$ vrstev & $-0{,}00065$ & $0{,}026$ \\
 
 \textbf{Diskuze:}
 
-Grafy a tabulka nám ukazuje následující situaci.
+Grafy na obrázku \ref{fig:ch2_msedecomp} a tabulka \ref{tab:ch2_bias_variance} nám ukazuje následující situaci.
 Za prvé, jednovrstvý model má jako jediný zřetelně nenulový $\text{bias}^2 = 0{,}00476$.
 To je přímé empirické potvrzení Naglerova teoretického výsledku ze sekce~\ref{subsec:pfn-transformer}.
 Jedna vrstva nestačí k asymptotickému přiblížení GP posterioru, a proto v ní zůstává neredukovatelná chyba, kterou nelze odstranit žádným množstvím kontextových dat.
