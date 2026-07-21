@@ -24,7 +24,7 @@ Masku si můžeme představit jako černobílý obrys obtažený přes původní
 Hlavní rozdíl oproti regresi je ve výstupu.
 V~regresi PFN předpovídalo rozdělení jedné spojité hodnoty pro jeden vstupní bod.
 Zde předpovídá pro každý pixel pravděpodobnost, že leží uvnitř oblasti, tedy číslo mezi $0$ a $1$.
-Model tedy nevrací rovnou tvrdou černobílou masku, ale \emph{pravděpodobnostní mapu}, kde hodnota blízká jedné znamená „téměř jistě uvnitř“ a hodnota blízká nule „téměř jistě mimo oblast zájmu“ .
+Model tedy nevrací rovnou tvrdou černobílou masku, ale \emph{pravděpodobnostní mapu}, kde hodnota blízká jedné znamená „téměř jistě uvnitř“ a hodnota blízká nule „téměř jistě mimo oblast zájmu“.
 Právě tato mapa nás zajímá, protože u~ní můžeme stejně jako v~jedné dimenzi zkoumat přesnost predikce.
 \par
 
@@ -455,7 +455,7 @@ Sledujeme vzdálenost predikce od \emph{oraclu} a od této prior masky jako funk
 
 I v tomto případě není zcela zřejmé, co zobrazuje graf na obrázku \ref{fig:seg-c-kolaps} a jak ho správně číst.
 Proto se pokusíme opět čtenáři přiblížit co je vyneseno na tomto grafu.
-Zelená křivka je vzdálenost predikce od \emph{oraclu}, fialová křivka je vzdálenost od uniformní prior masky (naš prior v tomto případě), obě jako funkce velikosti kontextu.
+Zelená křivka je vzdálenost predikce od \emph{oraclu}, fialová křivka je vzdálenost od uniformní prior masky (náš prior v tomto případě), obě jako funkce velikosti kontextu.
 \par
 
 \textbf{Diskuze:}

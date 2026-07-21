@@ -102,11 +102,12 @@ Hlavy uvnitř jedné vrstvy nejsou zaměnitelné, každá pokrývá trochu jiný
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figures/ch2_label_kernel/fig_ch2_q1_8layer_corr_per_head.png}
-    \caption{Osmivrstvý model, rozklad na jednotlivé hlavy. Vlevo: \emph{kernelová korelace}, vpravo: \emph{labelová korelace}, obojí pro každou z $8$ hlav zvlášť napříč všemi $8$ vrstvami. Ve vrstvě $0$ se hlavy rozcházejí, některé silně čtou \emph{labely} (vpravo nahoře), jiné ne, zatímco ve středních vrstvách se většina hlav sbíhá k vysoké \emph{kernelové korelaci}. Heterogenita hlav uvnitř vrstvy je motivací pro test důležitosti hlav v sekci~\ref{subsec:ch2-knockout}.}
+    \caption{Osmivrstvý model, rozklad na jednotlivé hlavy. Vlevo: \emph{kernelová korelace}, vpravo: \emph{labelová korelace}, obojí pro každou z $8$ hlav zvlášť napříč všemi $8$ vrstvami. Ve vrstvě $0$ se hlavy rozcházejí, některé silně čtou \emph{labely} (vpravo nahoře), jiné ne, zatímco ve středních vrstvách se většina hlav sbíhá k vysoké \emph{kernelové korelaci}. 
+    Rozdílné chování hlav uvnitř jedné vrstvy je motivací pro test důležitosti hlav v sekci~\ref{subsec:ch2-knockout}.}
     \label{fig:ch2_perhead}
 \end{figure}
 
-Stejnou heterogenitu lze nahlédnout i prostorově.
+Toto rozdílné chování hlav, kdy každá sleduje jinou část kontextu, lze nahlédnout i prostorově.
 Obrázek~\ref{fig:ch2_isoweight} zobrazuje, kam se dívá každá z $8$ hlav jednovrstvého modelu.
 V tomto případě usuzujeme, že je dobré pro čtenáře popsat, co tento obrázek znázorňuje a co znamená.
 Vysvětleme tedy nejprve, jak takový graf vzniká a jak ho číst.
@@ -166,6 +167,8 @@ Hlava pak sice dál počítá, ale její výsledek se nikam nepřičte.
 Ostatní hlavy, dopředné sítě i reziduální spoje přitom zůstanou beze změny.
 Poté modelem znovu proženeme stejný vstup a měříme, o kolik se zhorší shoda predikce s GP posteriorem.
 Rozdíl oproti původnímu kompletnímu modelu je pak čistým příspěvkem právě té jedné hlavy.
+Takto postupně vyřadíme každou hlavu každé vrstvy, vždy právě jednu, zatímco všechny ostatní zůstávají aktivní.
+U modelu s $L$ vrstvami tedy provedeme $8L$ samostatných \emph{knockoutů}, u osmivrstvého modelu například $64$.
 \par
 
 Klíčové je použít \textit{relativní} metriku:
@@ -199,7 +202,7 @@ $8$ vrstev & $(1,\, 6)$ & $0{,}00006$ & $14{,}6\times$ \\
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\linewidth]{figures/ch2_label_kernel/fig_ch2_head_knockout_delta_mse.png}
-    \caption{\emph{Head-knockout} pro všech pět modelů. Každá teplotní mapa zobrazuje relativní zhoršení $\text{rel}=(\text{MSE}_{\text{knockout}}-\text{MSE}_{\text{full}})/\text{MSE}_{\text{full}}$ (světlejší $=$ důležitější) po vynulování hlavy na dané pozici (vrstva $\times$ hlava). Každý model má vlastní barevnou škálu, jinak by hluboké modely s malou \emph{baseline chybou} byly celé tmavé. Kauzálně důležité hlavy se koncentrují do raných vrstev (vrstva $0$--$1$) napříč všemi modely. Jednovrstvý model je nejkřehčí (až $44{,}9\times$ \emph{baseline}), ale i hluboké modely nesou odebrání jediné hlavy $10$ až $25\times$ vlastní \emph{baseline chyby}.}
+    \caption{\emph{Head-knockout} pro všech pět modelů. Řádky teplotní mapy jsou vrstvy, sloupce hlavy; barva políčka udává relativní zhoršení $\text{rel}=(\text{MSE}_{\text{knockout}}-\text{MSE}_{\text{full}})/\text{MSE}_{\text{full}}$ po vynulování právě té jedné hlavy. Světlejší políčko znamená větší zhoršení, tedy důležitější hlavu. Každý model má vlastní barevnou škálu, jinak by hluboké modely s malou \emph{baseline chybou} byly celé tmavé. Kauzálně důležité hlavy se koncentrují do raných vrstev (vrstva $0$--$1$) napříč všemi modely. Jednovrstvý model je nejkřehčí (až $44{,}9\times$ \emph{baseline}), ale i hluboké modely nesou odebrání jediné hlavy $10$ až $25\times$ vlastní \emph{baseline chyby}.}
     \label{fig:ch2_knockout}
 \end{figure}
 
@@ -221,7 +224,7 @@ Na většině instancí je totiž chyba PFN vůči GP posterioru nepatrná (řá
 Na několika málo instancích ale může být o řády vyšší.
 Průměr by tak byl zcela ovlivněn těmito \emph{outliery} a mezi modely by kolísal o dva řády už při pouhé změně \emph{seedu}.
 Medián tuto křehkost odstraňuje a dává stabilní a mezi modely srovnatelný obraz.
-Což mimochodem je známý jev ze statistiky, že medián je robustnější charakteristika než průměr (viz. např. proč se vždy uvádí median mezd místo průměru)
+Což mimochodem je známý jev ze statistiky, že medián je robustnější charakteristika než průměr (viz např. proč se vždy uvádí medián mezd místo průměru)
 \par
 
 Podstatné je, že tento obraz nám korelační analýza ukázat nemohla.
@@ -264,13 +267,13 @@ $8$ vrstev & $-0{,}00065$ & $0{,}026$ \\
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/ch2_label_kernel/fig_ch2_mse_vs_n_all_models.png}
-    \caption{Rozklad MSE $=\text{bias}^2 + c/n$ pro všech pět modelů. Body jsou naměřené MSE (chybové úsečky $\pm 1$ \emph{std}), přerušované křivky proložení. Jednovrstvý model (modrá) se s rostoucím $n$ vyrovnává na nenulové asymptotě $\text{bias}^2 = 0{,}0048$ (tečkovaná čára), zatímco hlubší modely klesají prakticky k nule. Rozdíly mezi $4$, $6$ a $8$ vrstvami jsou už zanedbatelné.}
+    \caption{Rozklad chyby na bias a rozptyl pro všech pět modelů. Vyneseno je MSE predikce PFN vůči GP posterioru jako funkce počtu kontextových bodů $n$. Body jsou naměřené hodnoty (chybové úsečky $\pm 1$ \emph{std} přes instance), přerušované křivky jsou jejich proložení tvarem $\text{bias}^2 + c/n$. Jednovrstvý model (modrá) se s rostoucím $n$ neustálí na nule, ale na nenulové hodnotě $\text{bias}^2 \approx 0{,}0048$ (tečkovaná čára), jeho chyba tedy nezmizí ani s nekonečným kontextem. Hlubší modely naopak klesají prakticky k nule a rozdíly mezi $4$, $6$ a $8$ vrstvami jsou už zanedbatelné.}
     \label{fig:ch2_msedecomp}
 \end{figure}
 
 \textbf{Diskuze:}
 
-Grafy na obrázku \ref{fig:ch2_msedecomp} a tabulka \ref{tab:ch2_bias_variance} nám ukazuje následující situaci.
+Grafy na obrázku \ref{fig:ch2_msedecomp} a tabulka \ref{tab:ch2_bias_variance} nám ukazují následující situaci.
 Za prvé, jednovrstvý model má jako jediný zřetelně nenulový $\text{bias}^2 = 0{,}00476$.
 To je přímé empirické potvrzení Naglerova teoretického výsledku ze sekce~\ref{subsec:pfn-transformer}.
 Jedna vrstva nestačí k asymptotickému přiblížení GP posterioru, a proto v ní zůstává neredukovatelná chyba, kterou nelze odstranit žádným množstvím kontextových dat.
@@ -287,7 +290,7 @@ Z praktického hlediska to znamená, že přibližně šest vrstev představuje 
 \subsection{Shrnutí}
 \label{subsec:ch2-shrnuti}
 
-Systematické měnění hloubky odhalilo, že PFN organizuje svůj výpočet takovým způsobem, že každá komponenta se zaměří na něco jiného, tj. jistým způsobem si komponenty rozděluji práci během výpočtů.
+Systematické měnění hloubky odhalilo, že PFN organizuje svůj výpočet takovým způsobem, že každá komponenta se zaměří na něco jiného, tj. jistým způsobem si komponenty rozdělují práci během výpočtů.
 \par
 
 Korelační analýza ukázala specializaci vrstev.

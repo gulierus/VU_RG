@@ -18,7 +18,15 @@ V této sekci tuto hypotézu kvantitativně otestujeme na PFN transformeru.
 Nejjednodušším iterativním řešičem je gradientní sestup (dále jen GD) na kvadratické ztrátě $\tfrac{1}{2}\boldsymbol{\alpha}^\top (\mathbf{K}+\sigma^2 \mathbf{I})\boldsymbol{\alpha} - \mathbf{y}^\top\boldsymbol{\alpha}$, jehož iterace zní
 $$\boldsymbol{\alpha}^{(0)} = \mathbf{0}, \qquad \boldsymbol{\alpha}^{(t+1)} = \boldsymbol{\alpha}^{(t)} + \eta\bigl(\mathbf{y} - (\mathbf{K}+\sigma^2 \mathbf{I})\,\boldsymbol{\alpha}^{(t)}\bigr).$$
 Tyto iterace mají i druhý výklad.
-Inverzi $(\mathbf{K}+\sigma^2 \mathbf{I})^{-1}$ lze rozvinout do geometrické řady, které se v tomto kontextu říká \emph{Neumannova řada}, a částečné součty této řady odpovídají přesně jednotlivým krokům GD.
+Označme pro přehlednost $\mathbf{A} = \mathbf{K}+\sigma^2 \mathbf{I}$.
+Stejně jako se pro číslo $|q| < 1$ sčítá geometrická řada $\sum_{k} q^k = (1-q)^{-1}$, platí pro matici rozvoj
+$$\mathbf{A}^{-1} = \eta \sum_{k=0}^{\infty} (\mathbf{I} - \eta \mathbf{A})^k,$$
+kterému se v tomto kontextu říká \emph{Neumannova řada}.
+Jde o maticovou obdobu geometrické řady, kde roli kvocientu hraje matice $\mathbf{I} - \eta\mathbf{A}$.
+Řada konverguje, pokud $\|\mathbf{I} - \eta\mathbf{A}\| < 1$, což u naší pozitivně definitní matice zajistí dostatečně malý krok $\eta$.
+Vztah ke gradientnímu sestupu získáme rozepsáním iterací z nulového počátku, čímž dostaneme
+$$\boldsymbol{\alpha}^{(t)} = \eta \sum_{k=0}^{t-1} (\mathbf{I} - \eta \mathbf{A})^k\, \mathbf{y},$$
+tedy přesně $t$-tý částečný součet Neumannovy řady aplikovaný na $\mathbf{y}$.
 Jeden krok GD tedy znamená jeden přičtený člen řady, a proto budeme oba pohledy volně zaměňovat.
 Rychlost konvergence řídí \emph{podmíněnost} soustavy
 $$\kappa = \frac{\lambda_{\max}(\mathbf{K}) + \sigma^2}{\lambda_{\min}(\mathbf{K}) + \sigma^2},$$
@@ -130,7 +138,7 @@ Jeho normalizované MSE zůstává po prvních osm kroků nad triviální hranic
 PFN je naproti tomu pod touto hranicí už s jedinou vrstvou.
 Tím je paradox z předchozí části vysvětlen.
 PFN je rychlejší než gradientní sestup i v korektním srovnání.
-Abychom rozdíl vyčíslili, dopočítáme pro každou hloubku $L$, kolik kroků gradientního sestupu dá stejnou chybu jako $L$-vrstvý PFN.
+Abychom rozdíl vyčíslili, dopočítáme pro každou hloubku $L$ tzv. \textit{efektivní počet kroků}, tedy nejmenší počet kroků gradientního sestupu, po kterém jeho chyba klesne na úroveň $L$-vrstvého PFN.
 Výsledky jsou v tabulce~\ref{tab:ch2_gd_steps}.
 
 \begin{table}[!t]
@@ -157,7 +165,7 @@ Tuto asymetrii, kdy GD škáluje s $\kappa$ a PFN nikoli, budeme nazývat \emph{
 Právě ona může být nápovědou, jaký řešič se PFN naučil.
 \par    
 
-Dále představíme jednou z možných interpretaci jevu, který zde pozorujeme.
+Dále představíme jednu z možných interpretací jevu, který zde pozorujeme.
 V numerické matematice existuje standardní postup, jak konvergenci zbavit závislosti na $\kappa$, tzv. \emph{preconditioning}.
 Vysvětleme nejprve, proč je obyčejný GD na špatně podmíněné soustavě pomalý.
 Velikost kroku $\eta$ se musí přizpůsobit největšímu vlastnímu číslu, jinak by iterace divergovaly.
@@ -186,4 +194,4 @@ Hloubka PFN přitom zůstává stejná, model je vůči podmíněnosti prakticky
 \par
 
 Dále jsme odvodili předpoklad, že kombinace této $\kappa$-necitlivosti a vysoké rychlosti je náznakem naučeného \emph{preconditioned} řešiče, přesně jak pro transformery předpovídá teorie \emph{in-context} učení.
-Dá se tedy říct, že PFN  transformer implementuje $\kappa$-necitlivou iteraci, ve které jedna vrstva vykoná řádově tolik práce jako desítky kroků obyčejného gradientního sestupu.
+Dá se tedy říct, že PFN transformer implementuje $\kappa$-necitlivou iteraci, ve které jedna vrstva vykoná řádově tolik práce jako desítky kroků obyčejného gradientního sestupu.

@@ -221,7 +221,7 @@ Za prvé, síla misspecifikace se projevuje přesně tam, kde bychom čekali.
 Pro krátké korelační délky, kde jsou Matérnovy realizace hrubé, selhává GP\_fixed v kalibraci o řády, jak je vidět v tabulce~\ref{tab:exp7_dnll_ls}.
 Pro dlouhé korelační délky jsou realizace hladké, RBF s $\ell = 0{,}7$ se stává rozumnou volbou a všechny metody se sbíhají.
 Za druhé, PFN je nejlépe kalibrované v okolí pravé hodnoty $\ell_{\text{true}} \approx 0{,}3$, tedy uprostřed svého trénovacího rozsahu.
-Pro extrémně krátké délky ji přebijí ostatní adaptivní metody, kterým hrubá data poskytují silný signál pro odhad $\ell$.
+Pro extrémně krátké délky ho přebijí ostatní adaptivní metody, kterým hrubá data poskytují silný signál pro odhad $\ell$.
 Za třetí, mimo trénovací rozsah ($\ell_{\text{true}} > 1{,}0$) PFN degraduje jen zlehka.
 Jeho $\Delta$NLL zůstává malé i pro dvojnásobek horní hranice trénovacího rozdělení, žádný náhlý kolaps nenastává.
 To je stejná plynulá degradace, jakou jsme u identifikace hyperparametrů pozorovali v sekci~\ref{sec:pfn-random-hp}.
@@ -238,7 +238,7 @@ Ačkoli některé hodnoty leží mimo rozsah, jsou to hodnoty na hladkém konci 
 Protože odhadovat hladké funkce není těžká úloha a případné selhání by se skoro neprojevilo.
 Čistý test vyžaduje dvě věci.
 Kernel musí být správně specifikovaný, aby jediným zdrojem chyby byla extrapolace.
-Dále chtěli bychom, aby korelační délka opustila trénovací rozsah na obou stranách.
+Dále bychom chtěli, aby korelační délka opustila trénovací rozsah na obou stranách.
 Přesně takový test nyní provedeme.
 \par
 
@@ -294,7 +294,7 @@ Nejmenší je uprostřed rozsahu.
 Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji, jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
 Mimo rozsah chyba na obou stranách roste, ale referenční hodnotu nikde nepřekročí.
 Odchylka PFN od \emph{oracle} tedy zůstává menší než chyba způsobená samotným šumem v datech.
-A to pro případy, které jsou hodně vzdálené od hranice trénovací množiny, ale to opět může být způsobeno tím ,že pro tato $\ell$ je tato úloha výrazně jednodušší.
+A to pro případy, které jsou hodně vzdálené od hranice trénovací množiny, ale to opět může být způsobeno tím, že pro tato $\ell$ je tato úloha výrazně jednodušší.
 Z experimentu vyplývá, že k degradaci sice dochází, ale žádný náhlý kolaps nenastává.
 \par
 

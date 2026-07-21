@@ -11,7 +11,7 @@ Následně ukážeme mechanismy, které se schovávají uvnitř PFN, jinými slo
 
 Prior–Data Fitted Networks je Deep Learning (dále jenom DL) architektura, kterou v roce $2022$ uvedli Samuel Muller a Noah Hollmann v článku (Müller et al., 2022).
 Hlavní motivací pro vznik tohoto modelu je snaha posunout techniky Bayesovské statistiky na další úroveň spolu se strmým rozvojem v oblasti strojového učení. 
-PFN je založeno na proslulé architektuře transformer, která je viníkem dnešního pokroku všemožných Deep Learning modelu, a o niž víme díky velkým jazykovým modelům, a není to náhoda, existuje totiž jisté spojení mezi těmito architekturami. 
+PFN je založeno na proslulé architektuře transformer, která je viníkem dnešního pokroku všemožných Deep Learning modelů, a o níž víme díky velkým jazykovým modelům, a není to náhoda, existuje totiž jisté spojení mezi těmito architekturami. 
 Ačkoli samotnou architekturu PFN a její technické nuance budeme podrobně diskutovat až v následující sekci, zde jenom uvedeme její základní charakteristiky.
 PFN je tzv. \emph{encoder–only} architektura (tj. neobsahuje \emph{decoder} blok, ale pouze \emph{encoder} blok transformeru), na kterou je pak napojena softmax hlava pro vyhodnocování výsledků ve tvaru pravděpodobností.
 Na vstup PFN dostává sekvenci dat.
@@ -63,7 +63,7 @@ Matematicky se jedná o podmíněné rozdělení modelu vzhledem k těmto datům
 
 \textbf{Posteriorní prediktivní rozdělení (PPD - Posterior Predictive Distribution)}
 
-PPD naproti tomu popisuje nejistotu ohledně nových dat, které model dosud neviděl, jako je například predikce testovacího \emph{labelu} $y$ pro nový vstupní příznak $x$, na základě již pozorovaných dat $\mathcal{D}_n$.
+PPD naproti tomu popisuje nejistotu ohledně nových dat, která model dosud neviděl, jako je například predikce testovacího \emph{labelu} $y$ pro nový vstupní příznak $x$, na základě již pozorovaných dat $\mathcal{D}_n$.
 Vypočítá se jako průměr všech možných podmíněných rozdělení $p(y|x)$ vážených jejich posteriorní pravděpodobností. 
 Matematicky je definováno pomocí integrálu:
 $$ \pi(y|\mathbf{x},\mathcal{D}_n) = \int p(y|\mathbf{x})d\Pi(p|\mathcal{D}_n). $$
@@ -80,7 +80,7 @@ Potom stačí takto natrénovanému modelu předložit několik známých bodů 
 
 \section{Praktická motivace k PFN}
 \label{sec:pfn-motivace}
-Abychom navázali na předchozí kapitolu, kde jsme uvedli dnes již standardní metody pro aproximaci PPD, ukážeme motivační příklady s porovnáním PFN s MCMC metody a variační inferencí.
+Abychom navázali na předchozí kapitolu, kde jsme uvedli dnes již standardní metody pro aproximaci PPD, ukážeme motivační příklady s porovnáním PFN s MCMC metodami a variační inferencí.
 Muller ve své práci tuto problematiku uvedl a na ní představil světu PFN architekturu (Müller et al., 2022).
 Hlavní výhodou PFN je dle něj to, že na rozdíl od variační inference nebo metod Monte Carlo se učí aproximovat PPD přímo z datových vzorků.
 Jediným a velmi důležitým předpokladem ale je, abychom mohli rychle a výpočetně levně vzorkovat z apriorního rozdělení. 
@@ -95,7 +95,7 @@ Navíc pro všechny modely platí, že systematická chyba takových aproximací
 \par   
 
 PFN obrací situaci.
-Model je předtrénován offline na obrovské mase syntetických datasetů z prioru a inference se pak provádí jediným dopředním průchodem (forward passem) sítí. 
+Model je předtrénován offline na obrovské mase syntetických datasetů z prioru a inference se pak provádí jediným dopředným průchodem (forward passem) sítí. 
 Strukturální požadavek je výrazně slabší, stačí umět vzorkovat z apriorního rozdělení, není potřeba hustota ani její gradient. 
 To otevírá třídu priorů, kterou klasické metody pojmout neumí, např. BNN s libovolnou architekturou nebo ručně psané generativní procedury. 
 Inference je řádově rychlejší, protože model je předtrénovaný.
@@ -115,12 +115,12 @@ Pokud by ale takové předtrénování udělal někdo za nás, používali bycho
 V této sekci se pokusíme popsat procesy, které se dějí uvnitř PFN transformeru.
 Naším účelem není poskytnout kompletní popis architektury transformer obecně, za co odpovídají jednotlivé komponenty nebo parametry.
 Předpokládáme, že čtenář je již seznámen se základy architektury transformer.
-Pokud tak tomu není, doporučujeme nastudovat alespoň základní pojmy a principy této architekury. 
+Pokud tak tomu není, doporučujeme nastudovat alespoň základní pojmy a principy této architektury. 
 Potřebné zájemce jenom odkážeme na příslušnou kapitolu v knize (Prince, 2023).
 Přesto pevně věříme, že našemu výkladu budou rozumět i laici v oblasti strojového učení, neboť zde nepotřebujeme pokročilé znalosti nebo složité pojmy a zkusíme vše popsat co nejjednodušeji.
 Pokud se takové pojmy ve výkladu objeví, slouží jenom pro odborníky v této oblasti a na porozumění hlavním principům nebudou mít velký vliv. 
-Dále opět podotýkáme, že účelem práce není rozebírat konkrétní implementaci PFN a související se s tím nuance.
-Navíc PFN je relativně mladá architektura, které se neustále vylepšuje a aktualizuje, proto pro nás nemá smysl jít do takových detailů.
+Dále opět podotýkáme, že účelem práce není rozebírat konkrétní implementaci PFN a související s tím nuance.
+Navíc PFN je relativně mladá architektura, která se neustále vylepšuje a aktualizuje, proto pro nás nemá smysl jít do takových detailů.
 Aktuální verzi zdrojového kódu PFN naleznete na GitHubu\footnote{\url{https://github.com/automl/PFNs}}.
 \par 
 
@@ -190,8 +190,8 @@ Během inference model dostane tři tenzory:
 
 Jak už plyne z logiky věci, \texttt{x\_train} a \texttt{y\_train} jsou dva různé objekty, první říká, kde jsme měřili (souřadnice na ose x), a druhý říká, co jsme v těchto místech naměřili.
 Tak dohromady tvoří datové body $(x_i, y_i)$.
-Souřadnice \texttt{x\_test} nám říká, kde chceme ty predikce, přitom model by měl vrátit pravděpodobnostní rozdělení pro příslušné y–hodnoty, ale k tomu se dostaneme později v naším výkladu.
-Následně se \texttt{x\_train} a \texttt{x\_test} spojí do jedné sekvenci a model s nimi pracuje jako s jedním objektem.
+Souřadnice \texttt{x\_test} nám říká, kde chceme ty predikce, přitom model by měl vrátit pravděpodobnostní rozdělení pro příslušné y–hodnoty, ale k tomu se dostaneme později v našem výkladu.
+Následně se \texttt{x\_train} a \texttt{x\_test} spojí do jedné sekvence a model s nimi pracuje jako s jedním objektem.
 Přičemž modelu současně explicitně řekneme, že prvních $20$ souřadnic jsou trénovací hodnoty a zbytek jsou testovací ($50$ testovacích souřadnic), jak jsme si to definovali na začátku sekce.
 Pro y–hodnoty je ta situace podobná, vytvoříme jednu sekvenci pro \texttt{y\_train} a \texttt{y\_test} hodnoty, až na to, že místo test hodnot vložíme \texttt{NaN} hodnoty, protože právě ty musí model odhadnout a nechceme je do modelu vkládat v žádné podobě.
 Pro zájemce uvedeme, jak to pak vypadá v kódu.
@@ -199,7 +199,7 @@ V metodě \texttt{forward()} se \texttt{x\_train} a \texttt{x\_test} spojí pomo
 \begin{lstlisting}[language=Python]
 x = torch.cat((x_train, x_test), dim=1)  # (1, 70, 1)
 \end{lstlisting}
-Jedná se o tenzor, kde první dimenze je počet datasetů, které zpracováváme naraz, druhá dimenze je počet bodů v sekvenci a třetí dimenze je počet příznaků, který jsme na začátku této sekce nastavili na $1$.
+Jedná se o tenzor, kde první dimenze je počet datasetů, které zpracováváme naráz, druhá dimenze je počet bodů v sekvenci a třetí dimenze je počet příznaků, který jsme na začátku této sekce nastavili na $1$.
 Pro y–hodnoty analogicky:
 \begin{lstlisting}[language=Python]
 y = torch.cat((y_train, NaN * torch.zeros(1, 50, 1)), dim=1)  # (1, 70, 1)
@@ -211,23 +211,23 @@ Zůstanou \texttt{NaN} po celou dobu.
 Výsledky obdržíme v jiné podobě, opět, budeme o tom diskutovat dále.
 \par   
 
-Dále následuje tzv. \textit{Feature grouping}, o parametru, který určuje počet příznaku jsme také zmiňovali na začátku sekce.
-Připomínáme, že pro náš jednoduchý případ $1$D regrese je nataven na $1$.
+Dále následuje tzv. \textit{Feature grouping}, o parametru, který určuje počet příznaků jsme také zmiňovali na začátku sekce.
+Připomínáme, že pro náš jednoduchý případ $1$D regrese je nastaven na $1$.
 Tento mechanismus slouží hlavně pro případ, kdy chceme zpracovávat tabulkové hodnoty, anebo pracovat s vícerozměrnými daty, ale to se týká hlavně verze modelu \emph{TabPFN}.
 V tabulkových datech s 12 sloupci (věk, plat, výška, \dots) model potřebuje tyto sloupce nějak zpracovat. 
 Parametr \texttt{features\_per\_group} určuje, kolik sloupců se seskupí do jednoho \emph{tokenu}.
-Pro náš $1$D GP je grouping triviální: máme $1$ přiznak, tedy $1$ grupu. 
+Pro náš $1$D GP je grouping triviální: máme $1$ příznak, tedy $1$ grupu. 
 Tenzor $x$ se tak přeformátuje z $(1, 70, 1)$ na $(1, 70, 1, 1)$.
 \par   
 
-Dalším krokem je převod dat na vstupu na tzv. \textit{embeding}, tj. do řeči, které rozumí transformer. 
-Ve skutečnosti se jedná o vytváření nového prostoru, ve kterém pak PFN bude operovat s daty, a kterému rozumí víc, než kdyby musel pracovat pouze se sekvenci dat.
+Dalším krokem je převod dat na vstupu na tzv. \textit{embedding}, tj. do řeči, které rozumí transformer. 
+Ve skutečnosti se jedná o vytváření nového prostoru, ve kterém pak PFN bude operovat s daty, a kterému rozumí víc, než kdyby musel pracovat pouze se sekvencí dat.
 
 
 \textbf{X–encoder}:
 
 Zde to je jednoduchá lineární vrstva, která vezme jednu konkrétní číselnou hodnotu $x$–souřadnice a vynásobí ji maticí vah $1\times512$ (parametr velikosti embeddingu jsme nastavili nahoře).
-Výsledkem je $512$–dimenzionální vektor (\textit{embeding}).
+Výsledkem je $512$–dimenzionální vektor (\textit{embedding}).
 Tímto způsobem jsme zakódovali polohu bodu v tom novém prostoru, ze kterého model umí jednoduše číst a operovat v něm.
 Výstupem je \texttt{embedded\_x} tvaru $(1, 70, 1, 512)$
 
@@ -238,19 +238,19 @@ A teď otázkou je, jak tyto hodnoty zakódovat do \textit{embeddingu}.
 K tomu slouží metoda \lstinline|NanHandlingEncoderStep|, která nejdříve transformuje skalární y–hodnotu na vektor délky 2:
 
 \begin{enumerate}
-    \item Pro trénovací pozice ($y$ existuje): $[y, -1]$, tedy skutečná hodnota a indikátor "data jsou k dispozici".
-    \item Pro testovací pozice ($y =$ \texttt{NaN}): $[0, +1]$, tedy nulová hodnota a indikátor "data chybí". 
+    \item Pro trénovací pozice ($y$ existuje): $[y, -1]$, tedy skutečná hodnota a indikátor „data jsou k dispozici“.
+    \item Pro testovací pozice ($y =$ \texttt{NaN}): $[0, +1]$, tedy nulová hodnota a indikátor „data chybí“. 
 \end{enumerate}
 
 Pak lineární vrstva opět převede dvourozměrný vektor do $512$–dimenzionálního prostoru.
 Výstupem je \texttt{embedded\_y} tvaru $(1, 70, 512)$, tady je o jeden parametr méně, protože příznaky mezi skupinami se nevztahují na $y$–hodnoty.
 \par   
 
-V této chvíli máme dva embeddingy, cílem ale je, mít jeden hromadný embedding, který v sobě nese informace o souřadnici $x$ a odpovídající ji hodnotě $y$.
+V této chvíli máme dva embeddingy, cílem ale je, mít jeden hromadný embedding, který v sobě nese informace o souřadnici $x$ a odpovídající jí hodnotě $y$.
 Zde opět existují dva způsoby implementace v PFN: pro \lstinline|attention_between_features=False| a \lstinline|attention_between_features=True|, kde poslední verze je opět určena pro práci s vícedimenzionálními daty. 
 Pro tu první verzi je postup velmi jednoduchý, \texttt{embedded\_x} a \texttt{embedded\_y} jednoduše sečteme. 
 Výsledkem je jeden \emph{token} pro jednu konkrétní pozici, tj. tento \emph{token} kombinuje informaci o poloze $x$ a hodnotě $y$ v jednom vektoru.
-Sčítání tady funguje, protože oba embeddingy jsou již stejného tvaru a jsou ve stejném $512$–dimenzionálního prostoru a model bude umět z tohoto součtu dekódovat obě informační položky díky předchozímu postupu.
+Sčítání tady funguje, protože oba embeddingy jsou již stejného tvaru a jsou ve stejném $512$–dimenzionálním prostoru a model bude umět z tohoto součtu dekódovat obě informační položky díky předchozímu postupu.
 V kódu to pak formálně vypadá následovně:
 \begin{lstlisting}[language=Python]
 embedded_input = embedded_x + embedded_y.unsqueeze(2)  
@@ -304,7 +304,7 @@ $$\text{MultiHead} = \text{Concat}(\text{Output}^{(1)}, \dots, \text{Output}^{(8
 Po \emph{attention} následuje reziduální spojení (vstup $+$ výstup \emph{attention}) a LayerNorm, tedy normalizace, která stabilizuje trénink.
 Reziduální spojení je technika, která přidává původní vstupní reprezentaci (třeba embedding datového bodu) k výstupu nelineární vrstvy (například MLP) těsně předtím, než tento výsledek pošle dál do sítě.
 Reziduální spojení zajišťuje, že model nezačíná optimalizaci chaotickým hádáním, nýbrž bezpečným průtokem dat, ke kterému postupně přidává potřebnou komplexitu.
-Co se tyče LayerNorm, ten normalizuje embedding na nulový průměr a jednotkový rozptyl přes posledních $d$ dimenzí (v našem případě $512$). 
+Co se týče LayerNorm, ten normalizuje embedding na nulový průměr a jednotkový rozptyl přes posledních $d$ dimenzí (v našem případě $512$). 
 Pro vektor $x$ délky $512$:
 $$\text{LayerNorm}(x) = \frac{x - \mu}{\sigma + \epsilon},$$
 kde $\mu$ a $\sigma$ jsou průměr a směrodatná odchylka přes $512$ komponent vektoru a $\epsilon = 10^{-5}$ je malá konstanta pro numerickou stabilitu.
@@ -323,7 +323,7 @@ Pro velká kladná $x$ se chová jako identita, pro velká záporná $x$ vrací 
 Proč nakonec musíme přidávat MLP je pro zkušeného čtenáře v oblasti strojového učení poněkud triviální otázka, vysvětlíme i pro ostatní čtenáře.
 \emph{Attention} je totiž lineární operace (ačkoliv se to nezdá), počítá pouze vážené průměry.
 MLP do tohoto procesu přidává nelinearitu, bez něj by transformer mohl dělat jenom lineární transformace s embeddingy.
-Avšak ve strojovém učení je to nedostačující, chceme zachytit a složitější transformace a operace, čímž zvyšujeme generalizační schopnosti modelu.
+Avšak ve strojovém učení je to nedostačující, chceme zachytit i složitější transformace a operace, čímž zvyšujeme generalizační schopnosti modelu.
 A právě díky této vlastnosti může PFN aproximovat např. inverzi matice $\mathbf{K}^{-1}$ v GP.
 Váhy druhé lineární vrstvy jsou inicializovány na nulu.
 To znamená, že na začátku tréninku MLP vrací nulový vektor, a tak se tato vrstva na začátku chová jako identita.
@@ -366,7 +366,7 @@ test_encoder_out = test_encoder_out[:, :, -1, :]
 Jsme si již řekli, že PFN je \emph{encoder–only} architektura, tj. \emph{decoder} blok, který je součástí obecné architektury transformer, v něm chybí.
 Decoder blok ale je napojen na hlavu, která v sobě obsahuje opět MLP vrstvu a softmax vrstvu.
 Tyto součástky však budeme potřebovat.
-Na konci předchozí fáze jsme získali tenzor \texttt{test\_encoder\_out} o tvaru $(1, 50, 512)$, který v sobě obsahuje pro každý z $50$ testovacích bodů jeden $512$–dimenzionální embeding.
+Na konci předchozí fáze jsme získali tenzor \texttt{test\_encoder\_out} o tvaru $(1, 50, 512)$, který v sobě obsahuje pro každý z $50$ testovacích bodů jeden $512$–dimenzionální embedding.
 Teď potřebujeme z tohoto vektoru vytvořit prediktivní rozdělení.
 To se opět udělá pomocí MLP (jednoduchá dopředná síť), která je doplněná o jednu novinku.
 Celkově schéma vypadá následovně:
@@ -389,7 +389,7 @@ Hlavním principem je, že počítáme, kolik naměřených hodnot padlo do kaž
 BarDistribution je naopak výstup modelu, tj. my neděláme měření a nepočítáme, kolik hodnot padlo do toho či oného binu.
 Právě samotný model určuje výšku sloupců dle nějakých svých pravidel.
 Neuronová síť na výstupu vrátí $n$ čísel, každé číslo říká, jak vysoký má být jeden sloupec. 
-To jest rozdělení určuje síť, to umožňuje pak modelovat pestrou škálu různých rozdělení a nejsme omezení jenom normálním, exponenciálním rozdělením apod.
+To jest rozdělení určuje síť, to umožňuje pak modelovat pestrou škálu různých rozdělení a nejsme omezeni jenom normálním, exponenciálním rozdělením apod.
 V implementaci PFN se binům říká \textit{bucket}.
 V implementaci je BarDistribution definován pomocí hranic (parametr \texttt{borders}), tím definujeme interval, na kterém je tato funkce definována.
 Může to vypadat například takto:\newline
@@ -413,7 +413,7 @@ Hustotu pravděpodobnosti potom definujeme jako $f_i = \frac{p_i}{w_i}$, kde $w_
 Širší bin musí mít nižší hustotu při stejné pravděpodobnosti, aby toto rozdělení dávalo smysl jako aproximace spojitého rozdělení. 
 Při rovnoměrných binech je tento rozdíl jen konstantní škálování.
 Evidentně pak můžeme dopočítat i všechny potřebné deskriptivní charakteristiky jako střední hodnotu, rozptyl atd.
-Jak jsme již mínili dříve, neklademe na BarDistribution žádná omezení co se tyče tvaru výsledného rozdělení.
+Jak jsme již mínili dříve, neklademe na BarDistribution žádná omezení co se týče tvaru výsledného rozdělení.
 Avšak v kontextu GP inference výstup typicky vypadá přibližně jako Gaussovský zvon. 
 To proto, že GP posteriorní prediktivní rozdělení je přesně normální rozdělení.
 Pokud PFN dobře aproximuje GP posterior, biny budou mít tvar zvonu. 
@@ -464,7 +464,7 @@ Navíc, jak se ukáže dále (Nagler, 2023), minimalizace NLL vede k optimální
 Na konci sekce zkusíme shrnout kompletní postup.
 Na úplném začátku jsme modelu předložili sadu trénovacích a testovacích bodů, přitom ale model nedostal \texttt{y\_test} a účelem bylo ho naučit tyto hodnoty predikovat.
 PFN postupně zpracovalo a přetransformovalo skrz svoje vrstvy \texttt{x\_train}, \texttt{y\_train} a \texttt{x\_test}.
-To znamená, že model zpracoval mu předložená informace jako celek naraz.
+To znamená, že model zpracoval mu předložené informace jako celek naráz.
 Během toho se PFN naučilo pravidlo, jak se chovají různé GP posteriory pro různé parametry.
 Na konci jsme dostali pravděpodobnostní rozdělení pomocí převodu na logity a použití BarDistribution.
 Výsledek jsme vždy porovnali se skutečným GP a jako metriku, jak moc dobře PFN odhaduje skutečnost, jsme použili NLL, který bychom chtěli minimalizovat.

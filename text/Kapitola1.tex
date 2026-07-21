@@ -104,19 +104,19 @@ anebo na druhé úrovni hierarchie:
   \label{eq:normalizační_konst_2_uroven}
 \end{equation} 
 
-Tyto integrály je nutné aproximovat numericky pomocí takových metod jako Markov chain Monte Carlo (MCMC) nebo pokročilejším No-U-Turn Sampler (NUTS), pokud chceme odhadnou integrál z nenormalizovaných hustot pravděpodobnostní, jako je integrál~\eqref{eq:normalizační_konst_2_uroven}, nebo např. Type II maximum likelihood (Type II – MLE), chceme-li odhadnout pouze bodovou hodnotu hyperparametrů modelu, což spočívá v maximalizaci marginal likelihood $p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ přes $\boldsymbol{\theta}$.
+Tyto integrály je nutné aproximovat numericky pomocí takových metod jako Markov chain Monte Carlo (MCMC) nebo pokročilejším No-U-Turn Sampler (NUTS), pokud chceme odhadnout integrál z nenormalizovaných hustot pravděpodobnosti, jako je integrál~\eqref{eq:normalizační_konst_2_uroven}, nebo např. Type II maximum likelihood (Type II – MLE), chceme-li odhadnout pouze bodovou hodnotu hyperparametrů modelu, což spočívá v maximalizaci marginal likelihood $p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$ přes $\boldsymbol{\theta}$.
 Všechny tyto metody jsou však dost výpočetně náročné a může trvat značné množství času, než se podaří najít vhodný model pro daná data.
 Jedním z účelů této práce je ukázat, jak lze tyto pravděpodobnostní hustoty efektivně aproximovat pomocí nového postupu, a to pomocí architektury transformer.
 
 \section{GP regrese}
 \label{sec:gp-regrese}
 Zde si ukážeme, jak aplikovat Bayesovský přístup výběru modelu na konkrétním příkladě, což bude prokládání dat pro nelineární regresi pomocí Gaussovských procesů (dále jen GP).
-Dále si ukážeme i základní metody pro hledání vhodného modelu, o kterých jsme zmínili v předchozí sekci, a to jsou Type II – MLE a MCMC. 
-Avšak předtím zadefinujeme základní pojmy GP regresi.
+Dále si ukážeme i základní metody pro hledání vhodného modelu, o kterých jsme se zmínili v předchozí sekci, a to jsou Type II – MLE a MCMC. 
+Avšak předtím zadefinujeme základní pojmy GP regrese.
 \par
 
 Představme si tedy, že máme před sebou následující problém. 
-Někdo nám donesl sadu dat, mohou to být biomedicínská data, data z ekonomických trhu nebo dokonce i data z fyzikálního experimentu a chce po nás sestavit model, který by popisoval tato data a pomocí kterého bychom mohli také stanovit závěry nebo predikce pro budoucí výsledky na základě aktuálních.
+Někdo nám donesl sadu dat, mohou to být biomedicínská data, data z ekonomických trhů nebo dokonce i data z fyzikálního experimentu a chce po nás sestavit model, který by popisoval tato data a pomocí kterého bychom mohli také stanovit závěry nebo predikce pro budoucí výsledky na základě aktuálních.
 Je zcela přirozené, že chceme najít co nejpřesnější model, který by tato data popisoval.
 Jedním z přístupů, jak toho dosáhnout, je použití Gaussovských procesů (GP) pro regresi.
 Nejdříve ve zkratce zavedeme pojem GP regresi.
@@ -186,7 +186,7 @@ Konkrétně zavádíme variační rozdělení $q(\mathbf{w})$ z rodiny $\mathcal
   q^*(\mathbf{w}) = \underset{q \in \mathcal{Q}}{\argmin}\; \mathrm{KL}\!\left(q(\mathbf{w}) \,\|\, p(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)\right).
 \end{equation}
 Avšak přímá minimalizace KL divergence je opět náročná pro výpočet, neboť vyžaduje znalost normalizační konstanty~\eqref{eq:normalizační_konst_1_uroven}.
-Namísto toho se maximalizuje tzv. \textit{Evidence Lower BOund} (ELBO):
+Namísto toho se maximalizuje tzv. \textit{Evidence Lower Bound} (ELBO):
 \begin{equation}
   \mathcal{L}(q, \boldsymbol{\theta}) = \mathbb{E}_{q(\mathbf{w})}\!\left[\log p(\mathbf{y} | \mathbf{w}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)\right] - \mathrm{KL}\!\left(q(\mathbf{w}) \,\|\, p(\mathbf{w} | \boldsymbol{\theta}, \mathcal{H}_i)\right).
   \label{eq:elbo}

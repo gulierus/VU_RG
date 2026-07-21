@@ -5,13 +5,13 @@ V předchozí sekci jsme zkoumali model, který jsme natrénovali na \textit{fix
 Šlo o výrazné zjednodušení.
 Model přesně věděl, jaký tvar funkcí má predikovat, a jediné, co se musel naučit, bylo efektivně invertovat kernelovou matici jednoho jediného kernelu.
 V této sekci přejdeme k obtížnějšímu a zajímavějšímu případu.
-Teď model natrénovanujeme na \textit{celé rodině} Gaussovských procesů, jehož hyperparametry jsou při každé dávce vzorkovány náhodně z předem daného rozdělení.
+Teď model natrénujeme na \textit{celé rodině} Gaussovských procesů, jejíž hyperparametry jsou při každé dávce vzorkovány náhodně z předem daného rozdělení.
 \par
 
 Tento posun mění úlohu zásadním způsobem.
 Zatímco fixní model aproximuje jeden GP posterior, náhodný model se musí naučit něco podstatně obecnějšího, a to rozpoznat hyperparametry přímo z kontextových dat a teprve poté provést odpovídající inferenci.
 Z jednoho dopředného průchodu se tak stává nejen aproximace inverze kernelové matice, ale i \textit{implicitní identifikace} korelační délky, amplitudy a šumu.
-V důsledku model musí provést i amortizovanou Bayesovská marginalizaci přes nejistotu v těchto hyperparametrech.
+V důsledku model musí provést i amortizovanou Bayesovskou marginalizaci přes nejistotu v těchto hyperparametrech.
 Právě tato vlastnost otevírá řadu otázek, které u fixního modelu nemají smysl: 
 \begin{itemize}
     \item Jak přesně model identifikuje $\ell$ z kontextu?
@@ -31,7 +31,7 @@ Vstupní prostor zůstává $x \in [0, 1]$, kernel je opět RBF.
 V experimentech níže, kde náhodný model testujeme samostatně (kalibrace rozptylu, přesnost napříč $\ell$, identifikace $\ell$), přitom volíme fixní šum $\sigma^2 = 10^{-3}$ na spodní hranici tohoto rozsahu, aby testovací data zůstala uvnitř trénovací distribuce.
 \par
 
-Jak jsme jíž řekli v úvodu této sekci, tato drobná změna trénovacího protokolu má velký důsledek.
+Jak jsme již řekli v úvodu této sekce, tato drobná změna trénovacího protokolu má velký důsledek.
 Model totiž musí generalizovat přes nespočetně mnoho tvarů funkcí, a to od rychle oscilujících realizací s krátkou korelační délkou po hladké, téměř lineární průběhy.
 Nemůže si proto „zapamatovat“ jeden kernel, musí se ho naučit najít z dat.
 Právě proto vyžaduje podstatně delší trénink oproti fixnímu modelu.
@@ -187,7 +187,7 @@ Tímto usuzujeme, že jde tedy o cenu za generalizaci, nikoli o vadu tréninku.
 \textbf{Nové schopnosti: identifikace hyperparametrů.}
 
 Postupně se dostáváme k jádru toho, proč náhodný model vůbec studujeme a čem je pro nás mnohem zajímavější.
-Experimenty této sekce nemají u fixního modelu obdobu, testují totiž přesně tu schopnost, kterou fixní model postrádá, a tou je identifikace hyperparametrů Gaussovského procesu z kontextových dat a přizpůsobit jim predikci.
+Experimenty této sekce nemají u fixního modelu obdobu, testují totiž přesně tu schopnost, kterou fixní model postrádá, a tou je identifikovat hyperparametry Gaussovského procesu z kontextových dat a přizpůsobit jim predikci.
 
 \subsection{Přesnost napříč korelačními délkami}
 \label{subsec:presnost-delky}
@@ -252,11 +252,12 @@ Selhání při krátkých $\ell$ si vysvětlujeme tím, že PFN rychlé oscilace
 Předchozí experiment ukázal, že přesnost roste s $\ell$, ale ještě přímo nedokázal, že model korelační délku skutečně umí \textit{identifikovat}.
 K tomu slouží následující test.
 Data pocházejí z GP se známým $\ell$.
-Modelu předložíme $n_{\text{ctx}} \in \{3, 5, 10, 20, 40, 60\}$ bodů a jeho predikci porovnáme se dvěma referenčními posteriory: se \textit{správným} GP (zná pravé $\ell$) a s \textit{špatným} GP (má výrazně odlišné $\ell_{\text{wrong}}$).
+Modelu předložíme $n_{\text{ctx}} \in \{3, 5, 10, 20, 40, 60\}$ bodů a jeho predikci porovnáme se dvěma referenčními posteriory: se \textit{správným} GP (zná pravé $\ell$) a se \textit{špatným} GP (má výrazně odlišné $\ell_{\text{wrong}}$).
 Klíčová je následující úvaha: pokud PFN identifikovalo korelační délku z dat, jeho predikce bude blízko správnému GP a daleko od špatného, tedy poměr MSE(PFN, GP\textsubscript{wrong})/MSE(PFN, GP\textsubscript{correct}) bude velký.
 Tento poměr budeme dále značit zkráceně \emph{wrong/correct}.
 Pokud ji neidentifikoval, obě chyby budou podobné a poměr bude blízký jedné.
-Provedeme tento test pro krátké ($\ell = 0{,}1$, $\ell_{\text{wrong}} = 0{,}7$) i střední ($\ell = 0{,}2$, $\ell_{\text{wrong}} = 0{,}05$) korelační délky (myšleno pro skutečné $\ell$, $\ell_{\text{wrong}}$ je tam zvoleno pro viditelný kontrast).
+Provedeme tento test pro dvě pravé korelační délky, krátkou ($\ell = 0{,}1$) a střední ($\ell = 0{,}2$).
+Špatné $\ell_{\text{wrong}}$ přitom volíme zřetelně jiné, aby byl kontrast dobře vidět, konkrétně $0{,}7$ pro první případ a $0{,}05$ pro druhý.
 Výsledky jsou v tabulkách~\ref{tab:rand_hp01} a~\ref{tab:rand_hp02}.
 \par
 
