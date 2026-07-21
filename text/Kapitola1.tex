@@ -163,7 +163,7 @@ kde $\sigma_f^2$ je rozptyl funkce a $\ell$ je tzv. korelační délka (\emph{le
 Pak existuje řada dalších kernelů, jako je Matérn kernel, Periodic kernel nebo Linear kernel, každý s různými vlastnostmi a aplikacemi, ale pro naše účely postačí základní RBF kernel.
 RBF kernel má řadu výhod: je hladký, nekonečně diferencovatelný a má tendenci dobře aproximovat širokou škálu funkcí.
 Současně platí, že každý datový bod můžeme představit jako střed Gaussovského rozdělení.
-Z předchozí myšlenky plyne i velmi intuitivní myšlenka o tom, jak funguje GP regrese: každý datový bod přispívá k predikci nového bodu podle své vzdálenosti od něj, přičemž váha tohoto přispění je určena kovarianční funkcí (jádrem).
+Odtud plyne i velmi intuitivní představa o tom, jak funguje GP regrese: každý datový bod přispívá k predikci nového bodu podle své vzdálenosti od něj, přičemž váha tohoto přispění je určena kovarianční funkcí (jádrem).
 Tím pádem, čím blíž je nějaký bod k jinému bodu, tím větší vliv na něj má, a to tak, že body blízko sebe mají hodnotu blízkou $1$, vzdálené body mají hodnotu blízkou $0$ a celé to funguje jako „měřítko podobnosti“ mezi body.
 Pokud bychom tedy chtěli předpovědět počasí, pomůže nám, že teploty naměřené v~blízkých časech jsou si podobné.
 Naměříme-li v~posledních hodinách teploty kolem $-5$ stupňů Celsia, bude i predikce pro příští hodinu ležet poblíž těchto hodnot.
@@ -288,7 +288,7 @@ Jednotlivé kroky metody Hamiltonian Monte Carlo shrnuje algoritmus~\ref{alg:hmc
 \end{algorithmic}
 \end{algorithm}
 
-Hamiltonian Monte Carlo avšak má dva hyperparametry, které je těžké nastavit:
+Hamiltonian Monte Carlo má však dva hyperparametry, které je těžké nastavit:
 \begin{itemize}
     \item délka kroku $\epsilon$ (\emph{step size})
     \item počet kroků $L$ (\emph{trajectory length})
@@ -298,7 +298,8 @@ NUTS oba problémy řeší automaticky, každý ale jiným mechanismem.
 Délku kroku $\epsilon$ ladí během zahřívací fáze metodou duálního průměrování (\emph{dual averaging}), délku trajektorie pak volí podle tzv. \emph{U-turn kritéria}.
 To znamená, že pokračuje v simulaci, dokud trajektorie nezačne dělat tzv. \emph{U-turn}, což znamená, že částice se po trajektorii otočí a začne se vracet zpět směrem k místu, odkud vyšla.
 Toto \emph{U-turn kritérium} lze vyjádřit takto: směr pohybu začne být opačný než směr od startovní pozice, matematicky to znamená $(\boldsymbol{\theta}_{\text{forward}} - \boldsymbol{\theta}_{\text{backward}}) \cdot \mathbf{r}_{\text{forward}} < 0$, kde skalární součin vektoru mezi krajními body trajektorie a momentem je záporný, což signalizuje, že se pohybujeme zpět.
-A tento princip má dobrý smysl, jakmile se částice vrací zpět, už není efektivní pokračovat, znamená to, že jsme plně prozkoumali danou "energetickou hladinu".
+Tento princip dává dobrý smysl.
+Jakmile se částice začne vracet zpět, přestává být efektivní pokračovat, protože to znamená, že jsme danou „energetickou hladinu“ už plně prozkoumali.
 Další kroky by jen ztrácely výpočetní čas tím, že by procházely oblasti, které už jsme navštívili. 
 NUTS tedy automaticky zastaví simulaci v optimálním bodě, když jsme prozkoumali maximum užitečného prostoru, ale ještě před tím než začneme ztrácet efektivitu návratem zpět.
 \par

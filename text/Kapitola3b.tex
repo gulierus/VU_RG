@@ -126,9 +126,20 @@ Model je přitom testován na datech z GP($\ell = 0{,}3$), tedy na jediné korel
 \par
 
 Zde budeme zkoumat tzv.\ \textit{profil nejistoty}, tedy to, jak se předpovídaná směrodatná odchylka modelu mění napříč vstupním prostorem.
-U dobře kalibrovaného modelu by měla být nejmenší tam, kde leží trénovací data (uvnitř $[0{,}3,\, 0{,}7]$), a plynule růst směrem k okrajům intervalu, kam už žádná data nedosahují. Tam, kde model „neví“, má dávat najevo větší nejistotu.
-Sledujeme přitom dvě odlišné věci: zda má profil správný \textit{tvar} (tzn. roste nejistota na správných místech?) a zda má i správnou \textit{velikost} (tzn. roste dostatečně, nebo si model svou nejistotou příliš věří?).
-Výsledky obou modelů srovnává tabulka~\ref{tab:rand_calib}.
+U dobře kalibrovaného modelu by měla být nejmenší tam, kde leží trénovací data (uvnitř $[0{,}3,\, 0{,}7]$), a plynule růst směrem k okrajům intervalu, kam už žádná data nedosahují. 
+Tam, kde model „neví“, musí dávat najevo větší nejistotu.
+Sledujeme přitom dvě odlišné věci: zda má profil správný tvar (tzn. zda nejistota roste na správných místech) a zda má i správnou velikost (tzn. roste dostatečně, nebo si model svou nejistotou příliš věří).
+Kalibraci proto posuzujeme třemi metrikami.
+První je korelace mezi směrodatnou odchylkou předpovídanou modelem a směrodatnou odchylkou GP.
+Ta hodnotí právě tvar profilu, a hodnota blízká jedné znamená, že model dobře pozná, kde je nejistota větší a kde menší.
+Druhá je střední kvadratická odchylka obou těchto profilů, která naopak hodnotí velikost, tedy jak přesně se předpovídaná směrodatná odchylka shoduje s GP i v absolutních číslech.
+Třetí metrika, \textit{ratio far/near}, popisuje dynamický rozsah nejistoty.
+Je to poměr průměrné směrodatné odchylky v oblasti daleko od dat, tedy v oblasti extrapolace u okrajů intervalu, ke směrodatné odchylce v centru dat, kde leží trénovací body.
+Číslo tak říká, o kolikrát je model daleko od dat víc nejistý než uprostřed nich.
+Hodnota pro GP je přitom analytická a slouží jako ideál.
+Je v obou sloupcích stejná, protože referenční GP je v obou experimentech stejný.
+Hodnota pro PFN pak ukazuje, jakou část tohoto ideálního rozsahu model skutečně reprodukuje.
+Tyto tři metriky pro oba modely srovnává tabulka~\ref{tab:rand_calib}.
 \par
 
 \begin{table}[htbp]
@@ -143,7 +154,7 @@ Ratio far/near – PFN & $21{,}3\times \pm 5{,}2\times$ & $7{,}49\times \pm 2{,}
 Ratio far/near – GP  & $25{,}9\times \pm 3{,}8\times$ & $25{,}9\times \pm 3{,}8\times$ \\
 \hline
 \end{tabular}
-\caption{Kalibrace rozptylu obou modelů (průměr přes $25$ instancí). \textit{Ratio far/near} je poměr směrodatné odchylky v oblasti extrapolace ke směrodatné odchylce v centru dat. Náhodný model správně poznává, \textit{kde} je nejistota větší a kde menší (vysoká korelace), ale její \textit{velikost} odhaduje výrazně hůř, v okrajích ji zvyšuje méně, než by měl.}
+\caption{Kalibrace rozptylu obou modelů (průměr přes $25$ instancí). \textit{Ratio far/near} je poměr směrodatné odchylky v oblasti extrapolace ke směrodatné odchylce v centru dat. Náhodný model správně poznává, kde je nejistota větší a kde menší (vysoká korelace), ale její velikost odhaduje výrazně hůř, v okrajích ji zvyšuje méně, než by měl.}
 \label{tab:rand_calib}
 \end{table}
 
@@ -155,9 +166,9 @@ Ratio far/near – GP  & $25{,}9\times \pm 3{,}8\times$ & $25{,}9\times \pm 3{,}
 \end{figure}
 
 Zde nacházíme první výraznou nevýhodu náhodného modelu.
-Korelace profilu nejistoty zůstává vysoká ($r = 0{,}973$ oproti $0{,}981$ u fixního modelu).
+Korelace profilu nejistoty zůstává vysoká ($Corr = 0{,}973$ oproti $0{,}981$ u fixního modelu).
 Obě sítě tedy správně rozpoznávají kde je nejistota větší a kde je menší.
-Absolutní kalibrace (tj.\ skutečná \textit{velikost} předpovídané nejistoty, nikoli jen to, kde je větší a kde menší) je však u náhodného modelu podstatně horší.
+Absolutní kalibrace (tj.\ skutečná velikost předpovídané nejistoty, nikoli jen to, kde je větší a kde menší) je však u náhodného modelu podstatně horší.
 MSE směrodatné odchylky vzroste zhruba desetinásobně ($0{,}0348$ vs $0{,}0038$) a \textit{ratio far/near} klesne z $21{,}3\times$ na pouhých $7{,}49\times$, tj. z $82\,\%$ na zhruba $29\,\%$ dynamického rozsahu GP.
 Jinými slovy, náhodný model zvyšuje nejistotu v oblastech extrapolace znatelně méně výrazně.
 \par
@@ -175,14 +186,14 @@ Tímto usuzujeme, že jde tedy o cenu za generalizaci, nikoli o vadu tréninku.
 
 \textbf{Nové schopnosti: identifikace hyperparametrů.}
 
-Dostáváme se k jádru toho, proč náhodný model vůbec studujeme.
+Postupně se dostáváme k jádru toho, proč náhodný model vůbec studujeme a čem je pro nás mnohem zajímavější.
 Experimenty této sekce nemají u fixního modelu obdobu, testují totiž přesně tu schopnost, kterou fixní model postrádá, a tou je identifikace hyperparametrů Gaussovského procesu z kontextových dat a přizpůsobit jim predikci.
 
 \subsection{Přesnost napříč korelačními délkami}
 \label{subsec:presnost-delky}
 
-Nejprve se ptáme, jak dobře model zvládá různé korelační délky.
-Pro každou hodnotu $\ell \in \{0{,}05,\,\allowbreak 0{,}1,\,\allowbreak 0{,}2,\,\allowbreak 0{,}3,\,\allowbreak 0{,}5,\,\allowbreak 0{,}7,\,\allowbreak 0{,}9\}$ vygenerujeme GP realizace, předložíme modelu $n_{\text{ctx}} = 30$ kontextových bodů a měříme MSE mezi jeho střední hodnotou a analytickým GP posteriorem se správným $\ell$.
+Nejprve se budeme ptát, jak moc dobře model zvládá různé korelační délky.
+Pro každou hodnotu $\ell \in \{0{,}05,\,\allowbreak 0{,}1,\,\allowbreak 0{,}2,\,\allowbreak 0{,}3,\,\allowbreak 0{,}5,\,\allowbreak 0{,}7,\,\allowbreak 0{,}9\}$ vygenerujeme GP realizace, předložíme modelu $n_{\text{ctx}} = 30$ kontextových bodů a měříme MSE mezi jeho střední hodnotou a analytickým GP posteriorem, který zná správnou korelační délku $\ell$.
 Výsledky (medián, průměr a směrodatná odchylka přes $50$ instancí) shrnuje tabulka~\ref{tab:rand_ls}.
 Rozdělení chyby přes instance i její medián napříč korelačními délkami zachycuje obrázek~\ref{fig:rand_ls_combined}.
 \par
@@ -245,7 +256,7 @@ Modelu předložíme $n_{\text{ctx}} \in \{3, 5, 10, 20, 40, 60\}$ bodů a jeho 
 Klíčová je následující úvaha: pokud PFN identifikovalo korelační délku z dat, jeho predikce bude blízko správnému GP a daleko od špatného, tedy poměr MSE(PFN, GP\textsubscript{wrong})/MSE(PFN, GP\textsubscript{correct}) bude velký.
 Tento poměr budeme dále značit zkráceně \emph{wrong/correct}.
 Pokud ji neidentifikoval, obě chyby budou podobné a poměr bude blízký jedné.
-Provedeme tento test pro krátké ($\ell = 0{,}1$, $\ell_{\text{wrong}} = 0{,}7$) i střední ($\ell = 0{,}2$, $\ell_{\text{wrong}} = 0{,}05$) korelační délky.
+Provedeme tento test pro krátké ($\ell = 0{,}1$, $\ell_{\text{wrong}} = 0{,}7$) i střední ($\ell = 0{,}2$, $\ell_{\text{wrong}} = 0{,}05$) korelační délky (myšleno pro skutečné $\ell$, $\ell_{\text{wrong}}$ je tam zvoleno pro viditelný kontrast).
 Výsledky jsou v tabulkách~\ref{tab:rand_hp01} a~\ref{tab:rand_hp02}.
 \par
 
@@ -331,6 +342,7 @@ Srovnání s tabulkou~\ref{tab:exp4} z předchozí sekce opět odhaluje jakousi 
 Pro střední velikost kontextu ($n = 5$ až $10$) je náhodný model viditelně horší než fixní ($0{,}060$ vs $0{,}041$ při $n = 5$), protože fixní model zná $\ell = 0{,}3$, kdežto náhodný ho musí z několika málo bodů teprve odhadnout a při řídkém kontextu je tento odhad zatížen chybou, což se projeví i většími směrodatnými odchylkami v tabulce~\ref{tab:rand_ctx}.
 Od $n = 15$ se však oba modely začínají vyrovnávat a při $n = 20$ jsou prakticky nerozlišitelné ($0{,}0020$ vs $0{,}0021$), oba těsně za \emph{GP oraclem}.
 Náhodný model tedy s dostatečným kontextem dožene fixní verzi, aniž by kdy znal správné $\ell$ předem.
+Poznamenejme, že nenulové MSE v případě \textit{GP oracle} je v pořádku, tu chybu produkuje zašuměnost dat.
 
 \subsection{Shrnutí}
 \label{subsec:shrnuti-random-hp}

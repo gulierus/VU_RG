@@ -240,15 +240,16 @@ Změříme, jak moc přesně PFN jej aproximuje a kde se od něj odchyluje.
 Data generujeme přesně podle postupu z~úvodu kapitoly.
 Vzorkujeme dvourozměrné pole z~Gaussovského procesu, prahováním z~něj vytvoříme masku a přidáním šumu vstupní obrázek.
 Hyperparametry úlohy při tréninku nedržíme pevné.
-Korelační délku, sílu šumu i podíl popředí (tedy jak velkou část obrázku zabírá oblast zájmu) losujeme pro každou dávku znovu ze širokých intervalů, aby se model musel naučit celou rodinu úloh, ne jednu konkrétní.
+Korelační délku, sílu šumu i podíl popředí (tedy jak velkou část obrázku zabírá oblast zájmu) losujeme pro každou dávku znovu, aby se model musel naučit celou rodinu úloh, ne jednu konkrétní.
+Pole vzorkujeme na mřížce $64 \times 64$ pixelů a korelační délku $\ell$ udáváme jako zlomek strany mřížky $L$.
+Losujeme $\ell/L \in [0{,}05,\, 0{,}40]$ log-uniformně, směrodatnou odchylku šumu $\sigma \in [0{,}01,\, 0{,}30]$ a podíl popředí z intervalu $[0{,}15,\, 0{,}85]$.
+Velikost \emph{support setu} pak volíme náhodně z množiny $\{1, 2, 4, 8, 16, 32, 64\}$.
 Tyto intervaly tvoří trénovací rozsah, ke kterému budeme výsledky později vztahovat.
 Jako architekturu záměrně volíme stejnou rodinu jako v~předchozí sekci, tedy UniverSeg, tentokrát ovšem s~náhodnou inicializací, bez předtrénovaných vah.
-Model trénujeme od nuly na datech z~našeho prioru, s~pixelovou Bernoulliho hlavou a s~binární křížovou entropií jako kritériem.
+Model trénujeme od nuly na datech z~našeho prioru po dobu $250$ epoch, s~pixelovou Bernoulliho hlavou a s~binární křížovou entropií jako kritériem.
 Právě tento trénink na explicitním prioru dělá z~modelu PFN.
 Obě sekce se tak liší jen trénovací procedurou a daty, případné rozdíly v~chování proto nelze svést na architekturu.
 \par
-
-\par   
 
 \textbf{Technická poznámka:}
 
@@ -263,9 +264,11 @@ Torus je jen pomůcka pro tento výpočet a na interpretaci výsledků nemá pod
 
 Nakonec zaveďme značení režimů, podle kterého budeme výsledky číst.
 Náročnost úlohy řídí korelační délka, čím je kratší, tím členitější je pole a tím těžší jeho predikce.
-Uvnitř trénovacího rozsahu proto rozlišujeme úlohy snadné (\emph{Easy}), střední (\emph{Medium}) a náročné (\emph{Hard}).
-K~nim přidáme dva režimy mimo trénovací rozsah, ve kterých je korelační délka kratší (\emph{OOD-short}, členitější pole) nebo delší (\emph{OOD-long}, hladší pole), než jakou model při tréninku viděl.
+Uvnitř trénovacího rozsahu proto rozlišujeme úlohy snadné (\emph{Easy}, $\ell/L = 0{,}40$), střední (\emph{Medium}, $\ell/L = 0{,}15$) a náročné (\emph{Hard}, $\ell/L = 0{,}05$).
+Snadný a náročný režim tak leží na okrajích trénovacího rozsahu.
+K~nim přidáme dva režimy mimo trénovací rozsah, ve kterých je korelační délka kratší (\emph{OOD-short}, $\ell/L = 0{,}03$, členitější pole) nebo delší (\emph{OOD-long}, $\ell/L = 0{,}60$, hladší pole), než jakou model při tréninku viděl.
 Zkratka OOD znamená \emph{out-of-distribution}, tedy data mimo trénovací rozdělení.
+Není-li uvedeno jinak, každý vykreslený bod průměrujeme přes $40$ až $48$ nezávisle vygenerovaných úloh.
 \par
 
 \subsection{Shoda predikce s oraclem}
@@ -341,7 +344,7 @@ Nyní výsledky napojíme přímo na teorii ze sekce~\ref{sec:pfn-teorie}.
 Chybu predikce rozložíme na dvě části.
 První je rozptyl, tedy kolísání predikce podle toho, které konkrétní \emph{support páry} model dostal.
 Druhou je bias, tedy systematická odchylka, která zůstane i po zprůměrování přes všechny volby kontextu.
-Měříme je tak, že pro pevný vstupní obrázek opakovaně losujeme \emph{support set} a sledujeme, jak se predikce mění.
+Měříme je tak, že pro pevný vstupní obrázek opakovaně losujeme \emph{support set}, celkem $24$ tahů pro každou velikost kontextu, a sledujeme, jak se predikce mění.
 Pro obě části máme z~Naglerovy teorie předpověď, kterou jsme v~jedné dimenzi potvrdili, a nyní ji ověříme znovu ve dvou.
 \par
 
@@ -371,7 +374,7 @@ Máme konkrétní praktické potvrzení jevu, který Naglerova teorie přesně p
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{figures/VariantC_pfn_seg/fig_C_04_bias_variance.png}
-    \caption{Rozklad chyby na bias a rozptyl jako funkce velikosti kontextu pro snadnou a náročnou úlohu (logaritmické osy). Vlevo plné čáry jsou bias, který zůstává na plató, přerušované rozptyl, který klesá. Vpravo rozptyl proti teoretickému řádu $n^{-1}$ plynoucímu z~věty~\ref{theorem:Rozptyl_transformeru}, empirický pokles je alespoň tak rychlý.}
+    \caption{Rozklad chyby na bias a rozptyl jako funkce velikosti kontextu pro snadnou a náročnou úlohu (logaritmické osy). Vlevo plné čáry jsou bias, který zůstává na plató, přerušované rozptyl, který klesá. Vpravo rozptyl proti teoretickému řádu $n^{-1}$ plynoucímu z~věty~\ref{theorem:Rozptyl_transformeru}, empirický pokles tomuto řádu zhruba odpovídá.}
     \label{fig:seg-c-biasvar}
 \end{figure}
 
@@ -405,7 +408,7 @@ Levý graf ukazuje pro každý režim dva sloupce.
 Modrý sloupec je chyba samotného \emph{oraclu}, tedy \emph{Bayes floor}, nejmenší chyba, jaké lze v~daném režimu vůbec dosáhnout.
 Červený sloupec je chyba PFN.
 Čím menší je rozdíl mezi nimi, tím blíže je PFN nejlepšímu možnému prediktoru.
-Pravý graf vynáší tento rozdíl, tedy přebytečnou chybu, přímo, v~popisku osy je označen \emph{excess risk}.
+Pravý graf vynáší tento rozdíl, tedy přebytečnou chybu (angl. \emph{excess risk}), přímo.
 \par
 
 \textbf{Diskuze:}
@@ -432,7 +435,7 @@ Hladší pole (OOD-long) zůstávají srovnatelná s~režimem Easy, kdežto u~č
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{figures/VariantC_pfn_seg/fig_C_06_bayes_floor.png}
-    \caption{Vlevo chyba PFN a \emph{Bayes floor} (chyba samotného \emph{oraclu}) pro jednotlivé režimy, měřená binární křížovou entropií (BCE) na pixel. Vpravo jejich rozdíl $\mathrm{BCE}_{\mathrm{PFN}}-\mathrm{BCE}_{\mathrm{oracle}}$, v~grafu označený \emph{excess risk}, tedy přebytečná chyba PFN nad optimem. Uvnitř trénovacího rozsahu je malá, prudce roste jen u~členitějších polí mimo rozsah (OOD-short).}
+    \caption{Vlevo chyba PFN a \emph{Bayes floor} (chyba samotného \emph{oraclu}) pro jednotlivé režimy, měřená binární křížovou entropií (BCE) na pixel. Vpravo jejich rozdíl $\mathrm{BCE}_{\mathrm{PFN}}-\mathrm{BCE}_{\mathrm{oracle}}$, tedy přebytečná chyba PFN nad optimem. Uvnitř trénovacího rozsahu je malá, prudce roste jen u~členitějších polí mimo rozsah (OOD-short).}
     \label{fig:seg-c-bayes}
 \end{figure}
 

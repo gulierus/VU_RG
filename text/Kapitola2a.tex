@@ -121,11 +121,11 @@ Přesto pevně věříme, že našemu výkladu budou rozumět i laici v oblasti 
 Pokud se takové pojmy ve výkladu objeví, slouží jenom pro odborníky v této oblasti a na porozumění hlavním principům nebudou mít velký vliv. 
 Dále opět podotýkáme, že účelem práce není rozebírat konkrétní implementaci PFN a související se s tím nuance.
 Navíc PFN je relativně mladá architektura, které se neustále vylepšuje a aktualizuje, proto pro nás nemá smysl jít do takových detailů.
-Aktuální verzi zdrojového kód PFN naleznete zde (\url{https://github.com/automl/PFNs}).
+Aktuální verzi zdrojového kódu PFN naleznete na GitHubu\footnote{\url{https://github.com/automl/PFNs}}.
 \par 
 
 
-V předchozí sekci jsme již zmínili, že PFN je transformer, který se trénuje na obrovském množství synetických datasetů, které vzorkujeme z prioru.
+V předchozí sekci jsme již zmínili, že PFN je transformer, který se trénuje na obrovském množství syntetických datasetů, které vzorkujeme z prioru.
 Tímto způsobem se PFN naučí provádět Bayesovskou inferenci a po natrénování stačí jeden forward pass sítí a model vrátí kompletní PPD pro nové testovací body na vstupu. 
 V této sekci budeme uvažovat, že naším priorem je Gaussovský proces s RBF kernelem.
 Dále chceme upozornit, že celý proces, který se odehrává uvnitř PFN od vstupu po výstup, popíšeme s použitím konkrétní konfigurace, kterou jsme běžně používali během zkoumání PFN:
@@ -150,8 +150,8 @@ Pro obecnost ukážeme, jak probíhá učení pro případ, kdy hyperparametry p
 Případ fixních hyperparametrů je pouze speciálním případem tohoto problému a všechno, co napíšeme dále, platí i pro tento speciální případ. 
 Meta–Learning je paradigma strojového učení, které spočívá v tom, že namísto toho, abychom model naučili řešit jeden konkrétní fixní problém, naučíme ho řešit celou třídu podobných úkolů.
 Konkrétně v našem případě by to znamenalo, že model naučíme na základě dat z GP s RBF kernelem, kde mu ukážeme celé spektrum všemožných hyperparametrů, které se v RBF kernelu vyskytují. 
-Potom stačí jenom předložit modelu těch $20$ kontext bodů a hned bude schopen aproximovat GP, ze kterého tyto body pocházejí. 
-V předchozí sekci jsme již drobně popsali, jak funguje trénink PFN, formálněji a mnohem podrobněji lze tento proces zapsat takto:
+Potom stačí jenom předložit modelu těch $20$ kontextových bodů a hned bude schopen aproximovat GP, ze kterého tyto body pocházejí. 
+V předchozí sekci jsme již drobně popsali, jak funguje trénink PFN. Formálněji a mnohem podrobněji jej shrnuje algoritmus~\ref{alg:pfn_training}.
 
 \begin{algorithm}[!t]
 \caption{Meta-trénink sítě PFN na syntetických GP datech}
@@ -192,8 +192,8 @@ Jak už plyne z logiky věci, \texttt{x\_train} a \texttt{y\_train} jsou dva rů
 Tak dohromady tvoří datové body $(x_i, y_i)$.
 Souřadnice \texttt{x\_test} nám říká, kde chceme ty predikce, přitom model by měl vrátit pravděpodobnostní rozdělení pro příslušné y–hodnoty, ale k tomu se dostaneme později v naším výkladu.
 Následně se \texttt{x\_train} a \texttt{x\_test} spojí do jedné sekvenci a model s nimi pracuje jako s jedním objektem.
-Přičemž modelu současně explicitně řekneme, že prvním $20$ souřadnic jsou trénovací hodnoty a zbytek jsou testovací ($50$ testovacích souřadnic), jak jsme si to definovali na začátku sekce.
-Pro y–hodnoty je ta situace podobná, vytvoříme jednou sekvenci pro \texttt{y\_train} a \texttt{y\_test} hodnoty, až na to, že místo test hodnot vložíme \texttt{NaN} hodnoty, protože právě ty musí model odhadnout a nechceme je do modelu vkládat v žádné podobě.
+Přičemž modelu současně explicitně řekneme, že prvních $20$ souřadnic jsou trénovací hodnoty a zbytek jsou testovací ($50$ testovacích souřadnic), jak jsme si to definovali na začátku sekce.
+Pro y–hodnoty je ta situace podobná, vytvoříme jednu sekvenci pro \texttt{y\_train} a \texttt{y\_test} hodnoty, až na to, že místo test hodnot vložíme \texttt{NaN} hodnoty, protože právě ty musí model odhadnout a nechceme je do modelu vkládat v žádné podobě.
 Pro zájemce uvedeme, jak to pak vypadá v kódu.
 V metodě \texttt{forward()} se \texttt{x\_train} a \texttt{x\_test} spojí pomocí funkce konkatenace:
 \begin{lstlisting}[language=Python]
@@ -343,7 +343,7 @@ Naším úkolem teď by bylo extrahovat testovací hodnoty $y$ (neboli $y$–\em
 Zbytek je pro účely inference nepodstatný.
 Platí totiž, že celá architektura PFN je postavena tak, že se právě v $y$-\emph{tokenu} postupně akumulují informace přes všechny vrstvy transformeru přes \emph{attention} z $x$–\emph{tokenů} a z kontextu trénovacích bodů.
 Na konci celého procesu $y$–\emph{token} pro testovací pozici obsahuje $512$–dimenzionální vektor, který implicitně kóduje celé posteriorní prediktivní rozdělení (PPD) pro daný trénovací bod.
-Uveďme opět pro zájemce, jak tento proces vypadá uvnitř, což by mělo pomocí k pochopení, co se v tomto kroku odehrálo:
+Uveďme opět pro zájemce, jak tento proces vypadá uvnitř, což by mělo pomoci k pochopení, co se v tomto kroku odehrálo:
 \begin{lstlisting}[language=Python]
 # Split into train and test part
 test_encoder_out = encoder_out[:, current_context_len:, :]
@@ -385,7 +385,7 @@ BarDistribution je po–částech konstantní pravděpodobnostní rozdělení.
 V článku (Müller et al., 2022) se mu říká \textit{Riemann distribution}, jedná se o diskretizaci spojitého rozdělení.
 Avšak je důležité odlišit tento koncept od klasického histogramu.
 Histogram odhaduje hustotu z dat.
-Hlavním principem je, že počítáme klik naměřených hodnot padlo do každého binu, a to určuje výšku jednotlivých sloupců.
+Hlavním principem je, že počítáme, kolik naměřených hodnot padlo do každého binu, a to určuje výšku jednotlivých sloupců.
 BarDistribution je naopak výstup modelu, tj. my neděláme měření a nepočítáme, kolik hodnot padlo do toho či oného binu.
 Právě samotný model určuje výšku sloupců dle nějakých svých pravidel.
 Neuronová síť na výstupu vrátí $n$ čísel, každé číslo říká, jak vysoký má být jeden sloupec. 
@@ -402,7 +402,7 @@ Implementace ale podporuje i nerovnoměrné dělení (hustší biny v zajímavý
 
 Logit v tomto případě je jenom surové číslo z poslední lineární vrstvy našeho \emph{decoderu}.
 Může to být jakékoliv reálné číslo.
-Důležité ale je, že nemají žádné jednotky, nesčítají se na jedničku a ne této etapě nemají žádnou přímou pravděpodobnostní interpretaci.
+Důležité ale je, že nemají žádné jednotky, nesčítají se na jedničku a v této etapě nemají žádnou přímou pravděpodobnostní interpretaci.
 Logit je pouze signál pro určitý bin, do kterého spadne, jak moc si model myslí, že skutečná hodnota padne do daného intervalu.
 Čím vyšší je logit, tím více si je model jistý.
 Ale pro lepší interpretovatelnost musí tyto hodnoty nejdříve projít softmax vrstvou.
@@ -412,7 +412,7 @@ Logicky pak součet všech pravděpodobností je přesně $1$ a vyšší logit i
 Hustotu pravděpodobnosti potom definujeme jako $f_i = \frac{p_i}{w_i}$, kde $w_i$ je šířka binu.
 Širší bin musí mít nižší hustotu při stejné pravděpodobnosti, aby toto rozdělení dávalo smysl jako aproximace spojitého rozdělení. 
 Při rovnoměrných binech je tento rozdíl jen konstantní škálování.
-Evidentně pak můžeme dopočítat i všechny potřebné deskriptivní charakteristiky jako stření hodnotu, rozptyl atd.
+Evidentně pak můžeme dopočítat i všechny potřebné deskriptivní charakteristiky jako střední hodnotu, rozptyl atd.
 Jak jsme již mínili dříve, neklademe na BarDistribution žádná omezení co se tyče tvaru výsledného rozdělení.
 Avšak v kontextu GP inference výstup typicky vypadá přibližně jako Gaussovský zvon. 
 To proto, že GP posteriorní prediktivní rozdělení je přesně normální rozdělení.
@@ -427,7 +427,7 @@ U tohoto konceptu se totiž neobjevuje tzv. \textit{prokletí dimenze} (anglicky
 Připomeňme, kdy toto prokletí nastává.
 Objevuje se u diskretizačních metod tehdy, když binujeme prostor, jehož dimenze neustále roste.
 Počet binů potřebný k udržení dané přesnosti pak roste exponenciálně, konkrétně jako $\mathcal{O}(m^d)$ pro $m$ binů na osu a dimenzi $d$.
-Například Přesně tak je tomu u histogramového odhadu hustoty, kde se může diskretizovat vysokodimenzionální vstupní prostor.
+Přesně tak je tomu například u histogramového odhadu hustoty, kde se může diskretizovat vysokodimenzionální vstupní prostor.
 BarDistribution ale diskretizuje výhradně výstupní veličinu $y$, která je skalární, a to nezávisle na dimenzi vstupu $x$.
 I když bychom PFN trénovali na regresi s~dimenzí $d = 5$ nebo $d = 100$, prediktivní rozdělení $q_\theta(y \mid x, \mathcal{D})$ je vždy jednorozměrné rozdělení nad $\mathbb{R}$.
 Počet binů potřebný k aproximaci této jednorozměrné hustoty s danou přesností tedy vůbec nezávisí na dimenzi vstupu.

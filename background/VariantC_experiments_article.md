@@ -82,8 +82,10 @@ Fixní query, $n_{\text{draws}}=24$ tahů support setu.
 | Easy | 0,0036 → 0,0035 | 0,0039 → ~0,0000 |
 | Hard | 0,0016 → 0,0017 | 0,0009 → ~0,0000 |
 
-**Variance s kontextem mizí aspoň jako $n^{-1}$** (log-log sklony −0,96 Hard až −1,30 Easy, oba
-≤ −1), konzistentně s Naglerovým Thm 6.2 (str. 7; bounduje deviaci $\lesssim n^{-1/2}$, tj. horní
+**Variance s kontextem mizí řádově jako $n^{-1}$** (log-log sklony −0,93 Hard až −1,14 Easy;
+hodnoty z přegenerování obrázku 2026-07-21 — přesný sklon je citlivý na MPS nedeterminismus
+v nejmenších hodnotách variance na chvostu, dřívější běh dával −0,96/−1,30, řád ~−1 je stabilní),
+konzistentně s Naglerovým Thm 6.2 (str. 7; bounduje deviaci $\lesssim n^{-1/2}$, tj. horní
 mez — Easy klesá o něco rychleji, což mez neporušuje). Naopak
 **bias² se drží na malé kladné hodnotě** (plateau), konzistentní s Naglerovou predikcí
 neredukovatelného biasu (globální attention porušuje locality). Bias je malý, konzistentní s dobrou

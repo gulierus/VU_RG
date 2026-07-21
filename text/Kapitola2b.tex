@@ -13,7 +13,7 @@ Uvažujme klasifikační úlohu, která se skládá ze tříd $Y \in \mathcal{Y}
 Předpokládejme dále, že máme iid data $D_n = (Y_i, X_i)_{i=1}^n$ pocházející z nějakého teoretického, avšak neznámého rozdělení $p_0$.
 Naším cílem je predikovat toto podmíněné rozdělení na základě dostupných dat: $$p_0(y \mid x) = P(Y = y \mid X = x).$$
 Z hlediska Baysevského neparametrického odhadování můžeme na $p_0$ nahlížet jako na realizaci náhodného parametru $p \in \mathcal{P}$, kde $\mathcal{P}$ je prostor podmíněných pravděpodobnostních rozdělení nad $\mathcal{Y} \times \mathcal{X}$.
-Tento parametr má rozdělení $\Pi$, které budeme říkat prior.
+Tento parametr má rozdělení $\Pi$, kterému budeme říkat prior.
 Prior bude vyjadřovat naše přesvědčení o tom, jaké modely $p$ jsou pravděpodobnější pro daný problém ještě předtím než uvidíme data.
 Formálně celý proces, ze kterého pocházejí data lze zapsat takto:
 \begin{enumerate}
@@ -141,7 +141,7 @@ Logicky čím větší je $\mathcal{P}$, tím víc se přibližuje $p^*$ ke skut
 \par   
 
 Toto tvrzení nám tedy úplně řeší problém hledání správného prioru, na který jsme upozorňovali na začátku sekce.
-My totiž nepotřebujeme perfektní prior, nýbrž aby byl "dostatečně rozumný" ve smyslu předpokladů věty \ref{theorem:PPDcanLearn}, a objem dat postupně ten náš odhad prioru opraví.
+My totiž nepotřebujeme perfektní prior, nýbrž aby byl „dostatečně rozumný“ ve smyslu předpokladů věty \ref{theorem:PPDcanLearn}, a objem dat postupně ten náš odhad prioru opraví.
 Avšak PPD je ideální teoretický případ.
 Pokud bychom chtěli tyto vlastnosti použít např. u PFN, je zde několik nuancí. 
 PFN je totiž pouze aproximací PPD, jak ukážeme dále, trénovanou na omezených datasetech, a proto tvrzení \ref{theorem:PPDcanLearn} nelze přímo aplikovat. 
@@ -208,7 +208,7 @@ Již jsme řekli, že empiricky chyba predikce klesá spolu se zvětšujícím s
 Takže zkusme najít které strukturální aspekty PFN by to mohli vysvětlit.
 \par 
 
-Obecně ze struktury transformeru plyne, že jsou invariantní vůči permutacím vstupních dat (tj. symetrické), což je mimochodem jednou z výhod pro architekturu PFN dataset $D_n$ je ze své podstaty množina, ne sekvence, takže permutační invariance je přesně ta vlastnost, kterou chceme pro i.i.d. vzorky.
+Obecně ze struktury transformeru plyne, že jsou invariantní vůči permutacím vstupních dat (tj. symetrické), což je mimochodem jednou z výhod pro architekturu PFN: dataset $D_n$ je ze své podstaty množina, ne sekvence, takže permutační invariance je přesně ta vlastnost, kterou chceme pro i.i.d. vzorky.
 \begin{theorem}
     Nechť $f : (\mathcal{Y} \times \mathcal{X})^n \to \mathcal{P}_{\mathcal{Y}|\mathcal{X}}$ je libovolný prediktor. Pak existuje jeho symetrizovaná verze $\tilde{f}$ taková, že pro každé pravděpodobnostní míry $P$:
 \begin{equation}
@@ -315,12 +315,12 @@ Operace SoftMax, LayerNorm a ReLU jsou definovány jako:
 kde $\exp$ a $\max$ působí po složkách.
 První dvě rovnice definují \emph{attention mechanismus} s $H$ hlavami (Vaswani et al., 2017). 
 Ze součtu $a^{(h)}_1 + \cdots + a^{(h)}_n = 1$ plyne, že \emph{attention váhy} tvoří pravděpodobnostní rozdělení přes trénovací vzorky.
-Myšlenka je, že v každé hlavě \emph{attention váhy} $a^{(h)}_j$ zdůrazňují konkrétní vzorky $V_j \in D_n$, konkrétně ty, které jsou "podobné" testovacímu vektoru $v$ ve smyslu měřeném skalárním součinem $v^\top W^{(h)}_q V_j$. 
+Myšlenka je, že v každé hlavě \emph{attention váhy} $a^{(h)}_j$ zdůrazňují konkrétní vzorky $V_j \in D_n$, konkrétně ty, které jsou „podobné“ testovacímu vektoru $v$ ve smyslu měřeném skalárním součinem $v^\top W^{(h)}_q V_j$. 
 Každá \emph{attention hlava} dovoluje jinou definici podobnosti prostřednictvím matice $W^{(h)}_q$.
 Intuitivně to funguje takto: transformer si při predikci pro $x$ vyhledá v trénovacích datech vzorky, které považuje za relevantní, a jejich labely agreguje. Různé hlavy mohou sledovat různé aspekty podobnosti, jedna hlava třeba srovnává hodnoty $X_i$ s $x$, jiná sleduje jiný rys vstupních vektorů.
 \par   
 
-Nás by také zajímalo, jaké vlastnosti má rozptyl a bias pro tuto architekturu, protože v předchozí kapitole jsme poznamenávali, že konkretní vlastnosti těchto charakteristik se mění v závislosti na volbě konkrétní architektury.
+Nás by také zajímalo, jaké vlastnosti má rozptyl a bias pro tuto architekturu, protože v předchozí sekci jsme poznamenávali, že konkrétní vlastnosti těchto charakteristik se mění v závislosti na volbě konkrétní architektury.
 \begin{theorem}
     Pro $\mathcal{X} = \{x : \|x\|_2 \leq K\}$ a omezené matice vah ($\|W^{(h)}_q\|_2, \|W^{(h)}_v\|_2, \|W_{r,1}\|_2, \|W_{r,2}\|_2, \|W_o\|_2 < \infty$) platí
     \begin{equation}
