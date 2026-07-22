@@ -6,11 +6,13 @@ Situaci, kdy jsme prior apriorně odhadli špatně, tedy když skutečná data p
 Metodě s takto špatně zvoleným priorem pak budeme říkat misspecifikovaná.
 Ve všech dosavadních experimentech pocházela data z GP s RBF kernelem, tedy přesně z té třídy modelů, kterou porovnávané metody předpokládaly.
 Vždy proto existoval správně nastavený GP (\emph{oracle}), ke kterému jsme mohli PFN vztahovat.
-V praxi ale taková jistota neexistuje, skutečná data nepřicházejí se štítkem, ze kterého kernelu byla vygenerována.
-Nyní proto odstraníme i tuto poslední jistotu.
+V praxi ale taková jistota neexistuje.
+Skutečná data nepřicházejí se štítkem, ze kterého kernelu byla vygenerována.
+Nyní proto pro PFN odstraníme i tuto poslední jistotu.
 Data budeme generovat z tzv. \emph{Matérnova kernelu} (definice viz dále), zatímco všechny porovnávané metody budou předpokládat RBF.
 Skutečný generativní proces tak bude ležet mimo support prioru všech metod, včetně implicitního prioru PFN.
-Budeme tedy zkoumat, co se stane, když po PFN chceme predikovat mimo support jeho prioru, o kolik se predikce zhorší a která metoda za těchto podmínek selže nejméně.
+Budeme tedy zkoumat, co se stane, když po PFN chceme predikovat mimo support jeho prioru.
+Bude nás zajímat o kolik se predikce zhorší a která metoda za těchto podmínek selže nejméně.
 Připomeňme, že přesně touto situací se zabývala věta~\ref{theorem:PPDcanLearn}, podle které se PPD umí učit i tehdy, když skutečné rozdělení leží mimo support prioru.
 Tato sekce je tedy zároveň empirickým testem této teoretické vlastnosti.
 \par
@@ -22,10 +24,13 @@ My volíme $\nu = 2{,}5$, pro který má kernel tvar
 $$k_{\text{Matérn}}(x, x') = \left(1 + \frac{\sqrt{5}\,r}{\ell} + \frac{5 r^2}{3 \ell^2}\right) \exp\!\left(-\frac{\sqrt{5}\,r}{\ell}\right), \qquad r = |x - x'|,$$
 kde $\ell$ je opět korelační délka.
 Realizace GP s tímto kernelem jsou jen dvakrát diferencovatelné, tedy znatelně hrubší než nekonečně hladké realizace RBF kernelu.
-Právě proto se Matérnův kernel považuje za realističtější model skutečných dat, nekonečná hladkost RBF je totiž pro reálné procesy příliš silný předpoklad~\cite{rasmussen2006}.
+Právě proto se Matérnův kernel považuje za realističtější model skutečných dat.
+Nekonečná hladkost RBF je totiž pro reálné procesy příliš silný předpoklad~\cite{rasmussen2006}.
 Náš test misspecifikace tak napodobuje typickou praktickou situaci, kdy jsou data hrubší, než model předpokládá.
 Pro tento účel je Matérnův kernel ideální i z druhého důvodu.
-Pro $\nu \to \infty$ přechází v RBF, oba kernely jsou si tedy dost podobné na to, aby jejich záměna byla uvěřitelná, a zároveň dost odlišné na to, aby ji žádná volba hyperparametrů RBF nedokázala úplně napravit.
+Pro $\nu \to \infty$ přechází v RBF, oba kernely jsou si tedy velmi podobné.
+Situace nebo omyl, kdy data pocházející z Matérnova kernelu modelujeme pomocí RBF, se proto může snadno přihodit i v praxi.
+Současně jsou oba kernely dost odlišné na to, aby tento omyl žádná volba hyperparametrů RBF nedokázala úplně napravit.
 Misspecifikace prioru zde tedy spočívá v rozdílu mezi skutečným a předpokládaným kernelem.
 Žádná z testovaných metod nemá k dispozici správnou třídu funkcí.
 Porovnáváme následující metody:
@@ -81,7 +86,7 @@ Jinou roli zde hraje i velikost kontextu.
 V sekcích~\ref{sec:vnitrni-struktura} a~\ref{sec:pfn-random-hp} bylo vše správně specifikované a $n$ měřilo, jak rychle PFN konverguje ke správnému posterioru.
 Zde je prior všech metod špatně a $n$ měří, jak rychle se metody ze špatného prioru vzpamatují.
 S rostoucím $n$ totiž likelihood postupně převáží prior.
-Adaptivní metody GP\_ML a GP\_Bayes si korelační délku mohou z dat přeodhadnout, jejich handicap tedy s daty mizí.
+Adaptivní metody GP\_ML a GP\_Bayes si korelační délku mohou z dat znovu odhadnout, jejich handicap tedy s daty mizí.
 PFN svůj prior za běhu změnit nemůže a GP\_fixed se nepřizpůsobuje vůbec.
 Nejzajímavější proto budou malé kontexty, kde prior dominuje a ukazuje se, čí prior škodí nejméně.
 \par
@@ -146,7 +151,7 @@ Z tabulek~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n} plynou dvě pozorování.
 Za prvé, v MSE je PFN plně konkurenceschopné s adaptivními metodami GP\_ML a GP\_Bayes.
 Pro střední velikosti kontextu je dokonce nejlepší ze všech misspecifikovaných metod a pro velká $n$ jsou všechny tři prakticky shodné, jak je vidět v tabulce~\ref{tab:exp7_mse_n}.
 GP\_fixed, který se datům nijak nepřizpůsobuje, zaostává za všemi výrazně a s rostoucím $n$ se jeho odstup nezmenšuje.
-Za druhé, v kalibraci je obraz ještě jednoznačnější.
+Za druhé, v kalibraci je obraz ještě víc jednoznačněji.
 PFN má nejmenší $\Delta$NLL ze všech misspecifikovaných metod pro všechna $n \leq 40$ a teprve pro velké kontexty jej GP\_ML porazí, jak ukazuje tabulka~\ref{tab:exp7_dnll_n}.
 \par
 
@@ -291,18 +296,23 @@ $5{,}00$ & $0{,}00192$ & $0{,}01024$ & $0{,}188$ & mimo rozsah \\
 Z tabulky~\ref{tab:exp7_ood} můžeme učinit jasné závěry.
 Uvnitř trénovacího rozsahu je relativní MSE hluboko pod referenční hodnotou $\text{rel\_MSE} = 1$, tedy pod úrovní chyby způsobené samotným šumem v datech.
 Nejmenší je uprostřed rozsahu.
-Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji, jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
+Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji.
+Zde jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
 Mimo rozsah chyba na obou stranách roste, ale referenční hodnotu nikde nepřekročí.
 Odchylka PFN od \emph{oracle} tedy zůstává menší než chyba způsobená samotným šumem v datech.
-A to pro případy, které jsou hodně vzdálené od hranice trénovací množiny, ale to opět může být způsobeno tím, že pro tato $\ell$ je tato úloha výrazně jednodušší.
+A to pro případy, které jsou hodně vzdálené od hranice trénovací množiny.
+Avšak to opět může být způsobeno tím, že pro tato $\ell$ je tato úloha výrazně jednodušší.
 Z experimentu vyplývá, že k degradaci sice dochází, ale žádný náhlý kolaps nenastává.
 \par
 
 Z toho usuzujeme, že implicitní prior PFN nefunguje jako ostrá hranice, za kterou model přestává fungovat.
 Chová se spíše jako měkké těžiště, od kterého přesnost pozvolna klesá.
-Pro hladké funkce za horní hranicí rozsahu to dává dobrý smysl, model se během tréninku naučil reprezentovat hladkost a delší korelační délka pro něj není kvalitativně nová situace.
-Pro velmi krátké délky pod dolní hranicí je úloha těžká i pro samotný \emph{oracle}, kontext $40$ bodů rychlé oscilace prostě nezachytí.
-Tím je zpětně podložený i závěr předchozí části, plynulá degradace mimo trénovací rozsah není artefakt misspecifikovaného kernelu, platí i v čistém testu.
+Pro hladké funkce za horní hranicí rozsahu to dává dobrý smysl.
+Model se během tréninku naučil reprezentovat hladkost a delší korelační délka pro něj není kvalitativně nová situace.
+Pro velmi krátké délky pod dolní hranicí je úloha těžká i pro samotný \emph{oracle}.
+Je vidět, že kontext $40$ bodů rychlé oscilace jednoduše nezachytí.
+Tím je zpětně podložený i závěr předchozí části.
+Plynulá degradace mimo trénovací rozsah není artefakt misspecifikovaného kernelu, platí to i v čistém testu.
 \par
 
 \subsection{Shrnutí}

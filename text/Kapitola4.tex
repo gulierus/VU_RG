@@ -72,7 +72,9 @@ Ověříme, zda se u~něj objeví tzv. \emph{kolaps k~prioru}.
 Jde o~jev, kdy model s~příliš malým kontextem přestane odpovídat na konkrétní vstup a vrátí se k~výchozí odpovědi, tedy k~průměrné masce, kterou zná z~tréninku.
 Intuice je jednoduchá.
 Když má model málo příkladů, nedokáže z~nich poznat pravidla úlohy, a nejbezpečnější sázkou je pro něj průměr.
-Přesně toto chování předpovídá podmínka lokality, predikce daleko od dat zůstává přitažená k~prioru.
+S podmínkou lokality tento jev souvisí následovně.
+\emph{Softmax attention} nikdy nedá žádnému bodu kontextu váhu přesně nula, predikce proto vždy obsahuje složku tvořenou průměrem přes celý kontext, která na sousedech konkrétního bodu nezávisí.
+Při dostatku dat se tato globální složka projevuje jen jako malý neredukovatelný bias, při malém nebo neinformativním kontextu z~predikce zbyde právě jen ona, tedy průměrná odpověď známá z~tréninku.
 Pokud se kolaps objeví i u~modelu, který jsme sami netrénovali, nejde o~artefakt našeho tréninku, ale o~obecnou vlastnost amortizované inference.
 Poté natrénujeme vlastní PFN přímo na úloze popsané výše.
 Zde využijeme hlavní výhodu syntetických dat, pravidla jejich generování známe, a proto umíme pro každý obrázek spočítat i přesný posterior.
