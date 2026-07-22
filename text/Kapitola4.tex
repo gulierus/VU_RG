@@ -66,7 +66,7 @@ Nyní můžeme říct, co přesně budeme v~této kapitole zkoumat.
 Připomeňme, že Naglerovy výsledky ze sekce~\ref{sec:pfn-teorie} nezávisí na dimenzi vstupu.
 Věta~\ref{theorem:Rozptyl_transformeru} o~mizení rozptylu i neredukovatelný bias z~podmínky lokality (věta~\ref{theorem:lokalizace}) jsou tvrzení o~\emph{attention mechanismu} obecně, a měla by tedy platit i pro segmentaci.
 Právě tohoto faktu využijeme.
-Nejprve vezmeme hotový, už natrénovaný \emph{in-context} segmenter UniverSeg (zde přidat reference).
+Nejprve vezmeme hotový, už natrénovaný \emph{in-context} segmenter UniverSeg~\cite{butoi2023}.
 Není to PFN, ale funguje na stejném principu, predikuje z~kontextové sady přes globální \emph{attention}.
 Ověříme, zda se u~něj objeví tzv. \emph{kolaps k~prioru}.
 Jde o~jev, kdy model s~příliš malým kontextem přestane odpovídat na konkrétní vstup a vrátí se k~výchozí odpovědi, tedy k~průměrné masce, kterou zná z~tréninku.
@@ -89,7 +89,7 @@ V~tomto prvním experimentu nebudeme trénovat vlastní model, ale vezmeme hotov
 \subsection{Uspořádání experimentu}
 \label{subsec:seg-a-setup}
 
-Jako model použijeme UniverSeg (zde přidat reference), což je předtrénovaný \emph{in-context} segmenter.
+Jako model použijeme UniverSeg, což je předtrénovaný \emph{in-context} segmenter.
 Model necháme zmražený, žádnou jeho váhu neupravujeme.
 UniverSeg nabízí interní průměrování přes více kontextových sad.
 Voláme ho vždy nad jedním \emph{support setem}, tedy bez toho interního průměrování.
@@ -100,7 +100,7 @@ Kolaps budeme sledovat podél dvou os.
 Hlavní a čistou osou je velikost \emph{support setu} $n_{\text{supp}}$, kterou měníme od jednoho příkladu po $64$.
 Na ní stojí hlavní tvrzení experimentu, protože přímo řídí, kolik informace model dostane, a nezávisí na tom, o jaká data jde.
 Druhou, doplňkovou osou je změna domény, tedy typu a zdroje obrázků.
-Postupujeme přes tři domény, snímky bílých krvinek (WBC-JTSC), jinou akvizici stejných buněk (WBC-CV) a mozkové MRI (OASIS).
+Postupujeme přes tři domény, snímky bílých krvinek (WBC-JTSC~\cite{zheng2018}), jinou akvizici stejných buněk (WBC-CV~\cite{zheng2018}) a mozkové MRI (OASIS~\cite{marcus2007}).
 Poznamenejme, že touto osou neměříme vzdálenost dat od tréninku, model všechny tři modality při tréninku viděl, ale jen robustnost napříč různými úlohami.
 U krvinek je cílem segmentace maska celé buňky, u~mozku maska bílé hmoty.
 \par

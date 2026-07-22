@@ -105,7 +105,7 @@ Samotná existence asymetrie v poslední vrstvě je tak prvním experimentální
 Na maticích na obrázku~\ref{fig:attention_all_layers} si lze všimnout ještě jednoho nápadného jevu, konkrétně svislých pruhů.
 Některé \textit{key} pozice (sloupce) dostávají vysoké \emph{attention} od téměř všech \emph{query} pozic, nezávisle na tom, kde daný \emph{query} bod leží.
 Ve~vrstvě $0$ jsou nejostřejší, v~hlubších vrstvách obvykle přetrvává jeden reziduální pruh (v~naší realizaci nápadně kolem \textit{key} pozice $75$).
-Jde o~tzv.\ \textit{attention sink}, mechanismus dobře popsaný u~velkých jazykových modelů (Xiao et al., 2023).
+Jde o~tzv.\ \textit{attention sink}, mechanismus dobře popsaný u~velkých jazykových modelů~\cite{xiao2024}.
 Vzniká ze dvou důvodů.
 Za prvé, softmax nutí každý řádek matice sečíst na jedničku.
 To znamená, že každý \textit{query} bod tedy \emph{musí} své \emph{attention} někam rozdělit, i když pro něj žádný klíč není skutečně relevantní.
@@ -130,7 +130,7 @@ Jde konkrétně o tři formule, jejichž vzájemný vztah je jádrem naší anal
 
 \textbf{Posteriorní střední hodnota GP:}
 
-Po pozorování kontextových párů $(X, y)$ je posteriorní střední hodnota Gaussovského procesu v novém bodě $x^*$ dána vztahem:
+Po pozorování kontextových párů $(X, y)$ je posteriorní střední hodnota Gaussovského procesu v novém bodě $x^*$ dána vztahem~\cite{rasmussen2006}:
 $$\mu(x^*) = k(x^*, \mathbf{X})\bigl[\mathbf{K}(\mathbf{X},\mathbf{X}) + \sigma^2 \mathbf{I}\bigr]^{-1} \mathbf{y},$$
 kde $\mathbf{K}(\mathbf{X},\mathbf{X})_{ij} = k(x_i, x_j)$ je kernelová matice a $\sigma^2$ je rozptyl šumu.
 Klíčovou roli hraje inverze $[\mathbf{K} + \sigma^2 \mathbf{I}]^{-1}$, která \textit{dekoreluje} blízké trénovací body.
@@ -138,7 +138,7 @@ Body, které si jsou podobné, si vzájemně „konkurují“ a jejich kumulativ
 
 \textbf{Nadaraya-Watsonův estimátor:}
 
-Nejjednodušší alternativou, jak odhadnout GP, je Nadaraya-Watsonův (NW) estimátor, tj. normalizovaný váhovaný průměr trénovacích hodnot:
+Nejjednodušší alternativou, jak odhadnout GP, je Nadaraya-Watsonův (NW) estimátor~\cite{bishop2006}, tj. normalizovaný váhovaný průměr trénovacích hodnot:
 $$\hat{y}_{\text{NW}}(x^*) = \frac{\displaystyle\sum_i k(x^*, x_i)\, y_i}{\displaystyle\sum_i k(x^*, x_i)}.$$
 NW se od GP liší právě absencí inverze kernelové matice.
 Tento model je až moc velkým zjednodušením, pokud bychom ho chtěli použít pro odhad GP.

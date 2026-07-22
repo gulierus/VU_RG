@@ -33,11 +33,11 @@ Dnes existuje celá řada přístupů k výběru modelu.
 Jsou to tři hlavní přístupy: Bayesovský přístup (\emph{marginal likelihood}), \emph{cross-validace} a informační kritéria (AIC, BIC).
 \emph{Cross-validace} je praktický a intuitivní přístup, který odhaduje generalizační chybu pomocí validačních dat.
 Jinými slovy, data rozdělíme na několik částí, pro každou část trénujeme model na ostatních datech a testujeme na ní.
-Nakonec průměrujeme chyby přes všechny části a vybereme model s nejnižší tzv. \emph{cross-validační} chybou [Rasmussen].
+Nakonec průměrujeme chyby přes všechny části a vybereme model s nejnižší tzv. \emph{cross-validační} chybou~\cite{rasmussen2006}.
 Dalším velmi populárním přístupem je Bayesovský přístup, který spočívá v tom, že spočítáme pravděpodobnost modelu danou daty.
 To za předpokladu stejných apriorních pravděpodobností modelů znamená, že spočítáme tzv. \emph{marginal likelihood}, což je pravděpodobnost dat daná modelem, integrovaná přes všechny možné hodnoty parametrů modelu.
 Tento přístup má výhodu v tom, že automaticky penalizuje složité modely a nabízí principiální způsob, jak vyvážit \emph{fit} a složitost modelu.
-Posledním přístupem jsou informační kritéria, jako je Akaike Information Criterion (AIC) a Bayesian Information Criterion (BIC).
+Posledním přístupem jsou informační kritéria, jako je Akaike Information Criterion (AIC) a Bayesian Information Criterion (BIC)~\cite{bishop2006}.
 Obě kritéria penalizují složitost modelu, každé však míří jinam.
 BIC je rychlou a jednoduchou aproximací \emph{marginal likelihood}, zatímco AIC cílí na predikční chybu na nových datech, a \emph{marginal likelihood} tedy neaproximuje.
 Nás však bude v této práci nejvíce zajímat Bayesovský přístup, protože nám poskytuje nejvíce principů pro výběr modelu a je základem pro náš další postup.
@@ -46,7 +46,7 @@ Nás však bude v této práci nejvíce zajímat Bayesovský přístup, protože
 \label{sec:bayes-vyber}
 
 Zde ukážeme \textit{Bayesův} princip při výběru modelu.
-Je zvykem použít hierarchický princip při zavádění Bayesovského výběru modelu [Rasmussen].
+Je zvykem použít hierarchický princip při zavádění Bayesovského výběru modelu~\cite{rasmussen2006}.
 \par
 
 Označme tedy $\mathbf{w} \in \mathcal{W}$ jako parametry modelu, kde $\mathcal{W}$ je prostor parametrů modelu, mohou to být např. váhy v lineární regresi nebo v neuronové síti.
@@ -132,7 +132,7 @@ Mějme tedy vícerozměrnou náhodnou veličinu $\mathbf{X} = (X_1, \dots, X_n)$
 kde $|\boldsymbol{\Sigma}|$ je determinant matice $\boldsymbol{\Sigma}$, vektor $\mathbf{x}$ je vektor realizací, značíme $\mathbf{X} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$.
 \par
 
-Z toho vztahu plyne i definice Gaussovského procesu [Rasmussen]:
+Z toho vztahu plyne i definice Gaussovského procesu~\cite{rasmussen2006}:
 \begin{definition}[Gaussovský proces]
   Gaussovský proces je soubor náhodných veličin, libovolný konečný počet kterých má sdružené normální rozdělení.
 \end{definition}
@@ -141,7 +141,7 @@ Dalším klíčovým pojmem je tzv. kovarianční funkce (nebo jádro), která u
 Ta se definuje jako funkce $k: \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}$, která pro každé dva vstupy $\mathbf{x}, \mathbf{x'} \in \mathbb{R}^d$ vrací hodnotu $k(\mathbf{x}, \mathbf{x'})$, která udává míru podobnosti mezi těmito dvěma vstupy.
 Je to jistá modifikace kovarianční matice z klasického vícerozměrného normálního rozdělení, která vznikne po aplikaci tzv. \emph{kernel triku}.
 Máme-li nějaký proces $f(\mathbf{x})$ a chceme ho zkoumat i pro jiný vstup $\mathbf{x'}$, ptáme se, jaká je kovariance mezi $f(\mathbf{x})$ a $f(\mathbf{x'})$.
-Tuto kovarianci lze odvodit v~prostoru vah pomocí tzv. \emph{feature mapy}, odvození ale vynecháme a odkážeme čtenáře na [Rasmussen].
+Tuto kovarianci lze odvodit v~prostoru vah pomocí tzv. \emph{feature mapy}, odvození ale vynecháme a odkážeme čtenáře na knihu~\cite{rasmussen2006}.
 Pro naše účely postačí, že kovarianční funkci definujeme přímo pomocí středních hodnot.
 
 Gaussovský proces je totiž plně definován svou střední funkcí $m(\mathbf{x})$ a kovarianční funkcí $k(\mathbf{x}, \mathbf{x'})$.
@@ -178,6 +178,7 @@ Zde si ukážeme tři přístupy: nejprve obecný rámec variační inference, p
 \subsection{Variační inference}
 \label{subsec:variacni-inference}
 Variační inference (také Variační Bayes) je obecný přístup k aproximaci těžce vypočítatelných posteriorních rozdělení, které jsme uvedli v předchozí sekci.
+V celé této části se držíme výkladu z knihy~\cite{bishop2006}.
 Místo přímého výpočtu posteriorního rozdělení $p(\mathbf{w} | \mathbf{y}, \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i)$, který dle~\eqref{eq:normalizační_konst_1_uroven} vyžaduje integraci přes celý prostor parametrů, hledáme jeho aproximaci z vhodné parametrické rodiny rozdělení.
 \par
 
@@ -235,7 +236,7 @@ Jediné, co nám tedy zbývá v případě Gaussovského procesu, je dosadit za 
 \begin{equation}
   \log p( \mathbf{y} | \mathbf{X}, \boldsymbol{\theta}, \mathcal{H}_i) = -\frac{1}{2}\mathbf{y}^\top \mathbf{K}_y^{-1}\mathbf{y} - \frac{1}{2}\log|\mathbf{K}_y| - \frac{n}{2}\log 2\pi
 \end{equation}
-Chceme-li najít extrém této funkce, musíme tento výraz derivovat podle hyperparametrů, čímž dostáváme:
+Chceme-li najít extrém této funkce, musíme tento výraz derivovat podle hyperparametrů, čímž dostáváme~\cite{rasmussen2006}:
 \begin{align}
   \frac{\partial}{\partial\theta_j} \log p(\mathbf{y}|\mathbf{X}, \boldsymbol{\theta})
     &= \frac{1}{2}\mathbf{y}^\top \mathbf{K}_y^{-1}\frac{\partial \mathbf{K}_y}{\partial\theta_j}\mathbf{K}_y^{-1}\mathbf{y} - \frac{1}{2} \operatorname{tr}\left(\mathbf{K}_y^{-1}\frac{\partial \mathbf{K}_y}{\partial\theta_j}\right) \nonumber \\
@@ -256,9 +257,9 @@ Její princip spočívá v tom, že integrál, který neumíme vyřešit analyti
 Konkrétně už jsme si říkali, že integrály~\eqref{eq:normalizační_konst_1_uroven} a~\eqref{eq:normalizační_konst_2_uroven} nemusíme umět spočítat.
 Místo přímého výpočtu proto generujeme posloupnost vzorků, tzv. \textit{Markovův řetězec}, zkonstruovanou tak, aby její rozdělení konvergovalo k cílovému posteriornímu rozdělení.
 Z vygenerovaných vzorků pak můžeme aproximovat samotné rozdělení i libovolné jeho statistiky.
-Existuje celá řada variant MCMC, např. \textit{Metropolis-Hastings algoritmus}, \textit{Gibbs sampling} nebo modernější \textit{Hamiltonian Monte Carlo} (Neal, 2011).
-Jejich podrobný rozbor však přesahuje rámec této práce, ucelený přehled poskytuje např. (Brooks a kol., 2011).
-Podrobněji se zastavíme jen u varianty \textit{No U-Turn Sampler} (NUTS) (Hoffman a Gelman, 2014), která staví na Hamiltonian Monte Carlo a při hledání posteriorních rozdělení patří k nejpoužívanějším.
+Existuje celá řada variant MCMC, např. \textit{Metropolis-Hastings algoritmus}, \textit{Gibbs sampling} nebo modernější \textit{Hamiltonian Monte Carlo}~\cite{neal2011}.
+Jejich podrobný rozbor však přesahuje rámec této práce, ucelený přehled poskytuje např. kniha~\cite{brooks2011}.
+Podrobněji se zastavíme jen u varianty \textit{No U-Turn Sampler} (NUTS)~\cite{hoffman2014}, která staví na Hamiltonian Monte Carlo a při hledání posteriorních rozdělení patří k nejpoužívanějším.
 Hamiltonian Monte Carlo využívá gradient posteriorního rozdělení.
 Základní myšlenkou je pohyb v parametrickém prostoru.
 \par

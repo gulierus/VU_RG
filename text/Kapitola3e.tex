@@ -22,7 +22,7 @@ My volíme $\nu = 2{,}5$, pro který má kernel tvar
 $$k_{\text{Matérn}}(x, x') = \left(1 + \frac{\sqrt{5}\,r}{\ell} + \frac{5 r^2}{3 \ell^2}\right) \exp\!\left(-\frac{\sqrt{5}\,r}{\ell}\right), \qquad r = |x - x'|,$$
 kde $\ell$ je opět korelační délka.
 Realizace GP s tímto kernelem jsou jen dvakrát diferencovatelné, tedy znatelně hrubší než nekonečně hladké realizace RBF kernelu.
-Právě proto se Matérnův kernel považuje za realističtější model skutečných dat, nekonečná hladkost RBF je totiž pro reálné procesy příliš silný předpoklad [Rasmussen].
+Právě proto se Matérnův kernel považuje za realističtější model skutečných dat, nekonečná hladkost RBF je totiž pro reálné procesy příliš silný předpoklad~\cite{rasmussen2006}.
 Náš test misspecifikace tak napodobuje typickou praktickou situaci, kdy jsou data hrubší, než model předpokládá.
 Pro tento účel je Matérnův kernel ideální i z druhého důvodu.
 Pro $\nu \to \infty$ přechází v RBF, oba kernely jsou si tedy dost podobné na to, aby jejich záměna byla uvěřitelná, a zároveň dost odlišné na to, aby ji žádná volba hyperparametrů RBF nedokázala úplně napravit.
@@ -253,7 +253,7 @@ Hodnota $\text{rel\_MSE} = 1$ by tedy znamenala, že se PFN liší od \emph{orac
 Hodnoty hluboko pod $1$ by znamenaly, že PFN \emph{oracle} prakticky kopíruje.
 Výsledky shrnuje tabulka~\ref{tab:exp7_ood} a obrázek~\ref{fig:exp7_ood}.
 
-\begin{figure}[!htb]
+\begin{figure}[!b]
     \centering
     \begin{minipage}{\linewidth}
     \centering

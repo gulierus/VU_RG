@@ -10,7 +10,7 @@ tedy inverze matice $\mathbf{K} + \sigma^2 \mathbf{I}$.
 Tato inverze se dá řešit iterativně.
 Přirozeně se proto nabízí hypotéza, že hloubka transformeru odpovídá počtu iterací takového řešiče.
 Tato myšlenka má i teoretickou oporu.
-Von Oswald et al. (2022) ukázali, že jedna vrstva transformeru s lineárním \emph{attention} umí ve svých vahách zakódovat přesně jeden krok gradientního sestupu nad kontextovými daty.
+Von Oswald et al.~\cite{vonoswald2023} ukázali, že jedna vrstva transformeru s lineárním \emph{attention} umí ve svých vahách zakódovat přesně jeden krok gradientního sestupu nad kontextovými daty.
 Model s $L$ vrstvami pak odpovídá $L$ takovým iteracím.
 V této sekci tuto hypotézu kvantitativně otestujeme na PFN transformeru.
 \par
@@ -108,18 +108,26 @@ Nás ale koeficienty samy o sobě nezajímají.
 Zajímá nás predikce $\mu(x^*) = k(x^*, \mathbf{X})\,\boldsymbol{\alpha}$, která z nich teprve vznikne, a chybu proto měříme až na ní, tedy v \textit{predikčním prostoru}.
 Tyto dva prostory nejsou totéž.
 Predikce je \emph{kernelově} vážená kombinace koeficientů $\boldsymbol{\alpha}$ a toto vážení tlumí ty složky, ve kterých gradientní sestup konverguje pomalu.
+Důvod jen naznačme.
+Chybu koeficientů si můžeme rozložit do báze tvořené vlastními vektory kernelové matice $\mathbf{K}$.
+Gradientní sestup konverguje pomalu právě ve směrech vlastních vektorů s malým vlastním číslem $\lambda_i$.
+Do predikce však tyto směry vstupují s vahou zhruba úměrnou právě $\lambda_i$, takže se jejich zbývající chyba v predikci téměř neprojeví.
 Srovnávat empirickou predikční chybu s křivkou $\rho^L$ proto není zcela korektní, penalizuje totiž řešič za chyby, které se do predikce skoro nepromítnou.
 \par
 
-Korektní srovnání vyžaduje spustit skutečný gradientní sestup na stejných datech a měřit jeho chybu ve stejném predikčním prostoru jako u PFN.
-Pro každou instanci proto iterujeme výše uvedenou rovnici s optimálním fixním krokem $\eta = 2/(\lambda_{\max} + \lambda_{\min})$.
+Připomeňme, že v předchozím experimentu jsme žádný gradientní sestup nespouštěli.
+Empirickou chybu PFN jsme srovnávali pouze s teoretickou křivkou $\rho^L$, tedy s předpovědí nejhoršího případu, a to navíc pro chybu v $\boldsymbol{\alpha}$-prostoru.
+Korektní srovnání vyžaduje postavit proti PFN skutečně spuštěný gradientní sestup a měřit jeho chybu ve stejném predikčním prostoru jako u PFN.
+Aby případný rozdíl šel přičíst samotnému řešiči, spustíme ho na stejných $200$ instancích jako v předchozím experimentu.
+Na každé z nich iterujeme výše uvedenou rovnici s optimálním fixním krokem $\eta = 2/(\lambda_{\max} + \lambda_{\min})$.
 Po každém kroku $t$ zrekonstruujeme predikci $\mu_{\text{GD}}^{(t)}(x^*) = k(x^*, \mathbf{X})\,\boldsymbol{\alpha}^{(t)}$ a spočítáme její normalizované MSE vůči GP posterioru, tedy přesně tu metriku, kterou u PFN vynášíme proti hloubce.
 Výsledek srovnání je na obrázku~\ref{fig:ch2_gd_baseline}.
 \par
 
-I v tomto případě usuzujeme, že je dobré pro čtenáře popsat, co obrázek znázorňuje a jak ho číst.
-Modrá křivka ukazuje chybu PFN jako funkci počtu vrstev $L$.
-Červená křivka ukazuje chybu gradientního sestupu jako funkci počtu kroků $t$, vynesenou na stejné ose.
+I v tomto případě usuzujeme, že je dobré pro čtenáře popsat, co obrázek~\ref{fig:ch2_gd_baseline} znázorňuje a jak ho číst.
+Obě křivky ukazují stejnou veličinu jako v předchozím experimentu, tedy normalizované MSE predikce vůči GP posterioru.
+Modrá křivka ji ukazuje pro PFN jako funkci počtu vrstev $L$.
+Červená křivka ji ukazuje pro gradientní sestup jako funkci počtu kroků $t$, vynesenou na stejné ose.
 Porovnáváme tedy jednu vrstvu PFN s jedním krokem GD přímo proti sobě.
 Tečkovaná vodorovná čára značí triviální predikci konstantním průměrem, které odpovídá $\text{nMSE} = 1$.
 Cokoli nad touto čárou je horší, než kdybychom vůbec nepredikovali.
@@ -178,7 +186,7 @@ Počet potřebných kroků tím přestane záviset na původním $\kappa$.
 Přesně takové chování u PFN pozorujeme.
 Připomeňme navíc, že \emph{attention váhy} závisejí na vstupních datech, takže model si podobnou transformaci může pro každý kontext sestavit sám.
 Kombinace $\kappa$-necitlivosti a rychlosti mnohonásobně převyšující gradientní sestup je proto charakteristickým znakem naučeného \emph{preconditioned} řešiče, nikoli obyčejného gradientního sestupu.
-Stejný obraz předpovídá i teorie \emph{in-context} učení, viz např. Ahn et al. (2023) nebo již zmíněný von Oswald et al. (2022).
+Stejný obraz předpovídá i teorie \emph{in-context} učení, viz např. Ahn et al.~\cite{ahn2023} nebo již zmíněný von Oswald et al.~\cite{vonoswald2023}.
 \par
 
 \subsection{Shrnutí}

@@ -321,6 +321,13 @@ Výsledky jsou uvedeny v tabulce~\ref{tab:rand_ctx}.
 Samotné predikce a \emph{attention váhy} pro jednu konkrétní realizaci s rostoucím kontextem ukazuje obrázek~\ref{fig:rand_ctx_grid}.
 \par
 
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\linewidth,height=1.317\linewidth]{figures/GP1_random_model/fig_rand_05b_context_size_grid.png}
+    \caption{Náhodný model: predikce (levý sloupec) a \emph{attention} vs RBF (pravý sloupec) pro $n \in \{5, 10, 15, 20\}$. Červené body: kontext; šedé: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP se správným $\ell$.}
+    \label{fig:rand_ctx_grid}
+\end{figure}
+
 \begin{table}[htbp]
 \centering
 \begin{tabular}{lccc}
@@ -363,11 +370,4 @@ Dokáže identifikovat korelační délku z kontextu, a to spolehlivě.
 Poměr \emph{wrong/correct} roste o~řády a dosahuje $1\,691\times$ při $n = 60$ (tabulka~\ref{tab:rand_hp01}).
 Od $n_{\text{ctx}} \approx 20$ se chová téměř identicky jako GP se správným $\ell$.
 Náhodný model tedy je amortizovaný Bayesovský inferenční nástroj, který korelační délku a amplitudu odečítá přímo z pozorovaných dat, aniž by mu je kdokoli sdělil předem.
-
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/GP1_random_model/fig_rand_05b_context_size_grid.png}
-    \caption{Náhodný model: predikce (levý sloupec) a \emph{attention} vs RBF (pravý sloupec) pro $n \in \{5, 10, 15, 20\}$. Červené body: kontext; šedé: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP se správným $\ell$.}
-    \label{fig:rand_ctx_grid}
-\end{figure}
 

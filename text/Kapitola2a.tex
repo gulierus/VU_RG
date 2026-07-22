@@ -9,9 +9,9 @@ Následně ukážeme mechanismy, které se schovávají uvnitř PFN, jinými slo
 \section{Úvod do Prior–Data Fitted Networks}
 \label{sec:pfn-uvod}
 
-Prior–Data Fitted Networks je Deep Learning (dále jenom DL) architektura, kterou v roce $2022$ uvedli Samuel Muller a Noah Hollmann v článku (Müller et al., 2022).
+Prior–Data Fitted Networks je Deep Learning (dále jenom DL) architektura, kterou v roce $2022$ uvedli Samuel Müller a Noah Hollmann v článku~\cite{muller2022}.
 Hlavní motivací pro vznik tohoto modelu je snaha posunout techniky Bayesovské statistiky na další úroveň spolu se strmým rozvojem v oblasti strojového učení. 
-PFN je založeno na proslulé architektuře transformer, která je viníkem dnešního pokroku všemožných Deep Learning modelů, a o níž víme díky velkým jazykovým modelům, a není to náhoda, existuje totiž jisté spojení mezi těmito architekturami. 
+PFN je založeno na proslulé architektuře transformer~\cite{vaswani2017}, která je viníkem dnešního pokroku všemožných Deep Learning modelů, a o níž víme díky velkým jazykovým modelům, a není to náhoda, existuje totiž jisté spojení mezi těmito architekturami. 
 Ačkoli samotnou architekturu PFN a její technické nuance budeme podrobně diskutovat až v následující sekci, zde jenom uvedeme její základní charakteristiky.
 PFN je tzv. \emph{encoder–only} architektura (tj. neobsahuje \emph{decoder} blok, ale pouze \emph{encoder} blok transformeru), na kterou je pak napojena softmax hlava pro vyhodnocování výsledků ve tvaru pravděpodobností.
 Na vstup PFN dostává sekvenci dat.
@@ -81,7 +81,7 @@ Potom stačí takto natrénovanému modelu předložit několik známých bodů 
 \section{Praktická motivace k PFN}
 \label{sec:pfn-motivace}
 Abychom navázali na předchozí kapitolu, kde jsme uvedli dnes již standardní metody pro aproximaci PPD, ukážeme motivační příklady s porovnáním PFN s MCMC metodami a variační inferencí.
-Muller ve své práci tuto problematiku uvedl a na ní představil světu PFN architekturu (Müller et al., 2022).
+Müller ve své práci tuto problematiku uvedl a na ní představil světu PFN architekturu~\cite{muller2022}.
 Hlavní výhodou PFN je dle něj to, že na rozdíl od variační inference nebo metod Monte Carlo se učí aproximovat PPD přímo z datových vzorků.
 Jediným a velmi důležitým předpokladem ale je, abychom mohli rychle a výpočetně levně vzorkovat z apriorního rozdělení. 
 Naproti tomu MCMC požaduje nenormované posteriorní rozdělení.
@@ -116,7 +116,7 @@ V této sekci se pokusíme popsat procesy, které se dějí uvnitř PFN transfor
 Naším účelem není poskytnout kompletní popis architektury transformer obecně, za co odpovídají jednotlivé komponenty nebo parametry.
 Předpokládáme, že čtenář je již seznámen se základy architektury transformer.
 Pokud tak tomu není, doporučujeme nastudovat alespoň základní pojmy a principy této architektury. 
-Potřebné zájemce jenom odkážeme na příslušnou kapitolu v knize (Prince, 2023).
+Potřebné zájemce jenom odkážeme na příslušnou kapitolu v knize~\cite{prince2023}.
 Přesto pevně věříme, že našemu výkladu budou rozumět i laici v oblasti strojového učení, neboť zde nepotřebujeme pokročilé znalosti nebo složité pojmy a zkusíme vše popsat co nejjednodušeji.
 Pokud se takové pojmy ve výkladu objeví, slouží jenom pro odborníky v této oblasti a na porozumění hlavním principům nebudou mít velký vliv. 
 Dále opět podotýkáme, že účelem práce není rozebírat konkrétní implementaci PFN a související s tím nuance.
@@ -135,10 +135,10 @@ Dále chceme upozornit, že celý proces, který se odehrává uvnitř PFN od vs
     \item Dimenze vnitřních skrytých vrstev dopředných neuronových sítí \textit{NHID = 1024}.
     \item Počet vrstev \textit{NLAYERS = 6}.
 \end{enumerate}
-Jelikož se vše chystáme navíc ukázat pro případ $1D$ GP regrese, použijeme úplně klasické nastavení PFN, které uvádějí Muller a Hollmann v (Müller et al., 2022), konkrétně s těmito parametry:
+Jelikož se vše chystáme navíc ukázat pro případ $1D$ GP regrese, použijeme úplně klasické nastavení PFN, které uvádějí Müller a Hollmann v článku~\cite{muller2022}, konkrétně s těmito parametry:
 \begin{itemize}
     \item \lstinline|features_per_group = 1|, nastaven na jedničku, protože řešíme $1D$ regresi.
-    \item \lstinline|attention_between_features = False|, slouží pro zpracování tabulkových dat; pokud je zapnutý, jedná se o architekturu \textit{TabPFN}, kterou v této práci neuvažujeme (viz Hollmann et al., 2022).
+    \item \lstinline|attention_between_features = False|, slouží pro zpracování tabulkových dat; pokud je zapnutý, jedná se o architekturu \textit{TabPFN}, kterou v této práci neuvažujeme (viz Hollmann et al.~\cite{hollmann2023}).
 \end{itemize}
 Nakonec uvažujme, že provádíme inferenci pro GP regresi s $20$ trénovacími a $50$ testovacími body. 
 Teď už máme nachystané formální parametry a nastavení, což nám umožňuje se pustit na samotný popis.
@@ -382,7 +382,7 @@ Je vidět, že tady se objevuje nová proměnná \texttt{num\_bars}, jedná se t
 \textbf{BarDistribution}
 
 BarDistribution je po–částech konstantní pravděpodobnostní rozdělení.
-V článku (Müller et al., 2022) se mu říká \textit{Riemann distribution}, jedná se o diskretizaci spojitého rozdělení.
+V článku~\cite{muller2022} se mu říká \textit{Riemann distribution}, jedná se o diskretizaci spojitého rozdělení.
 Avšak je důležité odlišit tento koncept od klasického histogramu.
 Histogram odhaduje hustotu z dat.
 Hlavním principem je, že počítáme, kolik naměřených hodnot padlo do každého binu, a to určuje výšku jednotlivých sloupců.
@@ -429,6 +429,8 @@ Objevuje se u diskretizačních metod tehdy, když binujeme prostor, jehož dime
 Počet binů potřebný k udržení dané přesnosti pak roste exponenciálně, konkrétně jako $\mathcal{O}(m^d)$ pro $m$ binů na osu a dimenzi $d$.
 Přesně tak je tomu například u histogramového odhadu hustoty, kde se může diskretizovat vysokodimenzionální vstupní prostor.
 BarDistribution ale diskretizuje výhradně výstupní veličinu $y$, která je skalární, a to nezávisle na dimenzi vstupu $x$.
+Zdůrazněme, že to není ve sporu s~tím, že model vrací celé rozdělení.
+Výstupem modelu je sice mnoho čísel (výšky všech binů), ale toto rozdělení popisuje jedinou skalární veličinu, binuje se tedy jen jedna osa.
 I když bychom PFN trénovali na regresi s~dimenzí $d = 5$ nebo $d = 100$, prediktivní rozdělení $q_\theta(y \mid x, \mathcal{D})$ je vždy jednorozměrné rozdělení nad $\mathbb{R}$.
 Počet binů potřebný k aproximaci této jednorozměrné hustoty s danou přesností tedy vůbec nezávisí na dimenzi vstupu.
 Veškerou práci s vysokodimenzionálním vstupem totiž odvádí transformer ve svých spojitých reprezentacích, do binování už vysoká dimenze nevstupuje.
@@ -458,7 +460,7 @@ MSE loss by měřil jen $(y_{\text{pred}} - y_{\text{true}})^2$, tj. chybu bodov
 NLL přes BarDistribution měří kvalitu celého rozdělení.
 Model se učí nejen správný střed, ale i správnou šířku a tvar nejistoty. 
 To je přesně to, co potřebujeme pro aproximaci GP posterioru, chceme celou PPD, ne pouze průměr.
-Navíc, jak se ukáže dále (Nagler, 2023), minimalizace NLL vede k optimálnímu řešení, které je Bayesovské posteriorní prediktivní rozdělení, tedy přesně to, co GP analyticky počítá.
+Navíc, jak se ukáže dále~\cite{nagler2023}, minimalizace NLL vede k optimálnímu řešení, které je Bayesovské posteriorní prediktivní rozdělení, tedy přesně to, co GP analyticky počítá.
 \par    
 
 Na konci sekce zkusíme shrnout kompletní postup.
