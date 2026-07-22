@@ -331,7 +331,48 @@ by commas
 
 \addcontentsline{toc}{chapter}{Úvod}
 
-Text úvodu....
+O Bayesovských metodách ve statistice a strojovém učení se často říká, že za nimi stojí budoucnost.
+Vskutku, výsledky této teorie jsou elegantní a užitečné a ve srovnání s frekventistickým přístupem bývají často jednodušší i přirozenější.
+Místo jediného bodového odhadu vracejí celé rozdělení, a s ním i poctivou informaci o tom, jak moc si můžeme být predikcí jisti.
+Řada těchto výsledků však zůstává krásnou teorií, která naráží na tvrdý strop, a tím je výpočetní náročnost.
+Přesnou inferenci umíme provést jen ve výjimečných případech a aproximační metody bývají pomalé nebo kladou na úlohu další požadavky.
+\par
+
+Spolu s rychlým vývojem v oblasti strojového učení se postupně daří tato omezení překonávat.
+Jednou z metod, které tímto směrem míří, je architektura Prior-Data Fitted Networks (PFN), kterou publikovali Müller a Hollmann~\cite{muller2022}.
+Její myšlenka je pozoruhodně přímá.
+Místo aproximace inference pro konkrétní data se transformer natrénuje na velkém množství syntetických úloh vzorkovaných z~prioru a naučí se vracet celé posteriorní prediktivní rozdělení v~jediném dopředném průchodu.
+Otázka, kterou si tato práce klade, zní: co se takový model doopravdy naučil a jak věrně Bayesovskou inferenci napodobuje?
+\par
+
+Práce je rozdělena do čtyř kapitol.
+V~první kapitole vybudujeme klasický základ, o~který se bude opírat zbytek práce.
+Zavedeme Bayesovský výběr modelu a ukážeme, jak se přirozeně rozpadá do hierarchie úrovní.
+Jako hlavní nástroj regrese představíme Gaussovské procesy~\cite{rasmussen2006}, u~kterých lze posteriorní rozdělení spočítat přesně.
+Následně popíšeme tři standardní přístupy k~aproximaci posteriorních rozdělení, variační inferenci, Type II MLE a metody MCMC.
+Právě s~těmito metodami budeme PFN později porovnávat.
+\par
+
+Ve druhé kapitole představíme samotné PFN.
+Nejprve vysvětlíme jeho hlavní myšlenku a srovnáním s~metodami z~první kapitoly ukážeme, v~čem se od nich liší.
+Poté podrobně popíšeme architekturu i trénink a na příkladu Gaussovských procesů vysvětlíme, jak jeden dopředný průchod nahrazuje celou inferenci.
+Druhou polovinu kapitoly věnujeme statistické teorii, kterou pro PFN vybudoval Nagler~\cite{nagler2023}.
+Z~ní plynou klíčové vlastnosti, které budeme v~dalších kapitolách opakovaně testovat.
+\par
+
+Třetí kapitola je experimentálním jádrem práce.
+Na sérii modelů natrénovaných na datech z~Gaussovských procesů nejprve prozkoumáme vnitřní strukturu transformeru.
+Ověříme, že neprovádí pouhé průměrování hodnot podle podobnosti vstupů.
+Dále ukážeme, že model trénovaný na celé rodině hyperparametrů dokáže korelační délku identifikovat přímo z~kontextu.
+Následně popíšeme přerozdělování práce mezi vrstvami a otestujeme hypotézu, že hloubka modelu odpovídá iteracím řešiče.
+Nakonec porovnáme PFN s~klasickými metodami z~první kapitoly v~situaci, kdy mají všechny metody špatně zvolený prior.
+\par
+
+Ve čtvrté kapitole přeneseme stejné otázky do dvou dimenzí, na segmentaci obrazu.
+Nejprve na předtrénovaném \emph{in-context} segmenteru ověříme, zda se při malém kontextu objeví kolaps k~prioru.
+Poté natrénujeme vlastní PFN na úloze s~přesně spočitatelným posteriorem a změříme, jak moc dobře ho aproximuje, kde vzniká bias a rozptyl a jak se chová mimo trénovací rozdělení.
+Tím ověříme, zda Naglerovy předpovědi platí i mimo jednorozměrnou regresi.
+\par
 
 \input{Kapitola1}
 
