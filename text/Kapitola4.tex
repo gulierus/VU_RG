@@ -17,7 +17,8 @@ Doposud PFN dostávalo body na přímce a předpovídalo spojitou hodnotu.
 Segmentace je úloha jiného typu.
 Na vstupu máme obrázek a chceme u~každého jeho bodu (pixelu) rozhodnout, zda patří do hledané oblasti nebo ne.
 Tomuto rozhodování pro celý obrázek najednou se říká \emph{segmentace}, tedy rozdělení obrazu na oblast zájmu a pozadí.
-Výsledkem je tzv. \emph{maska}, což je obrázek stejného rozměru jako vstup, ve kterém je každý pixel buď uvnitř oblasti nebo mimo.
+Oblasti zájmu, tedy pixelům hledaného útvaru, budeme říkat \emph{popředí} (anglicky \emph{foreground}), všem ostatním pixelům \emph{pozadí} (\emph{background}).
+Výsledkem je tzv. \emph{maska}, což je obrázek stejného rozměru jako vstup, ve kterém má pixel popředí hodnotu jedna a pixel pozadí hodnotu nula.
 Masku si můžeme představit jako černobílý obrys obtažený přes původní obrázek.
 \par
 
@@ -31,10 +32,11 @@ Právě tato mapa nás zajímá, protože u~ní můžeme stejně jako v~jedné d
 Ukažme nyní, že segmentace není zcela nová úloha, ale přirozené pokračování toho, co už jsme viděli v~kapitole~\ref{chap:experimenty}.
 V~celé předchozí kapitole jsme pracovali s~funkcí jedné proměnné vzorkovanou z~Gaussovského procesu.
 Představme si nyní stejnou myšlenku, ale s~funkcí \textit{dvou} proměnných, tedy s~náhodným polem přes celou plochu obrázku.
-Hladkost tohoto skrytého pole řídí stejná korelační délka $\ell$ jako dřív, malé $\ell$ dává drobné a ostré útvary, velké $\ell$ velké hladké plochy.
+Hladkost tohoto skrytého pole řídí stejná korelační délka $\ell$ jako dřív.
+ Malé $\ell$ dává drobné a ostré útvary, velké $\ell$ velké hladké plochy.
 Zatím je to jen dvourozměrná obdoba Gaussovského procesu z předchozí kapitoly.
 Z~tohoto spojitého pole vytvoříme masku jednoduchým krokem.
-Zvolíme práh a řekneme, že pixel je uvnitř oblasti právě tehdy, když hodnota pole v~něm práh překročí.
+Zvolíme práh a řekneme, že pixel patří do popředí právě tehdy, když hodnota pole v~něm práh překročí.
 Tím se ze spojitého pole stane binární maska, tedy náš cíl.
 Vstupní obrázek pak vznikne tak, že k~poli přidáme šum.
 Obrázek je tedy rozmazaná verze skryté pravdy a model má z~něj odhadnout ostrou masku pod ní.
@@ -71,15 +73,18 @@ Není to PFN, ale funguje na stejném principu, predikuje z~kontextové sady př
 Ověříme, zda se u~něj objeví tzv. \emph{kolaps k~prioru}.
 Jde o~jev, kdy model s~příliš malým kontextem přestane odpovídat na konkrétní vstup a vrátí se k~výchozí odpovědi, tedy k~průměrné masce, kterou zná z~tréninku.
 Intuice je jednoduchá.
-Když má model málo příkladů, nedokáže z~nich poznat pravidla úlohy, a nejbezpečnější sázkou je pro něj průměr.
+Když má model málo příkladů, nedokáže z~nich poznat pravidla úlohy, a nejbezpečnější volbou je pro něj průměr.
 S podmínkou lokality tento jev souvisí následovně.
-\emph{Softmax attention} nikdy nedá žádnému bodu kontextu váhu přesně nula, predikce proto vždy obsahuje složku tvořenou průměrem přes celý kontext, která na sousedech konkrétního bodu nezávisí.
-Při dostatku dat se tato globální složka projevuje jen jako malý neredukovatelný bias, při malém nebo neinformativním kontextu z~predikce zbyde právě jen ona, tedy průměrná odpověď známá z~tréninku.
+\emph{Softmax attention} nikdy nedá žádnému bodu kontextu váhu přesně nula.
+Predikce proto vždy obsahuje složku tvořenou průměrem přes celý kontext, která na sousedech konkrétního bodu nezávisí.
+Při dostatku dat se tato globální složka projevuje jen jako malý neredukovatelný bias.
+Při malém nebo neinformativním kontextu z~predikce zbude právě jen zprůměrovaná odpověď známá z~tréninku.
 Pokud se kolaps objeví i u~modelu, který jsme sami netrénovali, nejde o~artefakt našeho tréninku, ale o~obecnou vlastnost amortizované inference.
 Poté natrénujeme vlastní PFN přímo na úloze popsané výše.
 Zde využijeme hlavní výhodu syntetických dat, pravidla jejich generování známe, a proto umíme pro každý obrázek spočítat i přesný posterior.
 Tomu budeme stejně jako v~jedné dimenzi říkat \emph{oracle}.
-U~reálných segmentačních dat takovou pravdu nikdy nemáme, zde proti ní můžeme přesně změřit, jak věrně ji PFN aproximuje a kde vzniká odchylka, tedy bias, rozptyl, kalibraci a chování mimo trénovací rozdělení.
+U~reálných segmentačních dat takovou pravdu nikdy nemáme.
+Zde avšak proti ní můžeme přesně změřit, jak věrně ji PFN aproximuje a kde vzniká odchylka, tedy bias, rozptyl, kalibraci a chování mimo trénovací rozdělení.
 Zkoumáme tedy, jak dobře PFN aproximuje ideální Bayesovskou inferenci a kde se od ní začíná odchylovat, jen nyní na náročnější úloze.
 
 \section{Kolaps k prioru u předtrénovaného modelu}
@@ -94,7 +99,7 @@ V~tomto prvním experimentu nebudeme trénovat vlastní model, ale vezmeme hotov
 Jako model použijeme UniverSeg, což je předtrénovaný \emph{in-context} segmenter.
 Model necháme zmražený, žádnou jeho váhu neupravujeme.
 UniverSeg nabízí interní průměrování přes více kontextových sad.
-Voláme ho vždy nad jedním \emph{support setem}, tedy bez toho interního průměrování.
+Voláme ho vždy nad jedním \emph{support setem}, tedy bez tohoto interního průměrování.
 Kdybychom průměrovali, zaměnili bychom vliv velikosti kontextu s~vlivem tohoto průměrování, a to nechceme.
 \par
 
@@ -139,7 +144,7 @@ Malé $d_{\text{truth}}$ tedy znamená, že model předpověděl blízko pravdě
 Kolaps se na obrázku~\ref{fig:seg-a-kolaps} pozná podle křížení obou křivek.
 Při kontextu rovnajícím se jediné ukázce je predikce ve všech třech doménách blíž k prior masce než pravdě, model tedy hádá zhruba průměrnou masku.
 S tím jak roste \emph{support set}, $d_{\text{truth}}$ prudce klesá a někde se protne s~$d_{\text{prior}}$, od té chvíle už je predikce blíž pravdě než prioru.
-Právě tento příklon k~prioru při malém kontextu Naglerova podmínka lokality předpovídá, a potvrzuje se tak i na modelu, který není úplně \emph{PFN-type}.
+Právě tento příklon k~prioru při slabé podmiňující informaci Naglerova teorie předpovídá, a potvrzuje se tak i na modelu, který není úplně \emph{PFN-type}.
 Poloha tohoto křížení se mírně liší podle domény, ale jev je ve všech třech stejný.
 Kolaps tedy řídí velikost kontextu, nikoli konkrétní úloha.
 Podstatné je také, že $d_{\text{prior}}$ neklesá k~nule, ale ustálí se na nenulové hodnotě.
@@ -162,7 +167,9 @@ Měříme ji \emph{Dice} koeficientem, tedy mírou překryvu predikované a prav
 
 \textbf{Diskuze:}
 
-Obrázek~\ref{fig:seg-a-dice} ukazuje, že \emph{Dice} s~rostoucím kontextem roste a poté saturuje, přidávat další kontext se přestane vyplácet zhruba od osmi až šestnácti příkladů.
+Obrázek~\ref{fig:seg-a-dice} ukazuje, že \emph{Dice} s~rostoucím kontextem roste a poté \emph{saturuje}.
+Saturací rozumíme stav, kdy křivka přestane růst a ustálí se na plató, další příklady v~kontextu už tedy kvalitu masky nezlepšují.
+V~našem případě se přidávat další kontext přestane vyplácet zhruba od osmi až šestnácti příkladů.
 Je to přímá dvourozměrná obdoba saturace přesnosti s~velikostí kontextu, kterou jsme viděli u~regrese v~kapitole~\ref{chap:experimenty}.
 Plató se mírně liší podle domény, ale kvalitativní tvar křivky, tedy růst a následná saturace, zůstává stejný.
 \par
@@ -179,8 +186,19 @@ Plató se mírně liší podle domény, ale kvalitativní tvar křivky, tedy rů
 
 Nakonec nás zajímá, zda pravděpodobnosti, které model vrací, odpovídají skutečnosti.
 Řekne-li model u~nějakých pixelů hodnotu $0{,}8$, mělo by z~nich popředí obsahovat zhruba $80\,\%$, jinak jsou jeho pravděpodobnosti zavádějící.
-Tuto shodu měříme \emph{reliability diagramem}, který proti sobě vynáší predikovanou pravděpodobnost a skutečnou frekvenci popředí, a souhrnným číslem, očekávanou kalibrační chybou (ECE).
-Důležité je, že směr případné chyby nepředpokládáme, ale měříme.
+Tuto shodu měříme dvěma metrikami a u~obou platí, že směr případné chyby nepředpokládáme, ale měříme.
+První je \emph{reliability diagram}.
+Vezmeme všechny pixely, u~kterých model hlásí zhruba stejnou pravděpodobnost popředí, například $\hat p \approx 0{,}7$, a spočítáme, jaký podíl z~nich v~pravé masce popředí skutečně je.
+U~dokonale kalibrovaného modelu by vyšlo právě $70\,\%$.
+Diagram tyto dvojice vynáší proti sobě, dokonalá kalibrace tedy leží na přímce.
+Leží-li křivka nad přímkou, je skutečný podíl popředí vyšší, než model hlásí, a model tedy pravděpodobnost popředí podhodnocuje.
+Odchylku od této přímky shrnuje jedno číslo, očekávaná kalibrační chyba (ECE).
+Druhou metrikou je tzv. \textit{znaménkový rozdíl}, který hodnotí tvrdá rozhodnutí.
+Pixel prohlásíme za popředí, pokud $\hat p > 0{,}5$, jinak za pozadí.
+Každé takové rozhodnutí má svou jistotu, a tou je pravděpodobnost, kterou model zvolené třídě přiřadil, tedy $\max(\hat p,\, 1-\hat p)$.
+Řekne-li model například $\hat p = 0{,}9$, rozhodne pro popředí s~jistotou $0{,}9$, řekne-li $\hat p = 0{,}2$, rozhodne pro pozadí s~jistotou $0{,}8$.
+Znaménkový rozdíl je pak průměrná jistota minus podíl správných rozhodnutí.
+Kladná hodnota znamená, že si model svými rozhodnutími věří víc, než jak často má pravdu, záporná naopak.
 \par
 
 \textbf{Diskuze:}
@@ -189,10 +207,10 @@ Měření na obrázcích~\ref{fig:seg-a-reliability} a~\ref{fig:seg-a-kalibrace}
 U~krvinek můžeme říct, že je model podhodnocený.
 Model je opatrný a vrací mírně jiné pravděpodobnosti, než by odpovídalo skutečnosti.
 U~mozku je naopak přehnaně sebejistý, a to téměř nezávisle na velikosti kontextu.
-Druhá metrika, znaménkový rozdíl mezi jistotou a správností na obrázku~\ref{fig:seg-a-kalibrace} vpravo, přitom měří něco jiného než reliability diagram, a proto mu neodporuje.
-Reliability diagram hodnotí kalibraci pravděpodobnosti popředí, kdežto znaménkový rozdíl hodnotí jistotu tvrdého rozhodnutí pro pravděpodobnější třídu.
-Model tak může u~krvinek zároveň podhodnocovat pravděpodobnost popředí, tedy mít křivku nad úhlopříčkou, a přitom být ve svých tvrdých rozhodnutích přehnaně jistý.
-Právě proto je znaménkový rozdíl kladný ve všech doménách, nejsilnější je při jednom příkladu a s~rostoucím kontextem klesá k~nule.
+Znaménkový rozdíl na obrázku~\ref{fig:seg-a-kalibrace} vpravo je přitom kladný ve všech doménách, nejsilnější je při jednom příkladu a s~rostoucím kontextem klesá k~nule.
+To není ve sporu s~reliability diagramy, obě metriky totiž odpovídají na jinou otázku.
+\emph{Reliability diagram} se ptá, zda sedí hlášená pravděpodobnost popředí, znaménkový rozdíl se ptá, zda sedí jistota zvolené třídy.
+Model tak může u~krvinek pravděpodobnost popředí podhodnocovat, tedy mít křivku nad úhlopříčkou, a současně si svými tvrdými rozhodnutími věřit víc, než jak často má pravdu.
 Když navíc oddělíme vnitřek objektu od úzkého pásma kolem hranice, ukáže se, že se kalibrační chyba soustředí právě na hranici.
 Kalibrační chyba je tam řádově vyšší než uvnitř a s~kontextem klesá mnohem pomaleji, u~mozku dokonce zůstává prakticky konstantní.
 Poznamenejme, že tento závěr je v~souladu se vzorem, který jsme viděli i v~jedné dimenzi, model dobře pozná, \textit{kde} je nejistý, ale absolutní míru nejistoty odhaduje hůře.
@@ -218,7 +236,8 @@ Poznamenejme, že tento závěr je v~souladu se vzorem, který jsme viděli i v~
 Tento experiment ukázal, že hotový \emph{in-context} segmenter dědí přesně ty samé patologie, které Naglerova teorie předpovídá pro každý amortizovaný model s~globálním \emph{attention}.
 S~ubývajícím kontextem se predikce vrací k~prioru a kalibrace je nestabilní.
 Protože jsme model sami netrénovali, nemůže jít o~artefakt naší trénovací procedury, ale o~obecnou vlastnost amortizace.
-Podstatné je, že jev je napříč všemi třemi úlohami kvalitativně stejný, kolaps tedy řídí velikost kontextu, nikoli konkrétní úloha.
+Podstatné je, že jev je napříč všemi třemi úlohami kvalitativně stejný.
+Kolaps tedy řídí velikost kontextu, nikoli konkrétní úloha.
 \par
 
 Současně se ukázala i mez tohoto testu.
@@ -243,7 +262,10 @@ Data generujeme přesně podle postupu z~úvodu kapitoly.
 Vzorkujeme dvourozměrné pole z~Gaussovského procesu, prahováním z~něj vytvoříme masku a přidáním šumu vstupní obrázek.
 Hyperparametry úlohy při tréninku nedržíme pevné.
 Korelační délku, sílu šumu i podíl popředí (tedy jak velkou část obrázku zabírá oblast zájmu) losujeme pro každou dávku znovu, aby se model musel naučit celou rodinu úloh, ne jednu konkrétní.
-Pole vzorkujeme na mřížce $64 \times 64$ pixelů a korelační délku $\ell$ udáváme jako zlomek strany mřížky $L$.
+Pole vzorkujeme na čtvercové mřížce $64 \times 64$ pixelů, obrázek má tedy stranu $L = 64$ pixelů.
+Korelační délku $\ell$ přitom neudáváme v~pixelech, ale relativně, jako zlomek $\ell/L$ strany obrázku.
+Takové vyjádření totiž přímo říká, jak velké jsou útvary vzhledem k~celému obrázku, a nezávisí na zvoleném rozlišení.
+Například $\ell/L = 0{,}05$ znamená drobné útvary o~velikosti kolem pěti procent obrázku, $\ell/L = 0{,}40$ velké hladké plochy přes téměř polovinu obrázku.
 Losujeme $\ell/L \in [0{,}05,\, 0{,}40]$ log-uniformně, směrodatnou odchylku šumu $\sigma \in [0{,}01,\, 0{,}30]$ a podíl popředí z intervalu $[0{,}15,\, 0{,}85]$.
 Velikost \emph{support setu} pak volíme náhodně z množiny $\{1, 2, 4, 8, 16, 32, 64\}$.
 Tyto intervaly tvoří trénovací rozsah, ke kterému budeme výsledky později vztahovat.
@@ -298,13 +320,15 @@ Viditelný rozdíl zůstává jen na tenkých hranicích mezi popředím a pozad
 
 \textbf{Diskuze:}
 
-Rozdíl mezi PFN a \emph{oraclem} znázorňuje obrázek~\ref{fig:seg-c-fidelita}, který vynáší jejich průměrnou vzdálenost jako funkci velikosti kontextu pro všech pět režimů.
+Rozdíl mezi PFN a \emph{oraclem} znázorňuje graf na obrázku~\ref{fig:seg-c-fidelita}, který vynáší jejich průměrnou vzdálenost jako funkci velikosti kontextu pro všech pět režimů.
 Plyne z~něj poznatek, který se v~této sekci bude opakovat.
 Velikost kontextu téměř nehraje roli, predikce je dostatečně dobrá i s~jediným \emph{support párem}, tedy s~jedinou dvojicí obrázku a masky v~kontextu.
-Vysvětlení je přímočaré.
-Každý pixel vstupního obrázku je zašuměné pozorování skrytého pole v~jednom bodě.
-Obrázek jako celek tedy zachycuje pole ve všech bodech najednou.
-Model si proto skryté pole dokáže z~velké části zrekonstruovat už ze samotného obrázku, bez pomoci kontextu.
+Vysvětlení je přímočaré a plyne přímo z~toho, jak naše úloha vzniká.
+Připomeňme, že vstupní obrázek jsme vytvořili tak, že jsme ke skrytému poli, tedy k~té hladké funkci, ze které se prahováním dělá maska, přičetli šum.
+Hodnota každého pixelu je proto hodnota tohoto pole v~daném bodě plus šum, tedy jeho přímé, jen zašuměné měření.
+Obrázek jako celek tak zachycuje pole ve všech bodech najednou.
+To je zásadní rozdíl oproti jednorozměrné regresi, kde model o~funkci věděl jen z~několika kontextových bodů.
+Zde si model dokáže pole z~velké části zrekonstruovat už ze samotného vstupního obrázku, bez pomoci kontextu.
 Ze \emph{support setu} se dozvídá jen to, co ze samotného obrázku poznat nejde, tedy kde leží práh mezi popředím a pozadím a jak silný je šum.
 Co naopak rozhoduje, je náročnost úlohy.
 Uvnitř trénovacího rozsahu je vzdálenost od \emph{oraclu} malá, mimo rozsah roste.
@@ -325,8 +349,14 @@ Proto se ptáme, zda se pravděpodobnosti, které PFN vrací, shodují s~pravdě
 
 Obrázek~\ref{fig:seg-c-kalibrace} vlevo ukazuje, že rozdělení predikovaných pravděpodobností PFN a \emph{oraclu} se téměř překrývají.
 Obě rozdělení mají výrazné vrcholy u~nuly a u~jedné, tedy tam, kde je pixel jistě mimo nebo jistě uvnitř.
-Dále můžeme pozorovat tenkou oblast nejistoty uprostřed, která odpovídá hranicím.
-PFN tedy nejistotu na hranicích zachycuje, nesnaží se ji uměle potlačit.
+Mezi vrcholy leží nízké údolí.
+Prostřední hodnoty pravděpodobnosti má jen malý zlomek pixelů.
+To přesně odpovídá geometrii úlohy.
+Nejisté jsou jen pixely v~úzkém pásmu podél hranic mezi popředím a pozadím, a těch je oproti vnitřkům oblastí málo.
+Že jde právě o~hraniční pixely, přitom nevyčteme z~histogramu, ale z~konstrukce úlohy.
+Prostřední pravděpodobnost dostane pixel právě tehdy, když je odhad pole blízko prahu, a body, kde pole protíná práh, tvoří z~definice masky právě její hranici.
+Stejné pásmo prostředních hodnot podél hranic je ostatně přímo vidět na mapách na obrázku~\ref{fig:seg-c-kvalita}.
+Podstatné je, že PFN tuto nejistotu na hranicích zachycuje stejně jako \emph{oracle}, nesnaží se ji uměle potlačit.
 Zbývá jen mírná odchylka, na hranicích je totiž PFN o~něco sebejistější, než by odpovídalo \emph{oraclu}, jak ukazuje pravá část obrázku.
 Tato přehnaná ostrost je jediná systematická vada kalibrace, kterou jsme naměřili, ale je malá.
 Připomeňme, že jde o~stejný vzor jako v~jedné dimenzi, model dobře pozná, kde je nejistota, a jen mírně chybuje v~její velikosti.
@@ -424,9 +454,9 @@ Trénovací chyba se totiž ke konci tréninku ustálila na malé, ale nenulové
 Nebylo to tím, že by model uvázl, ale tím, že dosedl těsně nad \emph{Bayes floor}, pod který se žádný prediktor nedostane.
 \par
 
-Za povšimnutí stojí, že uvnitř rozsahu je přebytečná chyba největší právě u~hladkých polí (Easy).
-Z~grafu samotného vidíme jen tento výsledek, sloupec Easy je mezi režimy uvnitř rozsahu nejvyšší.
-Vysvětlení nabízí spojení dvou dřívějších pozorování.
+Za povšimnutí stojí, že uvnitř rozsahu je přebytečná chyba největší právě u~hladkých polí (Easy), jeho sloupec je mezi režimy uvnitř rozsahu nejvyšší.
+Graf pouze ukazuje tento fakt, příčinu z~něj nevyčteme.
+Vysvětlení ale nabízí spojení dvou dřívějších pozorování.
 Z~části~\ref{subsec:seg-c-kalibrace} víme, že PFN je na nejistých pixelech na hranicích o~něco ostřejší než \emph{oracle}.
 A~hladká pole mají nejisté hranice nejširší, takže pixelů, na kterých se tato vada projeví, je v~nich nejvíc.
 Součet mnoha malých chyb přes širokou hranici pak dává největší přebytečnou chybu.
@@ -473,14 +503,22 @@ Důvod je stejný jako v~části~\ref{subsec:seg-c-fidelita}, hustý vstupní ob
 \par
 
 Zdůrazněme, že tento negativní výsledek Naglerově teorii neodporuje.
-Podmínka lokality (věta~\ref{theorem:lokalizace}) předpovídá přiblížení k~prioru tam, kde je predikce daleko od dat.
-Avšak hustý vstupní obrázek tuto podmínku nikdy nesplní, model má pozorování k~dispozici v~každém pixelu a pravý posterior je proto daleko od prioru.
-Kdyby PFN přesto kolabovalo, nebylo by to potvrzení teorie, ale selhání aproximace posterioru.
-Stopa přiblížení k~prioru nicméně zůstává i zde.
-Touto stopou je malé bias plató z~části~\ref{subsec:seg-c-bias-var}, které s~kontextem nemizí.
-Stejná síla, která u~řídkého kontextu způsobí kolaps, se u~hustého projeví jen touto drobnou systematickou odchylkou.
-To rozšiřuje závěr ze sekce~\ref{sec:seg-universeg}.
-Kolaps k~prioru tedy není univerzální vlastnost amortizace, ale důsledek řídkého a málo informativního kontextu.
+Vyžaduje ale přesnější čtení toho, co teorie předpovídá.
+Jelikož je PFN trénováno aproximovat PPD, přiblížení k~prioru je třeba čekat tam, kde je samotný posterior blízko prioru, tedy tam, kde je podmiňující informace o~úloze slabá.
+V~naší úloze však nese vstupní obrázek zašuměné pozorování skrytého pole v~každém pixelu, tedy přímo tu veličinu, kterou prahujeme.
+Úlohu proto z~velké části řeší už samotný vstupní obrázek a \emph{support set} dodává jen práh a sílu šumu (viz část~\ref{subsec:seg-c-fidelita}).
+Posterior je tak daleko od prioru i při jediném \emph{support páru} a žádný kolaps proto teorie nepředpovídá, což naše měření potvrzuje.
+Právě v~tom se tato úloha liší od experimentu se zmrazeným modelem v~sekci~\ref{sec:seg-universeg}.
+Tam je vstupní obrázek sice rovněž hustý, ale sám o~sobě neurčuje, co se má segmentovat.
+Stejnou buňku lze segmentovat po jádru, cytoplazmě i celé buňce a cílovou strukturu definuje až \emph{support set}.
+Je-li \emph{support set} řídký, je řídký i jediný nosič informace o~úloze.
+Posterior přes možné úlohy zůstává široký a nejbezpečnější volbou je průměrná maska.
+Kdyby naše PFN přesto kolabovalo, nebylo by to potvrzení teorie, ale selhání aproximace posterioru.
+Stopa příklonu k~prioru nicméně zůstává i zde.
+Je jí malé bias plató z~části~\ref{subsec:seg-c-bias-var}, které s~kontextem nemizí a jehož neodstranitelnost vysvětluje právě podmínka lokality (věta~\ref{theorem:lokalizace}).
+Podobný mechanismus, který u~řídkého a málo informativního kontextu způsobí kolaps, se u~informativního vstupu projeví jen touto drobnou systematickou odchylkou.
+Kolaps k~prioru tedy není univerzální vlastnost amortizace.
+Nastává tam, kde je jediným zdrojem informace o~úloze řídký kontext.
 \par
 
 \begin{figure}[!htb]
