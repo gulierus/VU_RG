@@ -84,7 +84,7 @@ Poté natrénujeme vlastní PFN přímo na úloze popsané výše.
 Zde využijeme hlavní výhodu syntetických dat, pravidla jejich generování známe, a proto umíme pro každý obrázek spočítat i přesný posterior.
 Tomu budeme stejně jako v~jedné dimenzi říkat \emph{oracle}.
 U~reálných segmentačních dat takovou pravdu nikdy nemáme.
-Zde avšak proti ní můžeme přesně změřit, jak věrně ji PFN aproximuje a kde vzniká odchylka, tedy bias, rozptyl, kalibraci a chování mimo trénovací rozdělení.
+Zde avšak proti ní můžeme přesně změřit, jak moc dobře ji PFN aproximuje a kde vzniká odchylka, tedy bias, rozptyl, kalibraci a chování mimo trénovací rozdělení.
 Zkoumáme tedy, jak dobře PFN aproximuje ideální Bayesovskou inferenci a kde se od ní začíná odchylovat, jen nyní na náročnější úloze.
 
 \section{Kolaps k prioru u předtrénovaného modelu}
@@ -506,7 +506,8 @@ Zdůrazněme, že tento negativní výsledek Naglerově teorii neodporuje.
 Vyžaduje ale přesnější čtení toho, co teorie předpovídá.
 Jelikož je PFN trénováno aproximovat PPD, přiblížení k~prioru je třeba čekat tam, kde je samotný posterior blízko prioru, tedy tam, kde je podmiňující informace o~úloze slabá.
 V~naší úloze však nese vstupní obrázek zašuměné pozorování skrytého pole v~každém pixelu, tedy přímo tu veličinu, kterou prahujeme.
-Úlohu proto z~velké části řeší už samotný vstupní obrázek a \emph{support set} dodává jen práh a sílu šumu (viz část~\ref{subsec:seg-c-fidelita}).
+Většinu informace potřebné k~predikci tak model získá už ze samotného vstupního obrázku, z~jeho pixelů si totiž dokáže skryté pole zrekonstruovat, a tím zná i tvar hledané masky.
+Ze \emph{support setu} se dozvídá jen to, co v~obrázku obsaženo není, tedy polohu prahu a sílu šumu (viz část~\ref{subsec:seg-c-fidelita}).
 Posterior je tak daleko od prioru i při jediném \emph{support páru} a žádný kolaps proto teorie nepředpovídá, což naše měření potvrzuje.
 Právě v~tom se tato úloha liší od experimentu se zmrazeným modelem v~sekci~\ref{sec:seg-universeg}.
 Tam je vstupní obrázek sice rovněž hustý, ale sám o~sobě neurčuje, co se má segmentovat.

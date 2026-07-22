@@ -258,7 +258,31 @@ Hodnota $\text{rel\_MSE} = 1$ by tedy znamenala, že se PFN liší od \emph{orac
 Hodnoty hluboko pod $1$ by znamenaly, že PFN \emph{oracle} prakticky kopíruje.
 Výsledky shrnuje tabulka~\ref{tab:exp7_ood} a obrázek~\ref{fig:exp7_ood}.
 
-\begin{figure}[!b]
+\textbf{Diskuze:}
+
+Z tabulky~\ref{tab:exp7_ood} můžeme učinit jasné závěry.
+Uvnitř trénovacího rozsahu je relativní MSE hluboko pod referenční hodnotou $\text{rel\_MSE} = 1$, tedy pod úrovní chyby způsobené samotným šumem v datech.
+Nejmenší je uprostřed rozsahu.
+Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji.
+Zde jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
+Mimo rozsah chyba na obou stranách roste, ale referenční hodnotu nikde nepřekročí.
+Odchylka PFN od \emph{oracle} tedy zůstává menší než chyba způsobená samotným šumem v datech.
+A to pro případy, které jsou hodně vzdálené od hranice trénovací množiny.
+Avšak to opět může být způsobeno tím, že pro tato $\ell$ je tato úloha výrazně jednodušší.
+Z experimentu vyplývá, že k degradaci sice dochází, ale žádný náhlý kolaps nenastává.
+\par
+
+Z toho usuzujeme, že implicitní prior PFN nefunguje jako ostrá hranice, za kterou model přestává fungovat.
+Chová se spíše jako měkké těžiště, od kterého přesnost pozvolna klesá.
+Pro hladké funkce za horní hranicí rozsahu to dává dobrý smysl.
+Model se během tréninku naučil reprezentovat hladkost a delší korelační délka pro něj není kvalitativně nová situace.
+Pro velmi krátké délky pod dolní hranicí je úloha těžká i pro samotný \emph{oracle}.
+Je vidět, že kontext $40$ bodů rychlé oscilace jednoduše nezachytí.
+Tím je zpětně podložený i závěr předchozí části.
+Plynulá degradace mimo trénovací rozsah není artefakt misspecifikovaného kernelu, platí to i v čistém testu.
+\par
+
+\begin{figure}[!htb]
     \centering
     \begin{minipage}{\linewidth}
     \centering
@@ -291,29 +315,7 @@ $5{,}00$ & $0{,}00192$ & $0{,}01024$ & $0{,}188$ & mimo rozsah \\
     \label{fig:exp7_ood}
 \end{figure}
 
-\textbf{Diskuze:}
-
-Z tabulky~\ref{tab:exp7_ood} můžeme učinit jasné závěry.
-Uvnitř trénovacího rozsahu je relativní MSE hluboko pod referenční hodnotou $\text{rel\_MSE} = 1$, tedy pod úrovní chyby způsobené samotným šumem v datech.
-Nejmenší je uprostřed rozsahu.
-Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji.
-Zde jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
-Mimo rozsah chyba na obou stranách roste, ale referenční hodnotu nikde nepřekročí.
-Odchylka PFN od \emph{oracle} tedy zůstává menší než chyba způsobená samotným šumem v datech.
-A to pro případy, které jsou hodně vzdálené od hranice trénovací množiny.
-Avšak to opět může být způsobeno tím, že pro tato $\ell$ je tato úloha výrazně jednodušší.
-Z experimentu vyplývá, že k degradaci sice dochází, ale žádný náhlý kolaps nenastává.
-\par
-
-Z toho usuzujeme, že implicitní prior PFN nefunguje jako ostrá hranice, za kterou model přestává fungovat.
-Chová se spíše jako měkké těžiště, od kterého přesnost pozvolna klesá.
-Pro hladké funkce za horní hranicí rozsahu to dává dobrý smysl.
-Model se během tréninku naučil reprezentovat hladkost a delší korelační délka pro něj není kvalitativně nová situace.
-Pro velmi krátké délky pod dolní hranicí je úloha těžká i pro samotný \emph{oracle}.
-Je vidět, že kontext $40$ bodů rychlé oscilace jednoduše nezachytí.
-Tím je zpětně podložený i závěr předchozí části.
-Plynulá degradace mimo trénovací rozsah není artefakt misspecifikovaného kernelu, platí to i v čistém testu.
-\par
+\FloatBarrier
 
 \subsection{Shrnutí}
 \label{subsec:exp7-shrnuti}

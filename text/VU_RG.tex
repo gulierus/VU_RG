@@ -353,15 +353,48 @@ Text úvodu....
 
 
 
-\pagestyle{headings}
-
 \chapter*{Závěr}
 
 \pagestyle{plain}
 
 \addcontentsline{toc}{chapter}{Záv\v{e}r}
 
-Text závěru....
+Jak jsme řekli již v úvodu, PFN je dalším pokročilým nástrojem z rodiny architektur strojového učení, které stavějí na Bayesovském principu a statistice~\cite{muller2022}.
+Cílem této práce bylo tuto architekturu představit a porozumět tomu, jakým způsobem Bayesovskou inferenci skutečně aproximuje.
+V~první kapitole jsme proto shrnuli klasický aparát, od Gaussovských procesů a Bayesovského výběru modelu po variační inferenci, Type II MLE a metody MCMC.
+Na příkladu Gaussovských procesů jsme viděli, že plně Bayesovský přístup vede na integrály, které analyticky spočítat nelze, a právě to je důvod, proč aproximační metody vůbec potřebujeme.
+Každá z~těchto metod navíc něco vyžaduje, ať už hustotu prioru, spočitatelný likelihood, nebo nákladnou optimalizaci.
+\par
+
+Ve druhé kapitole jsme postupně zavedli PFN jako koncept a nastroj.
+Vysvětlili jsme jeho trénink na datech vzorkovaných z~prioru a porovnali ho s~těmito klasickými metodami.
+Ukázali jsme také, proč minimalizace záporné log-věrohodnosti vede právě k~posteriornímu prediktivnímu rozdělení a jak model celé toto rozdělení vrací v~jediném dopředném průchodu.
+Uvedli jsme rovněž Naglerovu statistickou teorii~\cite{nagler2023}, která pro tuto architekturu předpovídá mizení rozptylu s~velikostí kontextu a neredukovatelný bias plynoucí z~porušení podmínky lokality.
+\par
+
+Následně jsme provedli řadu experimentů.
+Nejprve jsme vyvrátili triviální hypotézu, že PFN provádí prostý \emph{kernel smoothing}.
+\emph{Attention váhy} s~RBF kernelem nekorelují a predikce PFN je o~řády blíže přesnému GP posterioru než Nadaraya-Watsonův estimátor.
+Pohledem dovnitř transformeru jsme objevili přerozdělování práce mezi vrstvami.
+Rané vrstvy čtou \emph{labely}, střední vrstvy porovnávají vstupní vzdálenosti a kauzálně nejdůležitější hlavy leží právě ve vrstvách raných.
+Ukázali jsme, že hloubka funguje jako iterace řešiče jen přibližně a spíše koncepčně.
+PFN konverguje výrazně rychleji, než by odpovídalo jednomu kroku Neumannovy řady na vrstvu.
+Model trénovaný na celé rodině hyperparametrů navíc spolehlivě identifikuje korelační délku přímo z~kontextu, a to za cenu horší absolutní kalibrace rozptylu.
+Při misspecifikaci prioru se PFN ukázalo jako konkurenceschopné adaptivním metodám a v~kalibraci pro malé kontexty jako nejlepší z~misspecifikovaných metod.
+Degradace mimo trénovací rozsah je přitom plynulá, bez náhlého kolapsu.
+\par
+
+V~poslední kapitole jsme stejné otázky přenesli do dvou dimenzí, a to konkrétně na segmentaci obrazu.
+U~předtrénovaného \emph{in-context} segmenteru jsme pozorovali kolaps k~prioru při řídkém kontextu, tedy jev, který souvisí s nelokalitou \emph{attention} jako neredukovatelný bias.
+Vlastní PFN natrénované na explicitním prioru pak bylo uvnitř trénovacího rozdělení skoro optimální a dostatečně dobře aproximovalo přesný posterior včetně nejistoty.
+Rozptyl predikce mizel s~kontextem v~souladu s~teorií, zatímco bias zůstával na malém plató, jehož shoda přes nezávislé tréninky ukazuje, že jde o~strukturální vlastnost architektury.
+Naglerovy předpovědi se tak potvrdily i mimo jednorozměrnou regresi.
+\par
+
+Celkově tedy platí, že PFN provádí věrnou amortizovanou Bayesovskou inferenci v~jediném dopředném průchodu.
+Jeho slabiny, jako jsou kolaps při neinformativním kontextu a selhání mimo naučenou rodinu úloh, nejsou vadou architektury, ale vlastností režimu, ve kterém model pracuje.
+Přirozeným pokračováním práce je hlubší teoretické pochopení toho, jaký výpočet vrstvy transformeru skutečně provádějí, a rozšíření experimentů na větší modely a další třídy úloh.
+\par
 \addcontentsline{toc}{chapter}{Literatura}
 \begin{thebibliography}{16}
 
