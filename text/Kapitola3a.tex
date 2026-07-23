@@ -204,7 +204,7 @@ Jak je vidět na obrázku~\ref{fig:attn_vs_rbf}, \emph{attention váhy} jsou vý
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/GP1_big_model/fig_big_04_attention_detail.png}
-    \caption{Detailní rozbor \emph{attention} fixního modelu (průměr přes $8$ hlav). Nahoře: \emph{attention matice} vrstvy $0$ a poslední vrstvy $5$ a výřez bloku \textit{Test$\to$Train} poslední vrstvy. Dole vlevo: \emph{attention váhy} pro vybraný testovací bod v porovnání s normalizovanými RBF vahami; \emph{attention} je výrazně ostřejší, koncentruje téměř veškerou váhu na nejbližší bod, zatímco RBF distribuuje váhu plynule. Dole uprostřed: korelace \emph{attention} s RBF jako funkce polohy testovacího bodu. Dole vpravo: průměrná entropie \emph{attention vah} po vrstvách.}
+    \caption{Detailní rozbor \emph{attention} fixního modelu (průměr přes $8$ hlav). Nahoře: \emph{attention matice} vrstvy $0$ a poslední vrstvy $5$ a výřez bloku \textit{Test$\to$Train} poslední vrstvy. Dole vlevo: \emph{attention váhy} pro vybraný testovací bod v porovnání s normalizovanými RBF vahami, \emph{attention} je výrazně ostřejší, koncentruje téměř veškerou váhu na nejbližší bod, zatímco RBF distribuuje váhu plynule. Dole uprostřed: korelace \emph{attention} s RBF jako funkce polohy testovacího bodu. Dole vpravo: průměrná entropie \emph{attention vah} po vrstvách.}
     \label{fig:attn_vs_rbf}
 \end{figure}
 
@@ -280,7 +280,7 @@ $20$ & $0{,}0021 \pm 0{,}0025$ & $0{,}0017 \pm 0{,}0011$ \\
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{figures/GP1_big_model/fig_big_06b_context_size_grid.png}
-    \caption{Vizualizace predikcí (levý sloupec) a \emph{attention} vs RBF (pravý sloupec) pro $n \in \{5, 10, 15, 20\}$. Červené body: kontextová data dostupná modelu; šedé body: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP posterior se správným $\ell$. Všechny řádky vychází ze stejné GP realizace, liší se pouze velikostí kontextu. Od $n = 15$ obě křivky téměř splývají.}
+    \caption{Vizualizace predikcí (levý sloupec) a \emph{attention} vs RBF (pravý sloupec) pro $n \in \{5, 10, 15, 20\}$. Červené body: kontextová data dostupná modelu, šedé body: skutečné neviděné hodnoty, modrá: PFN, zelená přerušovaná: GP posterior se správným $\ell$. Všechny řádky vychází ze stejné GP realizace, liší se pouze velikostí kontextu. Od $n = 15$ obě křivky téměř splývají.}
     \label{fig:exp4_combined}
 \end{figure}
 
@@ -292,7 +292,7 @@ Za prvé, \emph{GP oracle} konzistentně dosahuje nižšího nebo srovnatelného
 To je očekávané: \emph{oracle} zná přesné hyperparametry a provádí exaktní Bayesovskou inferenci, zatímco PFN je pouze aproximace.
 
 Za druhé, rozdíl se zvětšuje se středním $n_{\text{ctx}}$.
-Při $n = 5$ je převaha \emph{GP oracle} malá ($0{,}034$ vs $0{,}041$); při $n = 15$ již GP dosahuje $0{,}003$ oproti $0{,}006$ u PFN.
+Při $n = 5$ je převaha \emph{GP oracle} malá ($0{,}034$ vs $0{,}041$), při $n = 15$ již GP dosahuje $0{,}003$ oproti $0{,}006$ u PFN.
 Příčinou je, že s více kontextovými body disponuje \emph{GP oracle} přesnou inverzí kernelové matice $\mathbf{K}^{-1}$, zatímco PFN tuto operaci pouze aproximuje.
 Při malém kontextu je $\mathbf{K}^{-1}$ málo informativní a obě metody jsou si blízko.
 

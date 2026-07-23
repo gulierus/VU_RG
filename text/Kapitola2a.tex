@@ -138,7 +138,7 @@ Dále chceme upozornit, že celý proces, který se odehrává uvnitř PFN od vs
 Jelikož se vše chystáme navíc ukázat pro případ $1D$ GP regrese, použijeme úplně klasické nastavení PFN, které uvádějí Müller a Hollmann v článku~\cite{muller2022}, konkrétně s těmito parametry:
 \begin{itemize}
     \item \lstinline|features_per_group = 1|, nastaven na jedničku, protože řešíme $1D$ regresi.
-    \item \lstinline|attention_between_features = False|, slouží pro zpracování tabulkových dat; pokud je zapnutý, jedná se o architekturu \textit{TabPFN}, kterou v této práci neuvažujeme (viz Hollmann et al.~\cite{hollmann2023}).
+    \item \lstinline|attention_between_features = False|, slouží pro zpracování tabulkových dat. Pokud je zapnutý, jedná se o architekturu \textit{TabPFN}, kterou v této práci neuvažujeme (viz Hollmann et al.~\cite{hollmann2023}).
 \end{itemize}
 Nakonec uvažujme, že provádíme inferenci pro GP regresi s $20$ trénovacími a $50$ testovacími body. 
 Teď už máme nachystané formální parametry a nastavení, což nám umožňuje se pustit na samotný popis.
