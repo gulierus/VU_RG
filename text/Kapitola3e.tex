@@ -9,7 +9,7 @@ Vždy proto existoval správně nastavený GP (\emph{oracle}), ke kterému jsme 
 V praxi ale taková jistota neexistuje.
 Skutečná data nepřicházejí se štítkem, ze kterého kernelu byla vygenerována.
 Nyní proto pro PFN odstraníme i tuto poslední jistotu.
-Data budeme generovat z tzv. \emph{Matérnova kernelu} (definice viz dále), zatímco všechny porovnávané metody budou předpokládat RBF.
+Data budeme generovat z tzv. Matérnova kernelu (definice viz dále), zatímco všechny porovnávané metody budou předpokládat RBF.
 Skutečný generativní proces tak bude ležet mimo support prioru všech metod, včetně implicitního prioru PFN.
 Budeme tedy zkoumat, co se stane, když po PFN chceme predikovat mimo support jeho prioru.
 Bude nás zajímat o kolik se predikce zhorší a která metoda za těchto podmínek selže nejméně.
@@ -18,7 +18,7 @@ Tato sekce je tedy zároveň empirickým testem této teoretické vlastnosti.
 \par
 
 Nejprve popíšeme uspořádání experimentu.
-Data generujeme z GP s \emph{Matérnovým kernelem} s korelační délkou $\ell_{\text{true}}$ a šumem $\sigma^2 = 0{,}1$.
+Data generujeme z GP s Matérnovým kernelem s korelační délkou $\ell_{\text{true}}$ a šumem $\sigma^2 = 0{,}1$.
 Matérnův kernel je v praxi nejběžnější alternativou RBF a jeho tvar řídí parametr hladkosti $\nu$.
 My volíme $\nu = 2{,}5$, pro který má kernel tvar
 $$k_{\text{Matérn}}(x, x') = \left(1 + \frac{\sqrt{5}\,r}{\ell} + \frac{5 r^2}{3 \ell^2}\right) \exp\!\left(-\frac{\sqrt{5}\,r}{\ell}\right), \qquad r = |x - x'|,$$
@@ -100,9 +100,24 @@ Výsledky shrnují obrázek~\ref{fig:exp7_q1} a tabulky~\ref{tab:exp7_mse_n} a~\
 Horní panel obrázku ukazuje MSE jako funkci $n$, dolní panel $\Delta$NLL.
 Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které se chtějí všechny metody přiblížit.
 
+
+\textbf{Diskuze:}
+
+Z tabulek~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n} plynou dvě pozorování.
+Za prvé, v MSE je PFN plně konkurenceschopné s adaptivními metodami GP\_ML a GP\_Bayes.
+Pro střední velikosti kontextu je dokonce nejlepší ze všech misspecifikovaných metod a pro velká $n$ jsou všechny tři prakticky shodné, jak je vidět v tabulce~\ref{tab:exp7_mse_n}.
+GP\_fixed, který se datům nijak nepřizpůsobuje, zaostává za všemi výrazně a s rostoucím $n$ se jeho odstup nezmenšuje.
+Za druhé, v kalibraci je obraz ještě víc jednoznačněji.
+PFN má nejmenší $\Delta$NLL ze všech misspecifikovaných metod pro všechna $n \leq 40$ a teprve pro velké kontexty jej GP\_ML porazí, jak ukazuje tabulka~\ref{tab:exp7_dnll_n}.
+Toto chování má přirozené vysvětlení.
+Adaptivní metody musí korelační délku odhadnout z několika málo bodů a při malém kontextu ji přefitují, jejich prediktivní intervaly jsou pak příliš sebejisté.
+PFN naproti tomu marginalizuje přes celé trénovací rozdělení hyperparametrů, a proto vrací opatrnější a lépe kalibrovanou nejistotu.
+Přesně v režimu malých dat, kde na kalibraci záleží nejvíce, se tato vlastnost vyplácí.
+\par
+
 \begin{figure}[!htb]
     \centering
-    \includegraphics[width=0.576\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n.png}
+    \includegraphics[width=0.65\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n.png}
     \caption{Vliv velikosti kontextu při misspecifikaci kernelu (data z Matérn $2{,}5$, $\ell_{\text{true}} = 0{,}3$). Nahoře: MSE jako funkce $n$, černá tečkovaná čára je \emph{GP\_oracle}. Dole: $\Delta$NLL vůči \emph{oracle}, tečkovaná čára značí nulu (\emph{oracle}). Chybové úsečky $\pm 1$ směrodatná chyba. PFN (modrá) se v MSE drží těsně u \emph{oracle} a v $\Delta$NLL je pro malé a střední kontexty ze všech metod nejníže.}
     \label{fig:exp7_q1}
 \end{figure}
@@ -145,21 +160,6 @@ Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které 
     \label{tab:exp7_dnll_n}
 \end{table}
 
-\textbf{Diskuze:}
-
-Z tabulek~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n} plynou dvě pozorování.
-Za prvé, v MSE je PFN plně konkurenceschopné s adaptivními metodami GP\_ML a GP\_Bayes.
-Pro střední velikosti kontextu je dokonce nejlepší ze všech misspecifikovaných metod a pro velká $n$ jsou všechny tři prakticky shodné, jak je vidět v tabulce~\ref{tab:exp7_mse_n}.
-GP\_fixed, který se datům nijak nepřizpůsobuje, zaostává za všemi výrazně a s rostoucím $n$ se jeho odstup nezmenšuje.
-Za druhé, v kalibraci je obraz ještě víc jednoznačněji.
-PFN má nejmenší $\Delta$NLL ze všech misspecifikovaných metod pro všechna $n \leq 40$ a teprve pro velké kontexty jej GP\_ML porazí, jak ukazuje tabulka~\ref{tab:exp7_dnll_n}.
-\par
-
-Toto chování má přirozené vysvětlení.
-Adaptivní metody musí korelační délku odhadnout z několika málo bodů a při malém kontextu ji přefitují, jejich prediktivní intervaly jsou pak příliš sebejisté.
-PFN naproti tomu marginalizuje přes celé trénovací rozdělení hyperparametrů, a proto vrací opatrnější a lépe kalibrovanou nejistotu.
-Přesně v režimu malých dat, kde na kalibraci záleží nejvíce, se tato vlastnost vyplácí.
-\par
 
 \subsection{Vliv síly misspecifikace}
 \label{subsec:exp7-q2}
