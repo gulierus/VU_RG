@@ -108,7 +108,7 @@ Ve~vrstvě $0$ jsou nejostřejší, v~hlubších vrstvách obvykle přetrvává 
 Jde o~tzv.\ \textit{attention sink}, mechanismus dobře popsaný u~velkých jazykových modelů~\cite{xiao2024}.
 Vzniká ze dvou důvodů.
 Za prvé, softmax nutí každý řádek matice sečíst na jedničku.
-To znamená, že každý \textit{query} bod tedy \emph{musí} své \emph{attention} někam rozdělit, i když pro něj žádný klíč není skutečně relevantní.
+To znamená, že každý \textit{query} bod tedy musí své \emph{attention} někam rozdělit, i když pro něj žádný klíč není skutečně relevantní.
 Typicky se to stává v~raných vrstvách, než se vybudují informativní reprezentace, nebo u~bodů daleko od dat.
 Přebytek \emph{attention} se pak přerozdělí na několik stále stejných pozic, které pak vytvoří svislé pruhy.
 Za druhé, body s~netypickou hodnotou (extrémní $Y_j$ nebo okrajové $X_j$) dostanou po zakódování větší embedding, a tím i vyšší skóre od všech ostatních bodů.
@@ -254,7 +254,7 @@ Zbývajících $100 - n_{\text{ctx}}$ bodů necháme skryté a slouží jako \te
 
 Obě metody nyní pro každý testovací bod vrátí svou predikci $\hat{y}(x)$.
 PFN ji spočítá jedním dopředným průchodem z~kontextu.
-\emph{GP oracle} je referenční, „ideální“ Gaussovský proces, který má oproti PFN výhodu, že \textit{zná} pravé hyperparametry, ze kterých byla realizace vygenerována $(\ell = 0{,}3,\; \sigma^2 = 10^{-4})$, a z~kontextu spočítá přesný analytický posterior podle vzorce $\mu(x^*) = k(x^*, \mathbf{X})[\mathbf{K}(\mathbf{X},\mathbf{X}) + \sigma^2 \mathbf{I}]^{-1} \mathbf{y}$.
+\emph{GP oracle} je referenční, „ideální“ Gaussovský proces, který má oproti PFN výhodu, že zná pravé hyperparametry, ze kterých byla realizace vygenerována $(\ell = 0{,}3,\; \sigma^2 = 10^{-4})$, a z~kontextu spočítá přesný analytický posterior podle vzorce $\mu(x^*) = k(x^*, \mathbf{X})[\mathbf{K}(\mathbf{X},\mathbf{X}) + \sigma^2 \mathbf{I}]^{-1} \mathbf{y}$.
 Slouží tedy jako horní hranice toho, čeho lze na daných datech dosáhnout, s~níž PFN porovnáváme.
 
 Kvalitu predikce měříme pomocí MSE zprůměrované přes všechny testovací body dané realizace.
@@ -340,12 +340,12 @@ Ratio far/near – GP  & $25{,}9\times \pm 3{,}8\times$ \\
 
 \textbf{Diskuze:}
 
-Korelace $r = 0{,}98$ potvrzuje, že PFN správně identifikuje \textit{tvar} profilu uncertainty tam, kde je nejistota větší a kde menší.
+Korelace $r = 0{,}98$ potvrzuje, že PFN správně identifikuje tvar profilu \emph{uncertainty} tam, kde je nejistota větší a kde menší.
 $\text{MSE}(\hat{\sigma}) = 0{,}0038$ signalizuje, že absolutní kalibrace je přesná.
 \textit{Ratio far/near} u PFN ($21{,}3\times$) dosahuje přibližně $82\,\%$ dynamického rozsahu GP ($25{,}9\times$).
 Z toho usuzujeme, že PFN mírně podhodnocuje míru zvýšení \emph{uncertainty} v oblasti extrapolace, avšak můžeme tvrdit, že charakter chování je zachován.
 Toto je zásadní vlastnost.
-Model bez explicitní reprezentace GP posterioru přesto generuje uncertainty, která odpovídá Bayesovskému výpočtu.
+Model bez explicitní reprezentace GP posterioru přesto generuje \emph{uncertainty}, která odpovídá Bayesovskému výpočtu.
 
 \subsection{Shrnutí}
 \label{subsec:shrnuti-fixni}

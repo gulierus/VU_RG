@@ -120,7 +120,7 @@ Pokud se naopak hromadí nahoře nebo dole, hlava vybírá body podle jejich hod
 Kdyby tedy hlava prováděla čisté \emph{kernelové porovnání}, viděli bychom svislý pruh kolem $x^* = 0{,}54$ nezávisle na $Y_j$.
 Skutečnost podle tohoto obrázku je ale jiná.
 Hlavy míří na různé oblasti roviny.
-\emph{Head} 2 se dívá na body s nízkým $X$ a vysokým $Y$ (vlevo nahoře), \emph{Head} 1, 3, 5 a 7 naopak na body s vysokým $X$ a nízkým $Y$ (vpravo dole) a několik hlav ($0$, $4$, $6$) degeneruje na jediný bod, může to být právě již zmíněný \emph{attention sink}, který jsme popsali v sekci~\ref{subsec:struktura-attention}.
+\emph{Head} 2 se dívá na body s nízkým $X$ a vysokým $Y$ (vlevo nahoře), \emph{Head} 1, 3, 5 a 7 naopak na body s vysokým $X$ a nízkým $Y$ (vpravo dole) a několik hlav ($0$, $4$) degeneruje na jeden nebo málo bodu, může to být právě již zmíněný \emph{attention sink}, který jsme popsali v sekci~\ref{subsec:struktura-attention}.
 Připomeňme, že naše kontextové body pocházejí z jedné konkrétní GP realizace, která na tomto intervalu klesá.
 Body vlevo tak mají vysoké hodnoty $Y_j$ a body vpravo nízké.
 Když se tedy hlava dívá do levého horního rohu, vybírá si body s vysokým $Y_j$, a když do pravého dolního, vybírá si body s nízkým $Y_j$.
@@ -130,11 +130,12 @@ Jednotlivé hlavy si vybírají body podle jejich hodnot $Y_j$.
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{figures/ch2_label_kernel/fig_ch2_q1_iso_weight_grid.png}
-    \caption{\emph{Iso-weight rozklad} jednovrstvého modelu na $8$ hlav. Pro pevný testovací bod $x^* = 0{,}54$ (modrá přerušovaná čára) je každý kontextový bod vynesen do roviny $(X_j, Y_j)$ a obarven \emph{attention vahou} dané hlavy (světlejší $=$ vyšší). \emph{Kernelové porovnání} by koncentrovalo váhu kolem $x^*$ nezávisle na $Y_j$. Místo toho různé hlavy míří do různých rohů roviny $(X,Y)$, tedy na různé hodnoty $Y_j$, což je přímý vizuální doklad, že \emph{attention} závisí i na \emph{labelu}. Hlavy $0$, $4$, $6$ navíc degenerují na jediný bod (\emph{attention sink}).}
+    \caption{\emph{Iso-weight rozklad} jednovrstvého modelu na $8$ hlav. Pro pevný testovací bod $x^* = 0{,}54$ (modrá přerušovaná čára) je každý kontextový bod vynesen do roviny $(X_j, Y_j)$ a obarven \emph{attention vahou} dané hlavy (světlejší $=$ vyšší). \emph{Kernelové porovnání} by koncentrovalo váhu kolem $x^*$ nezávisle na $Y_j$. Místo toho různé hlavy míří do různých rohů roviny $(X,Y)$, tedy na různé hodnoty $Y_j$, což je přímý vizuální doklad, že \emph{attention} závisí i na \emph{labelu}.}
     \label{fig:ch2_isoweight}
 \end{figure}
 
-Klíčový závěr korelační analýzy bychom mohli zformulovat takto: \textit{nelze tvrdit, že PFN provádí čistý kernel smoothing}.
+Klíčový závěr korelační analýzy bychom mohli zformulovat následujícím způsobem.
+Nelze tvrdit, že PFN provádí čistý \emph{kernel smoothing}.
 Což je mimo jiné i jeden z výsledků předchozí analýzy v sekci~\ref{subsec:pfn-vs-rbf}, kde jsme ukázali, že \emph{attention váhy} nekorelují s RBF kernelem a že se predikce PFN zásadně liší od Nadaraya-Watsonova estimátoru.
 Zde jsme ke stejnému závěru dospěli z opačné strany, tedy pohledem dovnitř jednotlivých vrstev.
 V žádné vrstvě není \emph{labelová korelace} nulová, model v každém kroku míchá informaci o vstupu $X$ i o hodnotě $Y$.
@@ -219,7 +220,7 @@ Odebrání kterékoli z nich zvedne chybu modelu, jak je vidět v tabulce~\ref{t
 Jednovrstvý model je nejkřehčí, což nás nepřekvapuje, jelikož má jen jednu vrstvu s~$8$ hlavami a každá z~nich je pro predikci důležitá.
 \par
 
-Poznamenejme, že z výsledků přes všech $50$ instancí bereme \textit{medián}, nikoli průměr.
+Poznamenejme, že z výsledků přes všech $50$ instancí bereme medián, nikoli průměr.
 Na většině instancí je totiž chyba PFN vůči GP posterioru nepatrná (řádově zhruba $10^{-4}$).
 Na několika málo instancích ale může být o řády vyšší.
 Průměr by tak byl zcela ovlivněn těmito \emph{outliery} a mezi modely by kolísal o dva řády už při pouhé změně \emph{seedu}.

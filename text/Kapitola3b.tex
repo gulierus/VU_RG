@@ -5,12 +5,12 @@ V předchozí sekci jsme zkoumali model, který jsme natrénovali na \textit{fix
 Šlo o výrazné zjednodušení.
 Model přesně věděl, jaký tvar funkcí má predikovat, a jediné, co se musel naučit, bylo efektivně invertovat kernelovou matici jednoho jediného kernelu.
 V této sekci přejdeme k obtížnějšímu a zajímavějšímu případu.
-Teď model natrénujeme na \textit{celé rodině} Gaussovských procesů, jejíž hyperparametry jsou při každé dávce vzorkovány náhodně z předem daného rozdělení.
+Teď model natrénujeme na celé rodině Gaussovských procesů, jejíž hyperparametry jsou při každé dávce vzorkovány náhodně z předem daného rozdělení.
 \par
 
 Tento posun mění úlohu zásadním způsobem.
 Zatímco fixní model aproximuje jeden GP posterior, náhodný model se musí naučit něco podstatně obecnějšího, a to rozpoznat hyperparametry přímo z kontextových dat a teprve poté provést odpovídající inferenci.
-Z jednoho dopředného průchodu se tak stává nejen aproximace inverze kernelové matice, ale i \textit{implicitní identifikace} korelační délky, amplitudy a šumu.
+Z jednoho dopředného průchodu se tak stává nejen aproximace inverze kernelové matice, ale i implicitní identifikace korelační délky, amplitudy a šumu.
 V důsledku model musí provést i amortizovanou Bayesovskou marginalizaci přes nejistotu v těchto hyperparametrech.
 Právě tato vlastnost otevírá řadu otázek, které u fixního modelu nemají smysl: 
 \begin{itemize}
@@ -71,7 +71,7 @@ Výsledná matice je proto „rozmazanější“, aniž by však ztratila zákla
 \begin{figure}[!tb]
     \centering
     \includegraphics[width=\linewidth]{figures/GP1_random_model/fig_rand_03_attention_all_layers.png}
-    \caption{\emph{Attention matice} pro všech $6$ vrstev náhodného modelu (průměr přes $8$ hlav). Cyánová čára odděluje trénovací a testovací pozice. Vzor je kvalitativně identický s fixním modelem – od distribuované vrstvy 0 po dominantní blok \textit{Test$\to$Train} v poslední vrstvě – pouze méně vyostřený, protože část \emph{attention rozpočtu} jde na identifikaci hyperparametrů.}
+    \caption{\emph{Attention matice} pro všech $6$ vrstev náhodného modelu (průměr přes $8$ hlav). Cyánová čára odděluje trénovací a testovací pozice. Vzor je kvalitativně identický s fixním modelem. Od distribuované vrstvy 0 po dominantní blok \textit{Test$\to$Train} v poslední vrstvě. Pouze méně vyostřený, protože část \emph{attention rozpočtu} jde na identifikaci hyperparametrů.}
     \label{fig:rand_attention}
 \end{figure}
 
@@ -125,7 +125,7 @@ Trénovací data jsou omezena na oblast $x \in [0{,}3,\, 0{,}7]$ ($n_{\text{ctx}
 Model je přitom testován na datech z GP($\ell = 0{,}3$), tedy na jediné korelační délce, i když byl trénován na celém rozpětí.
 \par
 
-Zde budeme zkoumat tzv.\ \textit{profil nejistoty}, tedy to, jak se předpovídaná směrodatná odchylka modelu mění napříč vstupním prostorem.
+Zde opět budeme zkoumat tzv.\ profil nejistoty, tedy to, jak se předpovídaná směrodatná odchylka modelu mění napříč vstupním prostorem.
 U dobře kalibrovaného modelu by měla být nejmenší tam, kde leží trénovací data (uvnitř $[0{,}3,\, 0{,}7]$), a plynule růst směrem k okrajům intervalu, kam už žádná data nedosahují. 
 Tam, kde model „neví“, musí dávat najevo větší nejistotu.
 Sledujeme přitom dvě odlišné věci: zda má profil správný tvar (tzn. zda nejistota roste na správných místech) a zda má i správnou velikost (tzn. roste dostatečně, nebo si model svou nejistotou příliš věří).
@@ -161,7 +161,7 @@ Ratio far/near – GP  & $25{,}9\times \pm 3{,}8\times$ & $25{,}9\times \pm 3{,}
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.82\linewidth]{figures/GP1_random_model/fig_rand_02_uncertainty.png}
-    \caption{Náhodný model: srovnání střední hodnoty a rozptylu PFN (modrá) a GP (zelená). Trénovací body v $x \in [0{,}3,\, 0{,}7]$, predikce v celém $[0, 1]$. Model správně zvyšuje nejistotu v oblasti extrapolace, ale nárůst je mírnější než u GP – širší predikce v centru dat odrážejí trénink na distribuci hyperparametrů.}
+    \caption{Náhodný model: srovnání střední hodnoty a rozptylu PFN (modrá) a GP (zelená). Trénovací body v $x \in [0{,}3,\, 0{,}7]$, predikce v celém $[0, 1]$. Model správně zvyšuje nejistotu v oblasti extrapolace, ale nárůst je mírnější než u GP. Širší predikce v centru dat odrážejí trénink na distribuci hyperparametrů.}
     \label{fig:rand_uncertainty}
 \end{figure}
 
@@ -213,7 +213,7 @@ Rozdělení chyby přes instance i její medián napříč korelačními délkam
     $0{,}90$ & $9{,}18 \times 10^{-6}$ & $1{,}23 \times 10^{-5}$ & $9{,}99 \times 10^{-6}$ \\
     \hline
     \end{tabular}
-    \caption{MSE(PFN, GP) náhodného modelu jako funkce korelační délky $\ell$ ($n_{\text{ctx}} = 30$, průměr přes $50$ instancí). Medián klesá monotónně s rostoucím $\ell$ – o více než tři řády z $\ell = 0{,}05$ na $\ell = 0{,}9$.}
+    \caption{MSE(PFN, GP) náhodného modelu jako funkce korelační délky $\ell$ ($n_{\text{ctx}} = 30$, průměr přes $50$ instancí). Medián klesá monotónně s rostoucím $\ell$ o více než tři řády z $\ell = 0{,}05$ na $\ell = 0{,}9$.}
     \label{tab:rand_ls}
 \end{table}
 
@@ -245,16 +245,16 @@ Poznamenejme ještě rozdíl mezi mediánem a průměrem chyby.
 Pro malá $\ell$ leží průměr výrazně nad mediánem, což může prozrazovat existenci ojedinělých instancí, na kterých model selhává podstatně hůř než na ostatních.
 Tyto odlehlé instance jsou dobře vidět na krabicovém grafu na obrázku~\ref{fig:rand_ls_box}, kde se pro malá $\ell$ objevuje nad krabicí řada samostatných bodů.
 Pro $\ell \geq 0{,}5$ se naopak rozdělení chyby stahuje těsně k mediánu.
-V \emph{hladkém režimu} je tedy model spolehlivý a téměř bez odlehlých instancí.
+V hladkém režimu je tedy model spolehlivý a téměř bez odlehlých instancí.
 Selhání při krátkých $\ell$ si vysvětlujeme tím, že PFN rychlé oscilace „přehlazuje“, protože je z řídkého kontextu nedokáže rozlišit.
 
 \subsection{Identifikace korelační délky z kontextu}
 \label{subsec:identifikace-delky}
 
-Předchozí experiment ukázal, že přesnost roste s $\ell$, ale ještě přímo nedokázal, že model korelační délku skutečně umí \textit{identifikovat}.
+Předchozí experiment ukázal, že přesnost roste s $\ell$, ale ještě přímo nedokázal, že model korelační délku skutečně umí identifikovat.
 K tomu slouží následující test.
 Data pocházejí z GP se známým $\ell$.
-Modelu předložíme $n_{\text{ctx}} \in \{3, 5, 10, 20, 40, 60\}$ bodů a jeho predikci porovnáme se dvěma referenčními posteriory: se \textit{správným} GP (zná pravé $\ell$) a se \textit{špatným} GP (má výrazně odlišné $\ell_{\text{wrong}}$).
+Modelu předložíme $n_{\text{ctx}} \in \{3, 5, 10, 20, 40, 60\}$ bodů a jeho predikci porovnáme se dvěma referenčními posteriory: se správným GP (zná pravé $\ell$) a se špatným GP (má výrazně odlišné $\ell_{\text{wrong}}$).
 Klíčová je následující úvaha: pokud PFN identifikovalo korelační délku z dat, jeho predikce bude blízko správnému GP a daleko od špatného, tedy poměr MSE(PFN, GP\textsubscript{wrong})/MSE(PFN, GP\textsubscript{correct}) bude velký.
 Tento poměr budeme dále značit zkráceně \emph{wrong/correct}.
 Pokud ji neidentifikoval, obě chyby budou podobné a poměr bude blízký jedné.
@@ -305,7 +305,7 @@ Výsledek je jednoznačný a představuje jeden z nejsilnějších důkazů, že
 Při $n_{\text{ctx}} = 3$ zůstává poměr \emph{wrong/correct} malý (např. $14{,}9\times$ pro $\ell = 0{,}1$, tabulka~\ref{tab:rand_hp01}).
 S tak malým kontextem model nedokáže korelační délku spolehlivě určit a musí hledat kompromis mezi možnými $\ell$, takže zůstává vzdálený od obou referenčních GP.
 Od $n_{\text{ctx}} = 20$ však poměr prudce roste, a to o řády (při $n_{\text{ctx}} = 60$ dosahuje $1\,691\times$).
-Zásadní je, že chyba vůči \textit{správnému} GP klesá s rostoucím kontextem k prakticky nulovým hodnotám, zatímco chyba vůči \textit{špatnému} GP zůstává vysoká a od $n_{\text{ctx}} = 20$ se téměř nemění (při $n_{\text{ctx}} = 60$ je $0{,}000134$ oproti $0{,}2266$).
+Zásadní je, že chyba vůči správnému GP klesá s rostoucím kontextem k prakticky nulovým hodnotám, zatímco chyba vůči špatnému GP zůstává vysoká a od $n_{\text{ctx}} = 20$ se téměř nemění (při $n_{\text{ctx}} = 60$ je $0{,}000134$ oproti $0{,}2266$).
 To znamená, že od $n_{\text{ctx}} \approx 20$ se náhodný model chová skoro identicky jako GP se správnou korelační délkou bez toho, aby mu ji kdokoli sdělil.
 Pro $\ell = 0{,}2$ pozorujeme stejný vzor (tabulka~\ref{tab:rand_hp02}, poměr roste z $9{,}0\times$ na $801{,}4\times$).
 Právě zde se ukazuje kvalitativní propast mezi oběma modely.
@@ -314,7 +314,7 @@ Dá se říct, že fixní model má korelační délku „zabudovanou“ do vah,
 \subsection{Predikce na skutečné realizaci a role kontextu}
 \label{subsec:realizace-kontext}
 
-Zopakujeme nakonec i experiment z předchozí sekce, ve kterém oba modely predikují \textit{skutečné} (šumové) hodnoty neviděné GP realizace, s kontextovými body $n_{\text{ctx}} \in \{5, 10, 15, 20\}$.
+Zopakujeme nakonec i experiment z předchozí sekce, ve kterém oba modely predikují skutečné (šumové) hodnoty neviděné GP realizace, s kontextovými body $n_{\text{ctx}} \in \{5, 10, 15, 20\}$.
 Připomeňme, že \textit{fixní PFN} je model natrénovaný na jediném GP s~pevně danou korelační délkou $\ell = 0{,}3$.
 Tu jsme si řekli, že má „zabudovanou“ a nemusí ji z~dat zjišťovat.
 Naproti tomu \textit{náhodné PFN} bylo trénováno na celé rodině GP s~různými $\ell$, takže správnou korelační délku musí u~každého vstupu nejprve rozpoznat z~kontextu, a teprve pak predikovat.
@@ -326,7 +326,7 @@ Samotné predikce a \emph{attention váhy} pro jednu konkrétní realizaci s ros
 \begin{figure}[p]
     \centering
     \includegraphics[width=\linewidth,height=1.317\linewidth]{figures/GP1_random_model/fig_rand_05b_context_size_grid.png}
-    \caption{Náhodný model: predikce (levý sloupec) a \emph{attention} vs RBF (pravý sloupec) pro $n \in \{5, 10, 15, 20\}$. Červené body: kontext; šedé: skutečné neviděné hodnoty; modrá: PFN; zelená přerušovaná: GP se správným $\ell$.}
+    \caption{Náhodný model: predikce (levý sloupec) a \emph{attention} vs RBF (pravý sloupec) pro $n \in \{5, 10, 15, 20\}$. Červené body: kontext, šedé: skutečné neviděné hodnoty, modrá: PFN, zelená přerušovaná: GP se správným $\ell$.}
     \label{fig:rand_ctx_grid}
 \end{figure}
 
@@ -359,7 +359,7 @@ Poznamenejme, že nenulové MSE v případě \textit{GP oracle} je v pořádku, 
 \label{subsec:shrnuti-random-hp}
 
 Přechod od fixního k náhodnému modelu odhalil dvě tváře této architektury.
-Na jedné straně si náhodný model zachovává všechny kvalitativní mechanismy fixního, a to jsou: kauzální asymetrie \emph{attention} (poslední vrstva dominantní \textit{Test$\to$Train}), model nedělá RBF strategii (korelace $0{,}32$ vs $0{,}37$, tabulka~\ref{tab:rand_attn_rbf}), zachovává se správný \textit{tvar} profilu nejistoty (korelace std $> 0{,}97$, tabulka~\ref{tab:rand_calib}).
+Na jedné straně si náhodný model zachovává všechny kvalitativní mechanismy fixního, a to jsou: kauzální asymetrie \emph{attention} (poslední vrstva dominantní \textit{Test$\to$Train}), model nedělá RBF strategii (korelace $0{,}32$ vs $0{,}37$, tabulka~\ref{tab:rand_attn_rbf}), zachovává se správný tvar profilu nejistoty (korelace std $> 0{,}97$, tabulka~\ref{tab:rand_calib}).
 Vnitřní organizace transformeru je tedy robustní vůči šíři trénovací distribuce.
 \par
 
