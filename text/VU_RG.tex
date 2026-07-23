@@ -200,8 +200,6 @@ Title of the Work in English}}{\huge\par}
 \begin{singlespace}
 \item [{Autor:}] \textbf{Jméno Autora}
 \item [{Vedoucí~práce:}] \textbf{prof. Ing. Jméno Školitele, DrSc.}
-\item [{Konzultant:}] \textbf{doc. RNDr. Jméno Konzultanta, CSc. }(pouze
-pokud konzultant byl jmenován.)
 \item [{Akademický~rok:}] 2024/2025
 \end{singlespace}
 \end{lyxlist}
@@ -239,10 +237,7 @@ za ................
 \bigskip{}
 
 \noindent\emph{Studijní program:} Celý název studijního programu
-(nikoliv zkratka)\bigskip{}
-
-\noindent\emph{Specializace:} Celý název specializace (Pokud se studijní
-program nedělí na specializace, tuto řádku odstranit.)
+(nikoliv zkratka)
 
 \bigskip{}
 
@@ -255,28 +250,18 @@ pracoviště školitele (název instituce, fakulty, katedry...)
 
 \bigskip{}
 
-\noindent\emph{Konzultant:} doc. RNDr. Jméno Konzultanta, CSc., pracoviště
-konzultanta. Pouze pokud konzultant byl jmenován.
+\noindent\emph{Abstrakt:} Výpočet aposteriorních rozdělení je jádrem Bayesovské inference a existuje pro něj řada metod, například Markov chain Monte Carlo.
+Tyto metody však bývají výpočetně náročné a pro složitější úlohy prakticky nepoužitelné.
+Relativně nová architektura Prior-Data Fitted Networks (PFN) tento problém obchází jednoduše, transformer natrénovaný na syntetických datech z prioru vrací celé posteriorní prediktivní rozdělení v jediném dopředném průchodu.
+Metoda má navíc teoretické zázemí v matematické statistice.
+Cílem práce je architekturu podrobně popsat, replikovat její výsledky na úloze regrese Gaussovských procesů a empiricky ověřit teoretické hypotézy o jejím chování.
+V experimentech měříme, jak dobrá je aproximace přesného posterioru, a ukazujeme, že PFN neprovádí prosté průměrování podle podobnosti vstupů.
+Zkoumáme také přerozdělování práce mezi vrstvami transformeru a robustnost metody při špatně zvoleném prioru.
+Závěrem metodu přeneseme na segmentaci obrazu a ověříme, že se její dobré vlastnosti zachovávají i tam.
 
 \bigskip{}
 
-\noindent\emph{Abstrakt:} Abstrakt max. na 10 řádků. Abstrakt max.
-na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků.
-Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max.
-na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků.
-Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max.
-na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků.
-Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max.
-na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků.
-Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max.
-na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků.
-Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max.
-na 10 řádků. Abstrakt max. na 10 řádků. Abstrakt max. na 10 řádků. 
-
-\bigskip{}
-
-\noindent\emph{Klíčová slova:} klíčová slova (nebo výrazy) seřazená
-podle abecedy a oddělená čárkou
+\noindent\emph{Klíčová slova:} amortizovaná inference, Bayesovská inference, Gaussovské procesy, Prior-Data Fitted Networks, segmentace obrazu, transformer
 
 \vfill{}
 ~
@@ -294,26 +279,18 @@ podle abecedy a oddělená čárkou
 
 \bigskip{}
 
-\noindent\emph{Abstract:} Max. 10 lines of English abstract text.
-Max. 10 lines of English abstract text. Max. 10 lines of English abstract
-text. Max. 10 lines of English abstract text. Max. 10 lines of English
-abstract text. Max. 10 lines of English abstract text. Max. 10 lines
-of English abstract text. Max. 10 lines of English abstract text.
-Max. 10 lines of English abstract text. Max. 10 lines of English abstract
-text. Max. 10 lines of English abstract text. Max. 10 lines of English
-abstract text. Max. 10 lines of English abstract text. Max. 10 lines
-of English abstract text. Max. 10 lines of English abstract text.
-Max. 10 lines of English abstract text. Max. 10 lines of English abstract
-text. Max. 10 lines of English abstract text. Max. 10 lines of English
-abstract text. Max. 10 lines of English abstract text. Max. 10 lines
-of English abstract text. Max. 10 lines of English abstract text.
-Max. 10 lines of English abstract text. Max. 10 lines of English abstract
-text. Max. 10 lines of English abstract text.
+\noindent\emph{Abstract:} The computation of posterior distributions lies at the heart of Bayesian inference, and a number of methods exist for it, such as Markov chain Monte Carlo.
+These methods, however, tend to be computationally expensive and impractical for more complex tasks.
+The relatively new Prior-Data Fitted Networks (PFN) architecture sidesteps this problem in a simple way, a transformer trained on synthetic data sampled from the prior returns the entire posterior predictive distribution in a single forward pass.
+Moreover, the method is backed by results from mathematical statistics.
+The aim of this thesis is to describe the architecture in detail, replicate its results on Gaussian process regression, and empirically verify the theoretical hypotheses about its behaviour.
+In our experiments, we measure how good the approximation of the exact posterior is and show that PFN does not perform simple similarity-based averaging.
+We also study how the transformer layers redistribute the work among themselves and how robust the method is under a misspecified prior.
+Finally, we transfer the method to image segmentation and verify that its good properties carry over there as well.
 
 \bigskip{}
 
-\noindent\emph{Key words:} keywords in alphabetical order separated
-by commas
+\noindent\emph{Key words:} amortized inference, Bayesian inference, Gaussian processes, image segmentation, Prior-Data Fitted Networks, transformer
 
 \selectlanguage{czech}%
 \newpage{}

@@ -4,7 +4,7 @@
 
 V předchozí kapitole jsme PFN zkoumali jen na jednorozměrné regresi.
 Tam jsme se měli o~co opřít, pro Gaussovský proces umíme spočítat přesný posterior.
-V~této kapitole dáme PFN těžší a praktičtější úlohu, a to \emph{segmentaci obrazu}.
+V~této kapitole dáme PFN těžší a praktičtější úlohu, a to segmentaci obrazu.
 Ukážeme, že není to zcela nová úloha, ale přirozené pokračování celé práce.
 Jde totiž o~stejnou amortizovanou Bayesovskou inferenci, jen o~jednu dimenzi výše a s~binárním cílem.
 Současně tím získáme nové, nezávislé prostředí, ve kterém můžeme znovu ověřit předpovědi Naglerovy teorie ze sekce~\ref{sec:pfn-teorie}.
@@ -16,22 +16,22 @@ V~této úvodní sekci popíšeme tuto novou úlohu a přeložíme do ní pojmy,
 Doposud PFN dostávalo body na přímce a předpovídalo spojitou hodnotu.
 Segmentace je úloha jiného typu.
 Na vstupu máme obrázek a chceme u~každého jeho bodu (pixelu) rozhodnout, zda patří do hledané oblasti nebo ne.
-Tomuto rozhodování pro celý obrázek najednou se říká \emph{segmentace}, tedy rozdělení obrazu na oblast zájmu a pozadí.
-Oblasti zájmu, tedy pixelům hledaného útvaru, budeme říkat \emph{popředí} (anglicky \emph{foreground}), všem ostatním pixelům \emph{pozadí} (\emph{background}).
-Výsledkem je tzv. \emph{maska}, což je obrázek stejného rozměru jako vstup, ve kterém má pixel popředí hodnotu jedna a pixel pozadí hodnotu nula.
+Tomuto rozhodování pro celý obrázek najednou se říká segmentace, tedy rozdělení obrazu na oblast zájmu a pozadí.
+Oblasti zájmu, tedy pixelům hledaného útvaru, budeme říkat popředí (anglicky \emph{foreground}), všem ostatním pixelům pozadí (\emph{background}).
+Výsledkem je tzv. maska, což je obrázek stejného rozměru jako vstup, ve kterém má pixel popředí hodnotu jedna a pixel pozadí hodnotu nula.
 Masku si můžeme představit jako černobílý obrys obtažený přes původní obrázek.
 \par
 
 Hlavní rozdíl oproti regresi je ve výstupu.
 V~regresi PFN předpovídalo rozdělení jedné spojité hodnoty pro jeden vstupní bod.
 Zde předpovídá pro každý pixel pravděpodobnost, že leží uvnitř oblasti, tedy číslo mezi $0$ a $1$.
-Model tedy nevrací rovnou tvrdou černobílou masku, ale \emph{pravděpodobnostní mapu}, kde hodnota blízká jedné znamená „téměř jistě uvnitř“ a hodnota blízká nule „téměř jistě mimo oblast zájmu“.
+Model tedy nevrací rovnou tvrdou černobílou masku, ale pravděpodobnostní mapu, kde hodnota blízká jedné znamená „téměř jistě uvnitř“ a hodnota blízká nule „téměř jistě mimo oblast zájmu“.
 Právě tato mapa nás zajímá, protože u~ní můžeme stejně jako v~jedné dimenzi zkoumat přesnost predikce.
 \par
 
 Ukažme nyní, že segmentace není zcela nová úloha, ale přirozené pokračování toho, co už jsme viděli v~kapitole~\ref{chap:experimenty}.
 V~celé předchozí kapitole jsme pracovali s~funkcí jedné proměnné vzorkovanou z~Gaussovského procesu.
-Představme si nyní stejnou myšlenku, ale s~funkcí \textit{dvou} proměnných, tedy s~náhodným polem přes celou plochu obrázku.
+Představme si nyní stejnou myšlenku, ale s~funkcí dvou proměnných, tedy s~náhodným polem přes celou plochu obrázku.
 Hladkost tohoto skrytého pole řídí stejná korelační délka $\ell$ jako dřív.
  Malé $\ell$ dává drobné a ostré útvary, velké $\ell$ velké hladké plochy.
 Zatím je to jen dvourozměrná obdoba Gaussovského procesu z předchozí kapitoly.
@@ -70,7 +70,7 @@ Věta~\ref{theorem:Rozptyl_transformeru} o~mizení rozptylu i neredukovatelný b
 Právě tohoto faktu využijeme.
 Nejprve vezmeme hotový, už natrénovaný \emph{in-context} segmenter UniverSeg~\cite{butoi2023}.
 Není to PFN, ale funguje na stejném principu, predikuje z~kontextové sady přes globální \emph{attention}.
-Ověříme, zda se u~něj objeví tzv. \emph{kolaps k~prioru}.
+Ověříme, zda se u~něj objeví tzv. kolaps k~prioru.
 Jde o~jev, kdy model s~příliš malým kontextem přestane odpovídat na konkrétní vstup a vrátí se k~výchozí odpovědi, tedy k~průměrné masce, kterou zná z~tréninku.
 Intuice je jednoduchá.
 Když má model málo příkladů, nedokáže z~nich poznat pravidla úlohy, a nejbezpečnější volbou je pro něj průměr.
@@ -167,7 +167,7 @@ Měříme ji \emph{Dice} koeficientem, tedy mírou překryvu predikované a prav
 
 \textbf{Diskuze:}
 
-Obrázek~\ref{fig:seg-a-dice} ukazuje, že \emph{Dice} s~rostoucím kontextem roste a poté \emph{saturuje}.
+Obrázek~\ref{fig:seg-a-dice} ukazuje, že \emph{Dice} s~rostoucím kontextem roste a poté saturuje.
 Saturací rozumíme stav, kdy křivka přestane růst a ustálí se na plató, další příklady v~kontextu už tedy kvalitu masky nezlepšují.
 V~našem případě se přidávat další kontext přestane vyplácet zhruba od osmi až šestnácti příkladů.
 Je to přímá dvourozměrná obdoba saturace přesnosti s~velikostí kontextu, kterou jsme viděli u~regrese v~kapitole~\ref{chap:experimenty}.
