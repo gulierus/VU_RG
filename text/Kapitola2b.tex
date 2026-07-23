@@ -42,7 +42,7 @@ Tento integrál říká v zásadě relativně jednoduchou věc: průměrujeme $p
 Podmínka faktorizace prioru je spíše technická.
 Platí–li podmínka, pak když jsme viděli data $D_n$, říkají nám něco o $p(y \mid x)$, ale $x$–ová souřadnice testovacího bodu sama o sobě nic neříká o $p(y \mid x)$.
 Pokud by totiž ta podmínka neplatila, potom by i testovací souřadnice $x$ byla informativní pro $p(y \mid x)$, což pro náš případ nedává smysl.
-PPD $\pi(y \mid x, D_n)$ je tedy \textit{posteriorní střední hodnota} podmíněných rozdělení $p(y \mid x)$, vážená tím, jak jsou jednotlivé modely $p$ konzistentní s $D_n$.
+PPD $\pi(y \mid x, D_n)$ je tedy posteriorní střední hodnota podmíněných rozdělení $p(y \mid x)$, vážená tím, jak jsou jednotlivé modely $p$ konzistentní s $D_n$.
 \par   
 
 PFN je numerická aproximace celé rodiny PPD $\{\pi(\cdot \mid \cdot, D_n),\, n \in \mathbb{N}\}$.
@@ -78,7 +78,7 @@ KL-optimální parametry jsou definovány jako:
 kde $\Pi_N$ je tzv. \textit{size prior}, tj. rozdělení nad velikostí trénovací množiny $N$. 
 Střední hodnota přes $N$ zajišťuje, že $q_{\theta^*}$ umí napodobit celou rodinu PPD pro různá $n$, ne pouze její $n$-tý prvek.
 Pro model $q_\theta$ zpravidla neexistuje $\theta$ takové, že $q_\theta = \pi$ přesně. 
-V tom případě rovnice \ref{eq:KL_optimalni_parametry} definuje \textit{KL-optimální} aproximaci $\pi$ ve třídě $\{q_\theta : \theta \in \Theta\}$, tj. nejlepší aproximaci, které je daná architektura schopna.
+V tom případě rovnice \ref{eq:KL_optimalni_parametry} definuje KL-optimální aproximaci $\pi$ ve třídě $\{q_\theta : \theta \in \Theta\}$, tj. nejlepší aproximaci, které je daná architektura schopna.
 
 Dále lze ukázat následující teoretickou vlastnost.
 Střední hodnota v~rovnici~\ref{eq:KL_optimalni_parametry} se v praxi aproximuje průměrováním přes $m$ iid datasetů, např. pomocí metody Monte Carlo.
