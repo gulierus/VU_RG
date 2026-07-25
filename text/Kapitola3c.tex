@@ -58,17 +58,17 @@ Přehled \emph{kernelových korelací} zprůměrovaných přes hlavy shrnuje tab
 \hline
 Vrstva & 1 vrstva & 2 vrstvy & 4 vrstvy & 6 vrstev & 8 vrstev \\
 \hline
-$0$ & $0{,}473$ & $0{,}165$ & $0{,}075$ & $-0{,}065$ & $-0{,}094$ \\
-$1$ & — & $0{,}813$ & $0{,}885$ & $0{,}660$ & $0{,}567$ \\
-$2$ & — & — & $0{,}826$ & $0{,}814$ & $0{,}872$ \\
-$3$ & — & — & $0{,}275$ & $0{,}663$ & $0{,}763$ \\
-$4$ & — & — & — & $0{,}478$ & $0{,}771$ \\
-$5$ & — & — & — & $0{,}316$ & $0{,}550$ \\
-$6$ & — & — & — & — & $0{,}532$ \\
-$7$ & — & — & — & — & $0{,}293$ \\
+$0$ & $0{,}480$ & $0{,}168$ & $0{,}074$ & $0{,}004$ & $-0{,}099$ \\
+$1$ & — & $0{,}819$ & $0{,}887$ & $0{,}610$ & $0{,}563$ \\
+$2$ & — & — & $0{,}828$ & $0{,}826$ & $0{,}873$ \\
+$3$ & — & — & $0{,}270$ & $0{,}817$ & $0{,}765$ \\
+$4$ & — & — & — & $0{,}740$ & $0{,}773$ \\
+$5$ & — & — & — & $0{,}416$ & $0{,}544$ \\
+$6$ & — & — & — & — & $0{,}530$ \\
+$7$ & — & — & — & — & $0{,}296$ \\
 \hline
 \end{tabular}
-\caption{Spearmanova korelace \emph{attention vah} s RBF/NW kernelem, zprůměrovaná přes $8$ hlav dané vrstvy a přes $200$ instancí. Pomlčka značí, že daná vrstva u mělčího modelu neexistuje. Ve vrstvě $0$ je \emph{kernelová korelace} vždy nízká (u $6$ i $8$ vrstev dokonce mírně záporná), zatímco ve středních vrstvách skáče přes $0{,}8$.}
+\caption{Spearmanova korelace \emph{attention vah} s RBF/NW kernelem, zprůměrovaná přes $8$ hlav dané vrstvy a přes $200$ instancí. Pomlčka značí, že daná vrstva u mělčího modelu neexistuje. Ve vrstvě $0$ je \emph{kernelová korelace} vždy nízká (u $8$ vrstev dokonce mírně záporná), zatímco ve středních vrstvách skáče přes $0{,}8$.}
 \label{tab:ch2_corr_overview}
 \end{table}
 
@@ -83,16 +83,16 @@ $7$ & — & — & — & — & $0{,}293$ \\
 
 Z tabulky \ref{tab:ch2_corr_overview} a obrázku \ref{fig:ch2_overview} vystupuje jasný a opakující se napříč modely vzor.
 Vrstva $0$ má u všech vícevrstvých modelů nejvyšší \emph{labelovou korelaci} (tj. na dolním grafu obrázku \ref{fig:ch2_overview}) a zároveň nejnižší \emph{kernelovou korelaci}.
-U šesti- i osmivrstvého modelu je \emph{kernelová korelace} první vrstvy dokonce mírně záporná.
+U šestivrstvého modelu je \emph{kernelová korelace} první vrstvy prakticky nulová, u osmivrstvého dokonce mírně záporná.
 První vrstva tedy primárně čte \emph{labely}, tj. shromažďuje informaci o pozorovaných hodnotách, nikoli o geometrii vstupů.
 Střední vrstvy tento obraz obracejí.
-\emph{Kernelová korelace} vyskočí na $0{,}61$ až $0{,}89$ a \emph{labelová} klesne na $0{,}01$ až $0{,}08$.
+\emph{Kernelová korelace} vyskočí na $0{,}61$ až $0{,}89$ a \emph{labelová} klesne zhruba o řád.
 To je právě to \emph{kernel-like chování}, které bychom u GP inference čekali, hlava porovnává vzdálenosti ve vstupním prostoru.
-Poslední vrstva pak \emph{kernelovou korelaci} opět snižuje (na $0{,}27$ až $0{,}44$), zřejmě proto, že už neslouží k porovnávání, ale k sestavení konečné predikce.
+Poslední vrstva pak \emph{kernelovou korelaci} opět snižuje (na $0{,}27$ až $0{,}42$), zřejmě proto, že už neslouží k porovnávání, ale k sestavení konečné predikce.
 \par
 
 Zvláštní pozornost si v tomto případě zaslouží jednovrstvý model.
-Jeho jediná vrstva má \emph{kernelovou korelaci} $0{,}473$, což je nejvyšší hodnota v celém řádku vrstvy $0$ napříč modely.
+Jeho jediná vrstva má \emph{kernelovou korelaci} $0{,}480$, což je nejvyšší hodnota v celém řádku vrstvy $0$ napříč modely.
 Má to dobrý smysl.
 Když má model k dispozici jen jednu vrstvu, nemůže si dovolit ji „utratit“ na pouhé čtení \emph{labelů} a musí v ní stihnout jak čtení \emph{labelů}, tak \emph{kernelové porovnání} současně.
 Teprve s tím, jak se hloubka modelu zvětšuje, si model může dovolit specializaci, kdy první vrstva jen posbírá \emph{labely} a \emph{kernelovou práci} nechá vrstvám pozdějším.

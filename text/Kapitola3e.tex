@@ -108,7 +108,8 @@ Za prvé, v MSE je PFN plně konkurenceschopné s adaptivními metodami GP\_ML a
 Pro střední velikosti kontextu je dokonce nejlepší ze všech misspecifikovaných metod a pro velká $n$ jsou všechny tři prakticky shodné, jak je vidět v tabulce~\ref{tab:exp7_mse_n}.
 GP\_fixed, který se datům nijak nepřizpůsobuje, zaostává za všemi výrazně a s rostoucím $n$ se jeho odstup nezmenšuje.
 Za druhé, v kalibraci je obraz ještě víc jednoznačněji.
-PFN má nejmenší $\Delta$NLL ze všech misspecifikovaných metod pro všechna $n \leq 40$ a teprve pro velké kontexty jej GP\_ML porazí, jak ukazuje tabulka~\ref{tab:exp7_dnll_n}.
+PFN má nejmenší $\Delta$NLL ze všech misspecifikovaných metod pro všechna $n \leq 40$ i pro $n = 100$, jak ukazuje tabulka~\ref{tab:exp7_dnll_n}.
+U velkých kontextů už mezi PFN a GP\_ML není jednoznačné pořadí, GP\_ML vede při $n = 64$ a $n = 128$.
 Toto chování má přirozené vysvětlení.
 Adaptivní metody musí korelační délku odhadnout z několika málo bodů a při malém kontextu ji přefitují, jejich prediktivní intervaly jsou pak příliš sebejisté.
 PFN naproti tomu marginalizuje přes celé trénovací rozdělení hyperparametrů, a proto vrací opatrnější a lépe kalibrovanou nejistotu.
@@ -137,7 +138,7 @@ Přesně v režimu malých dat, kde na kalibraci záleží nejvíce, se tato vla
     $128$ & $0{,}17385$ & $0{,}41661$ & $0{,}17169$ & $0{,}18200$ & $0{,}16918$ \\
     \hline
     \end{tabular}
-    \caption{MSE vůči skutečným hodnotám jako funkce velikosti kontextu $n$ při misspecifikaci kernelu ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí). PFN je pro $n \in \{10, 20, 40\}$ nejlepší ze všech misspecifikovaných metod, pro velká $n$ je s GP\_ML a GP\_Bayes prakticky shodné.}
+    \caption{MSE vůči skutečným hodnotám jako funkce velikosti kontextu $n$ při misspecifikaci kernelu ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí). PFN je pro $n \in \{5, 20, 40, 64\}$ nejlepší ze všech misspecifikovaných metod, pro velká $n$ je s GP\_ML a GP\_Bayes prakticky shodné.}
     \label{tab:exp7_mse_n}
 \end{table}
 
@@ -156,7 +157,7 @@ Přesně v režimu malých dat, kde na kalibraci záleží nejvíce, se tato vla
     $128$ & $+0{,}031$ & $+1{,}174$ & $+0{,}016$ & $+0{,}044$ \\
     \hline
     \end{tabular}
-    \caption{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce velikosti kontextu $n$ ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí, \emph{oracle} má z definice hodnotu $0$). PFN je nejblíže \emph{oracle} pro všechna $n \leq 40$, teprve od $n = 64$ jej mírně porazí GP\_ML.}
+    \caption{Kalibrace $\Delta$NLL vůči \emph{oracle} jako funkce velikosti kontextu $n$ ($\ell_{\text{true}} = 0{,}3$, průměr přes $150$ instancí, \emph{oracle} má z definice hodnotu $0$). PFN je nejblíže \emph{oracle} pro všechna $n \leq 40$ i pro $n = 100$, GP\_ML jej mírně předstihne jen při $n = 64$ a $n = 128$.}
     \label{tab:exp7_dnll_n}
 \end{table}
 
@@ -265,10 +266,10 @@ Uvnitř trénovacího rozsahu je relativní MSE hluboko pod referenční hodnoto
 Nejmenší je uprostřed rozsahu.
 Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji.
 Zde jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
-Mimo rozsah chyba na obou stranách roste, ale referenční hodnotu nikde nepřekročí.
-Odchylka PFN od \emph{oracle} tedy zůstává menší než chyba způsobená samotným šumem v datech.
-A to pro případy, které jsou hodně vzdálené od hranice trénovací množiny.
-Avšak to opět může být způsobeno tím, že pro tato $\ell$ je tato úloha výrazně jednodušší.
+Za krátkým okrajem rozsahu chyba dále roste, za dlouhým okrajem naopak opět klesá.
+Pro velmi dlouhá $\ell$ jsou totiž realizace hladké a úloha je snadná i pro PFN, které takové délky při tréninku nevidělo.
+Referenční hodnotu chyba nepřekročí na žádné straně, a to ani pro případy hodně vzdálené od hranice trénovací množiny.
+Odchylka PFN od \emph{oracle} tedy všude zůstává menší než chyba způsobená samotným šumem v datech.
 Z experimentu vyplývá, že k degradaci sice dochází, ale žádný náhlý kolaps nenastává.
 \par
 
@@ -311,7 +312,7 @@ $5{,}00$ & $0{,}00192$ & $0{,}01024$ & $0{,}188$ & mimo rozsah \\
     \vspace{1.5em}
 
     \includegraphics[width=0.92\linewidth]{figures/GP2_exp6_hp_identification/fig_exp6_q4_ood.png}
-    \caption{Relativní MSE jako funkce pravé korelační délky $\ell$ (logaritmická osa). Zelený pás značí trénovací rozsah $\ell \in [0{,}05,\, 1{,}0]$, zelená tečkovaná čára referenční hodnotu $\text{rel\_MSE} = 1$. Křivka má minimum uprostřed trénovacího rozsahu a mimo něj na obou stranách roste jen pozvolna, referenční hodnotu nikde nepřekročí.}
+    \caption{Relativní MSE jako funkce pravé korelační délky $\ell$ (logaritmická osa). Zelený pás značí trénovací rozsah $\ell \in [0{,}05,\, 1{,}0]$, zelená tečkovaná čára referenční hodnotu $\text{rel\_MSE} = 1$. Křivka má minimum uprostřed trénovacího rozsahu a k jeho okrajům roste. Za krátkým okrajem růst pokračuje, za dlouhým okrajem chyba opět mírně klesá. Referenční hodnotu nikde nepřekročí.}
     \label{fig:exp7_ood}
 \end{figure}
 
