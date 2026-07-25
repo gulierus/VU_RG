@@ -266,7 +266,7 @@ Uvnitř trénovacího rozsahu je relativní MSE hluboko pod referenční hodnoto
 Nejmenší je uprostřed rozsahu.
 Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji.
 Zde jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
-Za krátkým okrajem rozsahu chyba dále roste, za dlouhým okrajem naopak opět klesá.
+Za krátkým okrajem rozsahu chyba prudce vzroste a poté se ustálí kolem hodnot $0{,}77$ až $0{,}79$, za dlouhým okrajem naopak opět klesá.
 Pro velmi dlouhá $\ell$ jsou totiž realizace hladké a úloha je snadná i pro PFN, které takové délky při tréninku nevidělo.
 Referenční hodnotu chyba nepřekročí na žádné straně, a to ani pro případy hodně vzdálené od hranice trénovací množiny.
 Odchylka PFN od \emph{oracle} tedy všude zůstává menší než chyba způsobená samotným šumem v datech.
@@ -312,7 +312,7 @@ $5{,}00$ & $0{,}00192$ & $0{,}01024$ & $0{,}188$ & mimo rozsah \\
     \vspace{1.5em}
 
     \includegraphics[width=0.92\linewidth]{figures/GP2_exp6_hp_identification/fig_exp6_q4_ood.png}
-    \caption{Relativní MSE jako funkce pravé korelační délky $\ell$ (logaritmická osa). Zelený pás značí trénovací rozsah $\ell \in [0{,}05,\, 1{,}0]$, zelená tečkovaná čára referenční hodnotu $\text{rel\_MSE} = 1$. Křivka má minimum uprostřed trénovacího rozsahu a k jeho okrajům roste. Za krátkým okrajem růst pokračuje, za dlouhým okrajem chyba opět mírně klesá. Referenční hodnotu nikde nepřekročí.}
+    \caption{Relativní MSE jako funkce pravé korelační délky $\ell$ (logaritmická osa). Zelený pás značí trénovací rozsah $\ell \in [0{,}05,\, 1{,}0]$, zelená tečkovaná čára referenční hodnotu $\text{rel\_MSE} = 1$. Křivka má minimum uprostřed trénovacího rozsahu a k jeho okrajům roste. Za krátkým okrajem chyba prudce vzroste a ustálí se, za dlouhým okrajem opět mírně klesá. Referenční hodnotu nikde nepřekročí.}
     \label{fig:exp7_ood}
 \end{figure}
 
@@ -327,7 +327,8 @@ Tato sekce zkoumala otázku, co se stane, když správný prior nezná žádná 
 Zjistili jsme, že ve smyslu MSE je PFN srovnatelné s adaptivními metodami GP\_ML a GP\_Bayes.
 Pro střední velikosti kontextu je dokonce nejlepší, a to přesto, že na rozdíl od nich nemůže svůj prior za běhu nijak přizpůsobit datům.
 V kalibraci je PFN nejlepší ze všech misspecifikovaných metod pro malý a střední kontext i pro korelační délky v okolí pravé hodnoty.
-GP\_fixed, který nemá žádný mechanismus adaptace, selhává ve všech režimech nejvíce.
+GP\_fixed, který nemá žádný mechanismus adaptace, selhává nejvíce pro krátké a střední korelační délky a v MSE pro všechna $n$.
+Pro dlouhé korelační délky, kde se jeho pevné $\ell = 0{,}7$ blíží pravé hodnotě, přestává být nejhorší.
 Čistý test s korektně specifikovaným kernelem navíc ukázal, že mimo trénovací rozsah korelační délky PFN degraduje plynule a jeho odchylka od \emph{oracle} zůstává menší než chyba způsobená samotným šumem v datech, jak je vidět v tabulce~\ref{tab:exp7_ood}.
 \par
 

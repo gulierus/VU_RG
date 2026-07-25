@@ -75,7 +75,7 @@ $7$ & — & — & — & — & $0{,}296$ \\
 \begin{figure}[p]
     \centering
     \includegraphics[width=0.92\linewidth]{figures/ch2_label_kernel/fig_ch2_q1_overview_all_models.png}
-    \caption{Srovnání všech pěti modelů. Nahoře: Spearmanova korelace \emph{attention vah} s RBF kernelem jako funkce indexu vrstvy. Dole: absolutní hodnota korelace \emph{attention vah} s \emph{labely} $Y_j$. Barevné pásy značí $\pm 1$ směrodatnou odchylku přes hlavy. Vzor je u všech modelů stejný: vrstva $0$ má nejvyšší \emph{labelovou} a nejnižší \emph{kernelovou korelaci}, střední vrstvy se chovají \emph{kernel-like} (vysoká \emph{kernelová}, nízká \emph{labelová korelace}) a v poslední vrstvě \emph{kernelová korelace} opět klesá.}
+    \caption{Srovnání všech pěti modelů. Nahoře: Spearmanova korelace \emph{attention vah} s RBF kernelem jako funkce indexu vrstvy. Dole: absolutní hodnota korelace \emph{attention vah} s \emph{labely} $Y_j$. Barevné pásy značí $\pm 1$ směrodatnou odchylku přes hlavy. Vzor je u všech modelů stejný: vrstva $0$ má nejvyšší \emph{labelovou} a nejnižší \emph{kernelovou korelaci}, střední vrstvy se chovají \emph{kernel-like} (vysoká \emph{kernelová}, nízká \emph{labelová korelace}) a u modelů se čtyřmi a více vrstvami v poslední vrstvě \emph{kernelová korelace} opět klesá.}
     \label{fig:ch2_overview}
 \end{figure}
 
@@ -86,9 +86,9 @@ Vrstva $0$ má u všech vícevrstvých modelů nejvyšší \emph{labelovou korel
 U šestivrstvého modelu je \emph{kernelová korelace} první vrstvy prakticky nulová, u osmivrstvého dokonce mírně záporná.
 První vrstva tedy primárně čte \emph{labely}, tj. shromažďuje informaci o pozorovaných hodnotách, nikoli o geometrii vstupů.
 Střední vrstvy tento obraz obracejí.
-\emph{Kernelová korelace} vyskočí na $0{,}61$ až $0{,}89$ a \emph{labelová} klesne zhruba o řád.
+\emph{Kernelová korelace} vyskočí na hodnoty zhruba $0{,}53$ až $0{,}89$ a \emph{labelová} klesne zhruba o řád.
 To je právě to \emph{kernel-like chování}, které bychom u GP inference čekali, hlava porovnává vzdálenosti ve vstupním prostoru.
-Poslední vrstva pak \emph{kernelovou korelaci} opět snižuje (na $0{,}27$ až $0{,}42$), zřejmě proto, že už neslouží k porovnávání, ale k sestavení konečné predikce.
+U modelů se čtyřmi a více vrstvami pak poslední vrstva \emph{kernelovou korelaci} opět snižuje (na $0{,}27$ až $0{,}42$), zřejmě proto, že už neslouží k porovnávání, ale k sestavení konečné predikce.
 \par
 
 Zvláštní pozornost si v tomto případě zaslouží jednovrstvý model.
@@ -213,10 +213,9 @@ Obrázek \ref{fig:ch2_knockout} ilustruje jasnou strukturu, kauzálně důležit
 Je vidět, že dominantní hlava je u každého modelu ve vrstvě $0$ nebo $1$.
 To potvrzuje hypotézu o rozdělení práce z korelační analýzy.
 U hlubokých modelů je absolutní dopad \emph{knockoutu} malý a predikce zůstávají blízko GP posterioru.
-Avšak odebrání jedné hlavy zhorší predikci relativně k vlastní \emph{baseline chybě}, a to napříč všemi hloubkami.
-Z toho tedy plyne, že žádná hlava není bezvýznamná.
-Jinými slovy, každá hlava má na výsledné predikci svůj podíl.
-Odebrání kterékoli z nich zvedne chybu modelu, jak je vidět v tabulce~\ref{tab:ch2_knockout}, ale model se bez ní nezhroutí a jeho predikce zůstává použitelná.
+Avšak odebrání nejdůležitější hlavy zhorší predikci relativně k vlastní \emph{baseline chybě}, a to napříč všemi hloubkami, jak je vidět v tabulce~\ref{tab:ch2_knockout}.
+Model se bez ní nezhroutí a jeho predikce zůstává použitelná.
+Tmavá většina políček teplotní mapy zároveň ukazuje, že v hlubokých modelech se najdou i hlavy, jejichž odebrání predikci téměř nezmění.
 Jednovrstvý model je nejkřehčí, což nás nepřekvapuje, jelikož má jen jednu vrstvu s~$8$ hlavami a každá z~nich je pro predikci důležitá.
 \par
 
@@ -302,8 +301,7 @@ V každém kroku se míchá informace o $X$ i o $Y$, přesně jak předpovídá 
 
 \emph{Head-knockout} tento popisný obraz doplnil z jiné perspektivy.
 Důležité hlavy se koncentrují do raných vrstev a jednovrstvý model je nejkřehčí.
-Avšak i v hlubokých modelech odebrání jediné hlavy znatelně zvedne chybu modelu.
-Žádná hlava tedy není bezvýznamná.
+Avšak i v hlubokých modelech odebrání nejdůležitější hlavy znatelně zvedne chybu modelu, byť se tam najdou i hlavy postradatelné.
 \par
 
 Rozklad chyby nakonec vysvětlil, proč modelu jedna vrstva nestačí.
