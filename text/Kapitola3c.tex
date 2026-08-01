@@ -6,7 +6,7 @@ Nejprve šlo o fixní model ze sekce~\ref{sec:vnitrni-struktura}, poté o náhod
 Ukázali jsme, že PFN neprovádí prostý \emph{kernel smoothing} a že náhodný model dokáže identifikovat korelační délku z kontextu.
 Zůstává však otevřená otázka, jak tento výpočet uvnitř transformeru vlastně probíhá.
 Jinými slovy, co dělá která vrstva a proč jich model vůbec potřebuje víc než jednu.
-V této sekci proto poprvé budeme systematicky měnit hloubku sítě a zkoumat, zda se mezi vrstvami vytváří jakási dělba práce, závisí-li výsledky na počtu vrstev apod.
+V této sekci proto poprvé budeme systematicky měnit hloubku sítě a zkoumat, zda se mezi vrstvami vytváří jakési přerozdělování práce, závisí-li výsledky na počtu vrstev apod.
 \par
 
 Analýzu provedeme na rodině pěti modelů, které se liší pouze počtem vrstev: $1$, $2$, $4$, $6$ a $8$ vrstev.
@@ -21,7 +21,7 @@ Motivace pro tuto analýzu vychází přímo z Naglerovy teoretické práce, kte
 Připomeňme, že v PFN je každý kontextový bod reprezentován \emph{tokenem} $V_j = (Y_j,\, X_j)^\top$, který v sobě slučuje jak vstupní souřadnici $X_j$, tak její pozorovanou hodnotu $Y_j$.
 \emph{Attention skóre} jednovrstvého modelu je proto lineární kombinací obojího, zhruba tvaru $\alpha X_j + \beta Y_j$.
 GP váha $k(x^*, X_j)$ naproti tomu závisí výhradně na vstupní souřadnici.
-Nagler odtud odvozuje, že jediná vrstva nemůže reprodukovat GP posterior přesně, tzv. \emph{tilted-measure limit} (viz sekce \ref{subsec:pfn-transformer}) se totiž nikdy nelokalizuje kolem $x^*$, a v predikci proto zůstává nenulový bias.
+Nagler odtud odvozuje, že jedna vrstva nemůže reprodukovat GP posterior přesně, tzv. \emph{tilted-measure limit} (viz sekce \ref{subsec:pfn-transformer}) se totiž nikdy nelokalizuje kolem $x^*$, a v predikci proto zůstává nenulový bias.
 To přirozeně vede k hypotéze o rozdělování práce mezi vrstvy.
 Pokud jedna vrstva nestačí, mohly by se hlubší modely naučit tento úkol rozdělit, a to tak, že rané vrstvy budou číst hodnoty $Y_j$ (tzv. \emph{label reading}) a prostřední vrstvy porovnávat vzdálenosti ve vstupním prostoru $X$ (tzv. \emph{kernel-like chování}).
 Právě tuto hypotézu budeme v následujících experimentech testovat.
@@ -68,7 +68,7 @@ $6$ & — & — & — & — & $0{,}530$ \\
 $7$ & — & — & — & — & $0{,}296$ \\
 \hline
 \end{tabular}
-\caption{Spearmanova korelace \emph{attention vah} s RBF/NW kernelem, zprůměrovaná přes $8$ hlav dané vrstvy a přes $200$ instancí. Pomlčka značí, že daná vrstva u mělčího modelu neexistuje. Ve vrstvě $0$ je \emph{kernelová korelace} vždy nízká (u $8$ vrstev dokonce mírně záporná), zatímco ve středních vrstvách skáče přes $0{,}8$.}
+\caption{Spearmanova korelace \emph{attention vah} s RBF/NW kernelem, zprůměrovaná přes $8$ hlav dané vrstvy a přes $200$ instancí. Pomlčka značí, že daná vrstva u mělčího modelu neexistuje. Ve vrstvě $0$ je \emph{kernelová korelace} u vícevrstvých modelů nízká (u $8$ vrstev dokonce mírně záporná), zatímco ve středních vrstvách skáče přes $0{,}8$. Výjimkou je jednovrstvý model, jehož jediná vrstva musí zvládnout obojí, a proto má i zde vysokou hodnotu.}
 \label{tab:ch2_corr_overview}
 \end{table}
 
@@ -88,7 +88,9 @@ První vrstva tedy primárně čte \emph{labely}, tj. shromažďuje informaci o 
 Střední vrstvy tento obraz obracejí.
 \emph{Kernelová korelace} vyskočí na hodnoty zhruba $0{,}53$ až $0{,}89$ a \emph{labelová} klesne zhruba o řád.
 To je právě to \emph{kernel-like chování}, které bychom u GP inference čekali, hlava porovnává vzdálenosti ve vstupním prostoru.
-U modelů se čtyřmi a více vrstvami pak poslední vrstva \emph{kernelovou korelaci} opět snižuje (na $0{,}27$ až $0{,}42$), zřejmě proto, že už neslouží k porovnávání, ale k sestavení konečné predikce.
+U modelů se čtyřmi a více vrstvami pak poslední vrstva \emph{kernelovou korelaci} opět snižuje (na $0{,}27$, $0{,}30$ až $0{,}42$), zřejmě proto, že už neslouží k porovnávání, ale k sestavení konečné predikce.
+Navíc poslední vrstva u vícevrstvých modelů vždy má nejnižší \emph{kernelovou korelaci}.
+Zajímavé, že u jedno- a dvouvrstvého modelů to neplatí.
 \par
 
 Zvláštní pozornost si v tomto případě zaslouží jednovrstvý model.
@@ -120,9 +122,12 @@ Pokud se naopak hromadí nahoře nebo dole, hlava vybírá body podle jejich hod
 Kdyby tedy hlava prováděla čisté \emph{kernelové porovnání}, viděli bychom svislý pruh kolem $x^* = 0{,}54$ nezávisle na $Y_j$.
 Skutečnost podle tohoto obrázku je ale jiná.
 Hlavy míří na různé oblasti roviny.
-\emph{Head} 2 se dívá na body s nízkým $X$ a vysokým $Y$ (vlevo nahoře), \emph{Head} 1, 3, 5 a 7 naopak na body s vysokým $X$ a nízkým $Y$ (vpravo dole) a několik hlav ($0$, $4$) degeneruje na jeden nebo málo bodu, může to být právě již zmíněný \emph{attention sink}, který jsme popsali v sekci~\ref{subsec:struktura-attention}.
-Připomeňme, že naše kontextové body pocházejí z jedné konkrétní GP realizace, která na tomto intervalu klesá.
-Body vlevo tak mají vysoké hodnoty $Y_j$ a body vpravo nízké.
+\emph{Head} 1 a 2 se dívají na body s nízkým $X$ a vysokým $Y$ (vlevo nahoře).
+\emph{Head} 3, 5, 6 a 7 se soustřeďují naopak na body s vysokým $X$ a nízkým $Y$ (vpravo dole).
+Několik hlav ($0$, $4$) dokonce degeneruje na jeden nebo málo bodů.
+Může to být právě již zmíněný \emph{attention sink}, který jsme popsali v sekci~\ref{subsec:struktura-attention}.
+Připomeňme, že naše kontextové body pocházejí z jedné konkrétní GP realizace, která na tomto intervalu nejprve klesá a poté opět roste, tvoří tedy údolí s minimem kolem $x^* = 0{,}54$.
+Body vlevo tak mají vysoké hodnoty $Y_j$ a body v pravé dolní části nízké.
 Když se tedy hlava dívá do levého horního rohu, vybírá si body s vysokým $Y_j$, a když do pravého dolního, vybírá si body s nízkým $Y_j$.
 Jednotlivé hlavy si vybírají body podle jejich hodnot $Y_j$.
 \emph{Attention} tedy závisí i na \emph{labelu}, nikoli jen na vzdálenosti ve vstupním prostoru, což je prostorová obdoba nenulové \emph{labelové korelace} z tabulky~\ref{tab:ch2_corr_overview}.
@@ -216,7 +221,7 @@ U hlubokých modelů je absolutní dopad \emph{knockoutu} malý a predikce zůst
 Avšak odebrání nejdůležitější hlavy zhorší predikci relativně k vlastní \emph{baseline chybě}, a to napříč všemi hloubkami, jak je vidět v tabulce~\ref{tab:ch2_knockout}.
 Model se bez ní nezhroutí a jeho predikce zůstává použitelná.
 Tmavá většina políček teplotní mapy zároveň ukazuje, že v hlubokých modelech se najdou i hlavy, jejichž odebrání predikci téměř nezmění.
-Jednovrstvý model je nejkřehčí, což nás nepřekvapuje, jelikož má jen jednu vrstvu s~$8$ hlavami a každá z~nich je pro predikci důležitá.
+Jednovrstvý model je nejkřehčí, což nás nepřekvapuje, jelikož má jen jednu vrstvu s~$8$ hlavami a většina z~nich je pro predikci důležitá. Výjimkou jsou jen degenerované hlavy $0$ a $4$.
 \par
 
 Poznamenejme, že z výsledků přes všech $50$ instancí bereme medián, nikoli průměr.
@@ -230,7 +235,7 @@ Což mimochodem je známý jev ze statistiky, že medián je robustnější char
 Podstatné je, že tento obraz nám korelační analýza ukázat nemohla.
 Hlava může s kernelem korelovat silně, a přesto být nahraditelná.
 Jiná může korelovat slabě, a přesto být pro predikci důležitá.
-\emph{Head-knockout} tak korelační obraz nejen doplňuje, ale v jistém smyslu ho i koriguje.
+\mbox{\emph{Head-knockout}} tak korelační obraz nejen doplňuje, ale v jistém smyslu ho i koriguje.
 Tímto usuzujeme, že funkční roli hlavy určuje až její skutečný dopad na predikci, nikoli tvar jejího \emph{attention vzoru}.
 
 \subsection{Rozklad chyby a role hloubky}
@@ -305,7 +310,7 @@ Avšak i v hlubokých modelech odebrání nejdůležitější hlavy znatelně zv
 \par
 
 Rozklad chyby nakonec vysvětlil, proč modelu jedna vrstva nestačí.
-Jednovrstvý model má jako jediný nenulový $\text{bias}^2 = 0{,}0048$, zatímco od dvou vrstev a výše je neredukovatelná chyba nulová a hloubka už jen snižuje rozptylový člen $c$.
+Jednovrstvý model má jako jediný nenulový $\text{bias}^2 \approx 0{,}0048$, zatímco od dvou vrstev a výše je neredukovatelná chyba nulová a hloubka už jen snižuje rozptylový člen $c$.
 \par
 
 Dohromady nám tato pozorování dávají jasný obraz o tom, jak PFN uvnitř funguje.

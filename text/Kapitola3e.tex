@@ -96,11 +96,12 @@ Nejzajímavější proto budou malé kontexty, kde prior dominuje a ukazuje se, 
 
 V prvním testu zafixujeme $\ell_{\text{true}} = 0{,}3$ a měníme velikost kontextu $n \in \{5, 10, 20, 40, 64, 100, 128\}$.
 Ptáme se, jak rychle se jednotlivé metody s rostoucím množstvím dat vzpamatují ze špatného prioru.
-Výsledky shrnují obrázek~\ref{fig:exp7_q1} a tabulky~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n}.
+Výsledky shrnují tabulky~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n} a obrázek~\ref{fig:exp7_q1}.
 Horní panel obrázku ukazuje MSE jako funkci $n$, dolní panel $\Delta$NLL.
 Tečkovaná čára v dolním panelu značí \emph{oracle}, tedy nulu, ke které se chtějí všechny metody přiblížit.
+\par
 
-
+\needspace{3\baselineskip}
 \textbf{Diskuze:}
 
 Z tabulek~\ref{tab:exp7_mse_n} a~\ref{tab:exp7_dnll_n} plynou dvě pozorování.
@@ -116,12 +117,12 @@ PFN naproti tomu marginalizuje přes celé trénovací rozdělení hyperparametr
 Přesně v režimu malých dat, kde na kalibraci záleží nejvíce, se tato vlastnost vyplácí.
 \par
 
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.65\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n.png}
-    \caption{Vliv velikosti kontextu při misspecifikaci kernelu (data z Matérn $2{,}5$, $\ell_{\text{true}} = 0{,}3$). Nahoře: MSE jako funkce $n$, černá tečkovaná čára je \emph{GP\_oracle}. Dole: $\Delta$NLL vůči \emph{oracle}, tečkovaná čára značí nulu (\emph{oracle}). Chybové úsečky $\pm 1$ směrodatná chyba. PFN (modrá) se v MSE drží těsně u \emph{oracle} a v $\Delta$NLL je pro malé a střední kontexty ze všech metod nejníže.}
-    \label{fig:exp7_q1}
-\end{figure}
+Za povšimnutí stojí i chování obou krajních metod.
+GP\_fixed sice s rostoucím kontextem svou bodovou chybu snižuje, jeho $\Delta$NLL ale podle tabulky~\ref{tab:exp7_dnll_n} s daty neklesá, šířku prediktivních intervalů totiž určuje pevně zvolený kernel, na který žádné pozorování nesáhne.
+Naopak GP\_Bayes je při malých kontextech kalibrovaný znatelně lépe než GP\_ML, přestože jeho prior pravé hodnotě korelační délky téměř nevěří.
+Jediný rozdíl mezi nimi je přitom marginalizace, GP\_ML sází vše na jediný bodový odhad korelační délky, GP\_Bayes přes její nejistotu průměruje.
+Vidíme tedy stejný mechanismus, který pomáhá PFN, jen v menším měřítku.
+\par
 
 \begin{table}[!htb]
     \centering
@@ -161,6 +162,14 @@ Přesně v režimu malých dat, kde na kalibraci záleží nejvíce, se tato vla
     \label{tab:exp7_dnll_n}
 \end{table}
 
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.70\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q1_mse_vs_n_wide.png}
+    \caption{Vliv velikosti kontextu při misspecifikaci kernelu (data z Matérn $2{,}5$, $\ell_{\text{true}} = 0{,}3$). Vlevo: MSE jako funkce $n$, černá tečkovaná čára je \emph{GP\_oracle}. Vpravo: $\Delta$NLL vůči \emph{oracle}, tečkovaná čára značí nulu (\emph{oracle}). Chybové úsečky $\pm 1$ směrodatná chyba. PFN (modrá) se v MSE drží těsně u \emph{oracle} a v $\Delta$NLL je pro malé a střední kontexty ze všech metod nejníže.}
+    \label{fig:exp7_q1}
+\end{figure}
+
+\FloatBarrier
 
 \subsection{Vliv síly misspecifikace}
 \label{subsec:exp7-q2}
@@ -170,16 +179,9 @@ Tím měníme sílu misspecifikace.
 Pro malá $\ell_{\text{true}}$ jsou realizace Matérnova kernelu hrubé a RBF je aproximuje špatně.
 Pro velká $\ell_{\text{true}}$ jsou realizace hladké a rozdíl mezi oběma kernely se stírá.
 Hodnoty $\ell_{\text{true}} > 1{,}0$ navíc leží mimo trénovací rozsah PFN, takže zároveň testujeme, jak model degraduje mimo svůj implicitní prior.
-Výsledky shrnují tabulky~\ref{tab:exp7_mse_ls} a~\ref{tab:exp7_dnll_ls} a obrázek~\ref{fig:exp7_q2}.
+\par
 
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.576\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q2_mse_vs_ls.png}
-    \caption{Vliv síly misspecifikace ($n = 40$). Nahoře: MSE jako funkce $\ell_{\text{true}}$. Dole: $\Delta$NLL vůči \emph{oracle}. Modrý pás značí trénovací rozsah PFN $\ell \in [0{,}05,\, 1{,}0]$. GP\_fixed (oranžová) pro krátké korelační délky selhává v obou metrikách, ostatní metody se s rostoucím $\ell_{\text{true}}$ sbíhají k \emph{oracle}. PFN zůstává blízko \emph{oracle} v celém rozsahu včetně hodnot mimo svůj trénovací rozsah.}
-    \label{fig:exp7_q2}
-\end{figure}
-
-\begin{table}[!htb]
+\begin{table}[H]
 \centering
 \begin{tabular}{cccccc}
 \hline
@@ -200,7 +202,7 @@ $2{,}00$ & $0{,}14713$ & $0{,}13830$ & $0{,}13038$ & $0{,}12932$ & $0{,}12545$ \
 \label{tab:exp7_mse_ls}
 \end{table}
 
-\begin{table}[!htb]
+\begin{table}[H]
     \centering
     \begin{tabular}{ccccc}
     \hline
@@ -221,8 +223,10 @@ $2{,}00$ & $0{,}14713$ & $0{,}13830$ & $0{,}13038$ & $0{,}12932$ & $0{,}12545$ \
     \label{tab:exp7_dnll_ls}
 \end{table}
 
+\needspace{3\baselineskip}
 \textbf{Diskuze:}
 
+Výsledky shrnují tabulky~\ref{tab:exp7_mse_ls} a~\ref{tab:exp7_dnll_ls} a obrázek~\ref{fig:exp7_q2}.
 Za prvé, síla misspecifikace se projevuje přesně tam, kde bychom čekali.
 Pro krátké korelační délky, kde jsou Matérnovy realizace hrubé, selhává GP\_fixed v kalibraci o řády, jak je vidět v tabulce~\ref{tab:exp7_dnll_ls}.
 Pro dlouhé korelační délky jsou realizace hladké, RBF s $\ell = 0{,}7$ se stává rozumnou volbou a všechny metody se sbíhají.
@@ -232,6 +236,15 @@ Za třetí, mimo trénovací rozsah ($\ell_{\text{true}} > 1{,}0$) PFN degraduje
 Jeho $\Delta$NLL zůstává malé i pro dvojnásobek horní hranice trénovacího rozdělení, žádný náhlý kolaps nenastává.
 To je stejná plynulá degradace, jakou jsme u identifikace hyperparametrů pozorovali v sekci~\ref{sec:pfn-random-hp}.
 \par
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.92\linewidth]{figures/GP2_exp7_misspecification/fig_exp7_q2_mse_vs_ls_wide.png}
+    \caption{Vliv síly misspecifikace ($n = 40$). Vlevo: MSE jako funkce $\ell_{\text{true}}$. Vpravo: $\Delta$NLL vůči \emph{oracle}. Modrý pás značí trénovací rozsah PFN $\ell \in [0{,}05,\, 1{,}0]$. GP\_fixed (oranžová) pro krátké korelační délky selhává v obou metrikách, ostatní metody se s rostoucím $\ell_{\text{true}}$ sbíhají k \emph{oracle}. PFN zůstává blízko \emph{oracle} v celém rozsahu včetně hodnot mimo svůj trénovací rozsah.}
+    \label{fig:exp7_q2}
+\end{figure}
+
+\FloatBarrier
 
 \subsection{Chování mimo trénovací rozsah korelační délky}
 \label{subsec:exp7-ood}
@@ -257,36 +270,9 @@ tedy odchylku PFN od \emph{oracle} vydělenou chybou, kterou má sám \emph{orac
 Jmenovatel je tedy chyba, které se nedá zbavit, neboť je způsobena samotným šumem v datech, a žádná metoda se pod ni nedostane.
 Hodnota $\text{rel\_MSE} = 1$ by tedy znamenala, že se PFN liší od \emph{oracle} o tolik, kolik činí tato nevyhnutelná chyba.
 Hodnoty hluboko pod $1$ by znamenaly, že PFN \emph{oracle} prakticky kopíruje.
-Výsledky shrnuje tabulka~\ref{tab:exp7_ood} a obrázek~\ref{fig:exp7_ood}.
 
-\textbf{Diskuze:}
-
-Z tabulky~\ref{tab:exp7_ood} můžeme učinit jasné závěry.
-Uvnitř trénovacího rozsahu je relativní MSE hluboko pod referenční hodnotou $\text{rel\_MSE} = 1$, tedy pod úrovní chyby způsobené samotným šumem v datech.
-Nejmenší je uprostřed rozsahu.
-Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji.
-Zde jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
-Za krátkým okrajem rozsahu chyba prudce vzroste a poté se ustálí kolem hodnot $0{,}77$ až $0{,}79$, za dlouhým okrajem naopak opět klesá.
-Pro velmi dlouhá $\ell$ jsou totiž realizace hladké a úloha je snadná i pro PFN, které takové délky při tréninku nevidělo.
-Referenční hodnotu chyba nepřekročí na žádné straně, a to ani pro případy hodně vzdálené od hranice trénovací množiny.
-Odchylka PFN od \emph{oracle} tedy všude zůstává menší než chyba způsobená samotným šumem v datech.
-Z experimentu vyplývá, že k degradaci sice dochází, ale žádný náhlý kolaps nenastává.
-\par
-
-Z toho usuzujeme, že implicitní prior PFN nefunguje jako ostrá hranice, za kterou model přestává fungovat.
-Chová se spíše jako měkké těžiště, od kterého přesnost pozvolna klesá.
-Pro hladké funkce za horní hranicí rozsahu to dává dobrý smysl.
-Model se během tréninku naučil reprezentovat hladkost a delší korelační délka pro něj není kvalitativně nová situace.
-Pro velmi krátké délky pod dolní hranicí je úloha těžká i pro samotný \emph{oracle}.
-Je vidět, že kontext $40$ bodů rychlé oscilace jednoduše nezachytí.
-Tím je zpětně podložený i závěr předchozí části.
-Plynulá degradace mimo trénovací rozsah není artefakt misspecifikovaného kernelu, platí to i v čistém testu.
-\par
-
-\begin{figure}[!htb]
-    \centering
-    \begin{minipage}{\linewidth}
-    \centering
+\begin{table}[H]
+\centering
 \begin{tabular}{ccccl}
 \hline
 $\ell$ & $\text{MSE}(\hat\mu_{\text{PFN}},\, \mu_{\text{oracle}})$ & $\text{MSE}(\mu_{\text{oracle}},\, \mathbf{y}_{\text{test}})$ & $\text{rel\_MSE}$ & Stav \\
@@ -306,11 +292,46 @@ $3{,}00$ & $0{,}00197$ & $0{,}01028$ & $0{,}191$ & mimo rozsah \\
 $5{,}00$ & $0{,}00192$ & $0{,}01024$ & $0{,}188$ & mimo rozsah \\
 \hline
 \end{tabular}
-\captionof{table}{Chování PFN mimo trénovací rozsah korelační délky (RBF data, $n = 40$, $\sigma^2 = 0{,}01$, průměr přes $200$ instancí). Relativní MSE je odchylka PFN od \emph{oracle} dělená chybou, kterou má sám \emph{oracle} kvůli šumu v datech. Minimum leží uprostřed trénovacího rozsahu a ani mimo rozsah na žádné straně relativní MSE nepřekročí referenční hodnotu $1$.}
+\caption{Chování PFN mimo trénovací rozsah korelační délky (RBF data, $n = 40$, $\sigma^2 = 0{,}01$, průměr přes $200$ instancí). Relativní MSE je odchylka PFN od \emph{oracle} dělená chybou, kterou má sám \emph{oracle} kvůli šumu v datech. Minimum leží uprostřed trénovacího rozsahu a ani mimo rozsah na žádné straně relativní MSE nepřekročí referenční hodnotu $1$.}
 \label{tab:exp7_ood}
-    \end{minipage}
-    \vspace{1.5em}
+\end{table}
 
+\textbf{Diskuze:}
+
+Výsledky shrnuje tabulka~\ref{tab:exp7_ood} a obrázek~\ref{fig:exp7_ood}.
+Z tabulky~\ref{tab:exp7_ood} můžeme učinit jasné závěry.
+Uvnitř trénovacího rozsahu je relativní MSE hluboko pod referenční hodnotou $\text{rel\_MSE} = 1$, tedy pod úrovní chyby způsobené samotným šumem v datech.
+Nejmenší je uprostřed rozsahu.
+Přesnou příčinu polohy minima neurčujeme, prior nad $\ell$ je rovnoměrný, takže minimum nelze vysvětlit tím, že by model střední délky viděl při tréninku častěji.
+Zde jde spíše o~souhru obtížnosti úlohy a normalizace \emph{oraclem}.
+\par
+
+Za krátkým okrajem rozsahu chyba prudce vzroste.
+Krátké realizace se rychle mění, kontext $40$ bodů je nedokáže zachytit a navíc jde o~délky, které model při tréninku neviděl.
+Zajímavé je, že pro úplně nejkratší délky už relativní chyba dále neroste, dokonce mírně klesá, jak je vidět v~tabulce~\ref{tab:exp7_ood}.
+Nejde o~to, že by se PFN zlepšovalo.
+V~tomto režimu je úloha prakticky nepredikovatelná a velkou chybu dělá i samotný \emph{oracle}, jmenovatel relativní MSE proto rychle roste.
+Obě metody se zároveň uchylují ke stejné opatrné predikci blízké apriorní střední hodnotě, tedy nule, a jejich vzájemná vzdálenost se přestává zvětšovat.
+Relativní chyba se tak ustálí hluboko pod referenční hodnotou, ne proto, že by PFN úlohu zvládlo, ale proto, že ji v~tomto režimu nezvládá nikdo.
+\par
+
+Za dlouhým okrajem chyba naopak opět klesá.
+Pro velmi dlouhá $\ell$ jsou realizace hladké a úloha je snadná i pro PFN, které takové délky při tréninku nevidělo.
+Referenční hodnotu chyba nepřekročí na žádné straně, a to ani pro případy hodně vzdálené od hranice trénovací množiny.
+Odchylka PFN od \emph{oracle} tedy všude zůstává menší než chyba způsobená samotným šumem v datech.
+Z experimentu vyplývá, že k degradaci sice dochází, ale žádný náhlý kolaps nenastává.
+\par
+
+Z toho usuzujeme, že implicitní prior PFN nefunguje jako ostrá hranice, za kterou model přestává fungovat.
+Chová se spíše jako měkké těžiště, od kterého přesnost pozvolna klesá.
+Pro hladké funkce za horní hranicí rozsahu to dává dobrý smysl.
+Model se během tréninku naučil reprezentovat hladkost a delší korelační délka pro něj není kvalitativně nová situace.
+Tím je zpětně podložený i závěr předchozí části.
+Plynulá degradace mimo trénovací rozsah není artefakt misspecifikovaného kernelu, platí to i v čistém testu.
+\par
+
+\begin{figure}[!htb]
+    \centering
     \includegraphics[width=0.92\linewidth]{figures/GP2_exp6_hp_identification/fig_exp6_q4_ood.png}
     \caption{Relativní MSE jako funkce pravé korelační délky $\ell$ (logaritmická osa). Zelený pás značí trénovací rozsah $\ell \in [0{,}05,\, 1{,}0]$, zelená tečkovaná čára referenční hodnotu $\text{rel\_MSE} = 1$. Křivka má minimum uprostřed trénovacího rozsahu a k jeho okrajům roste. Za krátkým okrajem chyba prudce vzroste a ustálí se, za dlouhým okrajem opět mírně klesá. Referenční hodnotu nikde nepřekročí.}
     \label{fig:exp7_ood}

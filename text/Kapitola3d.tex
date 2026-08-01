@@ -181,7 +181,8 @@ Ve směrech s malými vlastními čísly se pak řešení posouvá jen nepatrně
 \emph{Preconditioning} tento problém obchází.
 Soustavu $(\mathbf{K}+\sigma^2\mathbf{I})\,\boldsymbol{\alpha} = \mathbf{y}$ nejprve vynásobíme zleva vhodnou maticí $\mathbf{P}$ a řešíme ekvivalentní soustavu $\mathbf{P}(\mathbf{K}+\sigma^2\mathbf{I})\,\boldsymbol{\alpha} = \mathbf{P}\mathbf{y}$.
 Matice $\mathbf{P}$ se volí jako aproximace inverze, takže součin $\mathbf{P}(\mathbf{K}+\sigma^2\mathbf{I})$ je skoro jednotková matice.
-Vlastní čísla nové soustavy pak leží blízko sebe, efektivní podmíněnost klesne k jedné a všechny směry konvergují zhruba stejně rychle.
+Vlastní čísla nové soustavy pak leží blízko sebe.
+Podmíněnost $\kappa$ spočtená pro tuto novou soustavu, budeme jí říkat efektivní podmíněnost, proto klesne k jedné a všechny směry konvergují zhruba stejně rychle.
 Počet potřebných kroků tím přestane záviset na původním $\kappa$.
 Přesně takové chování u PFN pozorujeme.
 Připomeňme navíc, že \emph{attention váhy} závisejí na vstupních datech, takže model si podobnou transformaci může pro každý kontext sestavit sám.

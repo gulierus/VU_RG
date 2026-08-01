@@ -75,14 +75,13 @@ Výsledná matice je proto „rozmazanější“, aniž by však ztratila zákla
     \label{fig:rand_attention}
 \end{figure}
 
-\subsection{Attention vs RBF kernel}
+\subsection{\emph{Attention} vs RBF kernel}
 \label{subsec:attention-vs-rbf}
 
 V předchozí sekci jsme ukázali, že \emph{attention} fixního modelu \textit{nekoreluje} s normalizovaným RBF kernelem.
 Model se naučil ostřejší a nelokální strategii, nikoli prostý kernel-smoothing.
 Zopakujeme stejný experiment i pro náhodný model.
 Pro každý testovací bod $x^*$ porovnáme \emph{attention váhy} poslední vrstvy s normalizovanými RBF vahami $w_i = k(x^*, x_i) / \sum_j k(x^*, x_j)$.
-Výsledky obou modelů shrnuje následující tabulka~\ref{tab:rand_attn_rbf}.
 \par
 
 \begin{table}[htbp]
@@ -107,6 +106,7 @@ Průměrná korelace Attn vs RBF & $0{,}374 \pm 0{,}270$ & $0{,}316 \pm 0{,}311$
 
 \textbf{Diskuze:}
 
+Výsledky obou modelů shrnuje následující tabulka~\ref{tab:rand_attn_rbf}.
 Korelace náhodného modelu ($0{,}316 \pm 0{,}311$) je dokonce \emph{nižší} než u fixního ($0{,}374 \pm 0{,}270$).
 Na první pohled by se to mohlo jevit jako zhoršení, ale je tomu naopak.
 Jak jsme již podrobně rozebrali v předchozí sekci, čistý RBF kernel $k(x^*, x_i)$ není správnou referenční hodnotou, tou jsou GP váhy $w_i^{\text{GP}} = \sum_j k(x^*, x_j)\,(\mathbf{K}^{-1})_{ji}$, které jsou nelokální a mohou být i záporné.
@@ -139,7 +139,6 @@ Je to poměr průměrné směrodatné odchylky v oblasti daleko od dat, tedy v o
 Hodnota pro GP je přitom analytická a slouží jako ideál.
 Je v obou sloupcích stejná, protože referenční GP je v obou experimentech stejný.
 Hodnota pro PFN pak ukazuje, jakou část tohoto ideálního rozsahu model skutečně reprodukuje.
-Tyto tři metriky pro oba modely srovnává tabulka~\ref{tab:rand_calib}.
 \par
 
 \begin{table}[htbp]
@@ -165,6 +164,9 @@ Ratio far/near – GP  & $25{,}9\times \pm 3{,}8\times$ & $25{,}9\times \pm 3{,}
     \label{fig:rand_uncertainty}
 \end{figure}
 
+\textbf{Diskuze:}
+
+Tyto tři metriky pro oba modely srovnává tabulka~\ref{tab:rand_calib}.
 Zde nacházíme první výraznou nevýhodu náhodného modelu.
 Korelace profilu nejistoty zůstává vysoká ($Corr = 0{,}973$ oproti $0{,}981$ u fixního modelu).
 Obě sítě tedy správně rozpoznávají kde je nejistota větší a kde je menší.
@@ -172,8 +174,6 @@ Absolutní kalibrace (tj.\ skutečná velikost předpovídané nejistoty, nikoli
 MSE směrodatné odchylky vzroste zhruba desetinásobně ($0{,}0348$ vs $0{,}0038$) a \textit{ratio far/near} klesne z $21{,}3\times$ na pouhých $7{,}49\times$, tj. z $82\,\%$ na zhruba $29\,\%$ dynamického rozsahu GP.
 Jinými slovy, náhodný model zvyšuje nejistotu v oblastech extrapolace znatelně méně výrazně.
 \par
-
-\textbf{Diskuze:}
 
 Tento výsledek se může zdát na první pohled paradoxní.
 Model trénovaný na větším množství epoch ($500$) má horší kalibraci rozptylu než model trénovaný na menším množství epoch ($100$).
@@ -183,6 +183,7 @@ Model tedy nemůže být současně dokonale kalibrovaný pro všechny $\ell$, j
 Testujeme-li ho na jednom konkrétním $\ell = 0{,}3$, projeví se toto vyhlazení jako širší predikce v centru a mírnější nárůst na okrajích (obrázek~\ref{fig:rand_uncertainty}).
 Fixní model tímto kompromisem netrpí, protože zná jediné správné $\ell$.
 Tímto usuzujeme, že jde tedy o cenu za generalizaci, nikoli o vadu tréninku.
+\newpage
 
 \textbf{Nové schopnosti: identifikace hyperparametrů.}
 
@@ -235,10 +236,15 @@ Rozdělení chyby přes instance i její medián napříč korelačními délkam
 Z tabulky~\ref{tab:rand_ls} plyne jasný trend.
 Medián chyby klesá s rostoucí korelační délkou monotónně, a to o řády.
 Nejobtížnější jsou tedy pro model rychle oscilující funkce s krátkou korelační délkou.
-Nabízejí se dvě vysvětlení.
-Za prvé, funkce s $\ell = 0{,}05$ vyžaduje hustou vzorkovací mřížku.
-Kontext o $30$ bodech na intervalu $[0, 1]$ k jednoznačné identifikaci tak krátké korelační délky nestačí, mezi body totiž zůstává příliš mnoho neznámé informace.
-Za druhé, hodnoty $\ell < 0{,}1$ tvoří jen okraj trénovacího rozdělení $\ell \sim \mathcal{U}(0{,}05,\, 1{,}0)$, takže model viděl takto krátké korelační délky během tréninku jen zřídka.
+Vysvětlení souvisí s hustotou vzorkování.
+Připomeňme z části~\ref{subsec:trenink-distribuce-hp}, že krátká korelační délka odpovídá rychle oscilujícím funkcím.
+Ty se znatelně mění už na vzdálenostech řádu $\ell$, a právě na těchto vzdálenostech ji musí kontext zachytit.
+Funkce s $\ell = 0{,}05$ proto vyžaduje hustou vzorkovací mřížku.
+Kontext o $30$ bodech na intervalu $[0, 1]$ je však řídký pro takové délky.
+Průměrný rozestup sousedních bodů je s ní srovnatelný, a protože body nejsou rozmístěny pravidelně, vznikají mezi nimi i mezery delší než $\ell$.
+V takové mezeře se funkce stihne změnit, aniž o tom data cokoli prozradí.
+Mezi body tedy zůstává příliš mnoho neznámé informace.
+Model si proto nemůže být jistý, jak rychle funkce osciluje, a jeho predikce se od GP posterioru se správným $\ell$ vzdaluje.
 \par
 
 Poznamenejme ještě rozdíl mezi mediánem a průměrem chyby.
@@ -291,14 +297,15 @@ $3$  & $0{,}0610 \pm 0{,}0563$ & $0{,}5499 \pm 0{,}9273$ & $9{,}0\times$ \\
 $5$  & $0{,}0613 \pm 0{,}1150$ & $0{,}4576 \pm 2{,}020$ & $7{,}5\times$ \\
 $10$ & $0{,}0200 \pm 0{,}0415$ & $0{,}2319 \pm 0{,}4873$ & $11{,}6\times$ \\
 $20$ & $0{,}00170 \pm 0{,}00409$ & $0{,}04528 \pm 0{,}03577$ & $26{,}6\times$ \\
-$40$ & $8{,}43 \times 10^{-5}$ & $0{,}04148 \pm 0{,}04236$ & $491{,}8\times$ \\
-$60$ & $3{,}78 \times 10^{-5}$ & $0{,}03028 \pm 0{,}02328$ & $801{,}4\times$ \\
+$40$ & $8{,}43 \times 10^{-5} \pm 1{,}27 \times 10^{-4}$ & $0{,}04148 \pm 0{,}04236$ & $491{,}8\times$ \\
+$60$ & $3{,}78 \times 10^{-5} \pm 3{,}13 \times 10^{-5}$ & $0{,}03028 \pm 0{,}02328$ & $801{,}4\times$ \\
 \hline
 \end{tabular}
 \caption{Identifikace korelační délky pro $\ell = 0{,}2$ (proti $\ell_{\text{wrong}} = 0{,}05$). Průměr přes $50$ instancí.}
 \label{tab:rand_hp02}
 \end{table}
 
+\needspace{3\baselineskip}
 \textbf{Diskuze:}
 
 Výsledek je jednoznačný a představuje jeden z nejsilnějších důkazů, že náhodný model skutečně provádí identifikaci hyperparametrů.
@@ -349,7 +356,7 @@ $20$ & $0{,}0020 \pm 0{,}0013$ & $0{,}0021 \pm 0{,}0025$ & $0{,}0017 \pm 0{,}001
 \needspace{3\baselineskip}
 \textbf{Diskuze:}
 
-Srovnání s tabulkou~\ref{tab:exp4} z předchozí sekce opět odhaluje jakousi daň za generalizaci.
+Srovnání tabulky \ref{tab:rand_ctx} s tabulkou~\ref{tab:exp4} z předchozí sekce opět odhaluje jakousi daň za generalizaci.
 Pro střední velikost kontextu ($n = 5$ až $10$) je náhodný model viditelně horší než fixní ($0{,}060$ vs $0{,}041$ při $n = 5$), protože fixní model zná $\ell = 0{,}3$, kdežto náhodný ho musí z několika málo bodů teprve odhadnout a při řídkém kontextu je tento odhad zatížen chybou, což se projeví i většími směrodatnými odchylkami v tabulce~\ref{tab:rand_ctx}.
 Od $n = 15$ se však oba modely začínají vyrovnávat a při $n = 20$ jsou prakticky nerozlišitelné ($0{,}0020$ vs $0{,}0021$), oba těsně za \emph{GP oraclem}.
 Náhodný model tedy s dostatečným kontextem dožene fixní verzi, aniž by kdy znal správné $\ell$ předem.

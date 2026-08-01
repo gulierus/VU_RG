@@ -18,8 +18,15 @@ __pycache__/
 *.pyd
 .ipynb_checkpoints/
 
-# Models (large files - store separately)
+# Models (large files - stored on Google Drive, fetched by download_models.py)
 models/
+# Flat staging folder produced by stage_models_for_upload.py (do NOT commit ~2.2 GB)
+models_upload/
+# But DO version the download tooling and manifest:
+!download_models.py
+!stage_models_for_upload.py
+!models_manifest.json
+!MODELS.md
 
 # PFNs repo (installed via setup.sh)
 PFNs/

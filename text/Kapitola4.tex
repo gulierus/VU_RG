@@ -43,7 +43,7 @@ Obrázek je tedy rozmazaná verze skryté pravdy a model má z~něj odhadnout os
 Obrázek~\ref{fig:seg-priklady} ukazuje dva takové páry obrázku a jeho masky, jeden pro velké $\ell$ (hladké skvrny) a jeden pro malé $\ell$ (drobné skvrny).
 \par
 
-\begin{figure}[!tb]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.72\linewidth]{figures/VariantC_pfn_seg/fig_seg_intro_examples.png}
     \caption{Ukázka úlohy segmentace. Vlevo vstupní obrázek (zašuměné skryté pole), vpravo odpovídající maska (cíl predikce), kterou získáme prahováním skrytého pole. Horní řádek odpovídá velké korelační délce $\ell$, tedy hladkým plochám, dolní řádek malé $\ell$, tedy drobným ostrým útvarům. Model dostává na vstupu levý obrázek a má předpovědět pravou masku.}
@@ -115,18 +115,20 @@ U krvinek je cílem segmentace maska celé buňky, u~mozku maska bílé hmoty.
 Abychom mohli měřit posun predikce k~prioru, potřebujeme prior nějak vyjádřit.
 UniverSeg žádný explicitní prior nemá.
 To obejdeme tímto způsobem.
-Nahradíme ho operační prior maskou, tedy průměrnou maskou přes všechny příklady dané domény.
+Nahradíme ho tzv. operační prior maskou, tzn. průměrnou maskou přes všechny příklady dané domény.
 Ta má smysl jen pro prostorově zarovnaná data, kde průměr dává rozumný tvar.
 U~krvinek je buňka vždy zhruba uprostřed, takže průměrná maska je kompaktní útvar uprostřed, jak ukazuje obrázek~\ref{fig:seg-a-prior}.
 U~mozku je struktura složitější a zašuměnější, ale stále čitelná.
 \par
 
-\begin{figure}[!tb]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{figures/VariantA_universeg/fig_A_05_prior_masks.png}
     \caption{Operační prior masky, tedy průměrné masky přes všechny příklady dané domény. Hodnota v~pixelu udává, jak často v~něm napříč doménou leží popředí. U~krvinek (WBC) je maska kompaktní útvar uprostřed, u~mozku (OASIS) je strukturovanější. Hodnota \emph{fg} je podíl popředí v~průměrné masce.}
     \label{fig:seg-a-prior}
 \end{figure}
+
+\FloatBarrier
 
 \subsection{Kolaps k prioru}
 \label{subsec:seg-a-kolaps}
@@ -139,24 +141,31 @@ Obě počítáme jako průměrnou pixelovou kvadratickou odchylku.
 Malé $d_{\text{truth}}$ tedy znamená, že model předpověděl blízko pravdě, malé $d_{\text{prior}}$, že se drží výchozí průměrné masky.
 \par
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/VariantA_universeg/fig_A_01_collapse_crossover.png}
+    \caption{Kolaps k~prioru. Zelená křivka je vzdálenost predikce od pravé masky $d_{\text{truth}}$, fialová vzdálenost od operační prior masky $d_{\text{prior}}$, obojí jako funkce velikosti \emph{support setu}. Při jednom příkladu je predikce blíž prioru než pravdě (kolaps), s~rostoucím kontextem se křivky protnou a predikce je blíže k~pravdě. Chybové úsečky jsou $\pm 1$ směrodatná chyba.}
+    \label{fig:seg-a-kolaps}
+\end{figure}
+
 \textbf{Diskuze:}
 
-Kolaps se na obrázku~\ref{fig:seg-a-kolaps} pozná podle křížení obou křivek.
-Při kontextu rovnajícím se jediné ukázce je predikce ve všech třech doménách blíž k prior masce než pravdě, model tedy hádá zhruba průměrnou masku.
-S tím jak roste \emph{support set}, $d_{\text{truth}}$ prudce klesá a někde se protne s~$d_{\text{prior}}$, od té chvíle už je predikce blíž pravdě než prioru.
-Právě tento příklon k~prioru při slabé podmiňující informaci Naglerova teorie předpovídá, a potvrzuje se tak i na modelu, který není úplně \emph{PFN-type}.
-Poloha tohoto křížení se mírně liší podle domény, ale jev je ve všech třech stejný.
+Na obrázku~\ref{fig:seg-a-kolaps} kolapsem k~prioru rozumíme stav, kdy je predikce blíž prior masce než pravdě, tedy $d_{\text{prior}} < d_{\text{truth}}$.
+Poznáme ho proto z~uspořádání obou křivek.
+Zde tento stav nastává pouze při malém kontextu.
+Při kontextu rovnajícím se jedné ukázce leží ve všech třech doménách fialová křivka pod zelenou.
+S~rostoucím \emph{support setem} $d_{\text{truth}}$ prudce klesá, až se obě křivky protnou.
+Křížení avšak neznačí kolaps samotný, ale jeho konec.
+Od té chvíle je predikce blíž pravdě než prioru, vzdálenost k~pravdě přebije vzdálenost k~prioru.
+Poloha křížení pak měří, kolik kontextu model k~tomuto úniku potřebuje.
+Mírně se liší podle domény, nejdříve k~němu dochází u~snímků WBC-JTSC, nejpozději u~WBC-CV.
 Kolaps tedy řídí velikost kontextu, nikoli konkrétní úloha.
+Právě tato blízkost k~prioru při slabé podmiňující informaci Naglerova teorie předpovídá, a potvrzuje se tak i na modelu, který není úplně \emph{PFN-type}.
 Podstatné je také, že $d_{\text{prior}}$ neklesá k~nule, ale ustálí se na nenulové hodnotě.
 Model totiž ani při velkém kontextu nepredikuje přesně průměrnou masku, jeho predikce je specifická pro daný obrázek.
 \par
 
-\begin{figure}[!tb]
-    \centering
-    \includegraphics[width=\linewidth]{figures/VariantA_universeg/fig_A_01_collapse_crossover.png}
-    \caption{Kolaps k~prioru. Zelená křivka je vzdálenost predikce od pravé masky $d_{\text{truth}}$, fialová vzdálenost od operační prior masky $d_{\text{prior}}$, obojí jako funkce velikosti \emph{support setu}. Při jediném příkladu je predikce blíž prioru než pravdě (kolaps), s~rostoucím kontextem se křivky protnou a predikce přilne k~pravdě. Chybové úsečky jsou $\pm 1$ směrodatná chyba.}
-    \label{fig:seg-a-kolaps}
-\end{figure}
+\FloatBarrier
 
 \subsection{Výkon a saturace kontextem}
 \label{subsec:seg-a-dice}
@@ -174,12 +183,14 @@ Je to přímá dvourozměrná obdoba saturace přesnosti s~velikostí kontextu, 
 Plató se mírně liší podle domény, ale kvalitativní tvar křivky, tedy růst a následná saturace, zůstává stejný.
 \par
 
-\begin{figure}[!tb]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.72\linewidth]{figures/VariantA_universeg/fig_A_02_dice.png}
     \caption{\emph{Dice} koeficient jako funkce velikosti \emph{support setu} pro tři domény. Křivka roste a saturuje, výška plató se mírně liší podle domény. Chybové úsečky jsou $\pm 1$ směrodatná chyba.}
     \label{fig:seg-a-dice}
 \end{figure}
+
+\FloatBarrier
 
 \subsection{Kalibrace}
 \label{subsec:seg-a-kalibrace}
@@ -216,19 +227,21 @@ Kalibrační chyba je tam řádově vyšší než uvnitř a s~kontextem klesá m
 Poznamenejme, že tento závěr je v~souladu se vzorem, který jsme viděli i v~jedné dimenzi, model dobře pozná, kde je nejistý, ale absolutní míru nejistoty odhaduje hůře.
 \par
 
-\begin{figure}[!tb]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{figures/VariantA_universeg/fig_A_03_reliability.png}
     \caption{\emph{Reliability} diagramy pro tři domény (řádky) a vybrané velikosti \emph{support setu} (sloupce). Křivka nad úhlopříčkou znamená podhodnocenou jistotu, pod úhlopříčkou přehnanou.}
     \label{fig:seg-a-reliability}
 \end{figure}
 
-\begin{figure}[!tb]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{figures/VariantA_universeg/fig_A_04_calibration.png}
     \caption{Vlevo očekávaná kalibrační chyba (ECE) zvlášť pro celý obrázek a pro hraniční pásmo, vpravo znaménkový rozdíl mezi jistotou a správností (kladný znamená přehnanou jistotu). Kalibrační chyba je na hranici řádově vyšší než uvnitř a klesá s~kontextem pomaleji.}
     \label{fig:seg-a-kalibrace}
 \end{figure}
+
+\FloatBarrier
 
 \subsection{Shrnutí}
 \label{subsec:seg-a-shrnuti}
@@ -336,6 +349,8 @@ Nejhůře dopadají pole s~kratší korelační délkou, než jakou model viděl
 U~nich chyba zůstává velká i s~velkým kontextem.
 Naopak u~hladších polí se model přiblíží \emph{oraclu}, jakmile dostane malý kontext.
 Stejnou asymetrii extrapolace jsme u~regrese viděli v~části~\ref{subsec:exp7-ood}, i tam byly krátké korelační délky pro model těžší než dlouhé.
+Důvod je také stejný.
+Pole s krátkou korelační délkou obsahují jemnější útvary, než jaké model při tréninku viděl, a tento rozdíl nevyrovná ani hustý vstupní obrázek.
 \par
 
 \subsection{Kalibrace}
@@ -369,6 +384,10 @@ Připomeňme, že jde o~stejný vzor jako v~jedné dimenzi, model dobře pozná,
     \label{fig:seg-c-kalibrace}
 \end{figure}
 
+\FloatBarrier
+
+\newpage
+
 \subsection{Rozklad chyby na bias a rozptyl}
 \label{subsec:seg-c-bias-var}
 
@@ -379,6 +398,13 @@ Druhou je bias, tedy systematická odchylka, která zůstane i po zprůměrován
 Měříme je tak, že pro pevný vstupní obrázek opakovaně losujeme \emph{support set}, celkem $24$ tahů pro každou velikost kontextu, a sledujeme, jak se predikce mění.
 Pro obě části máme z~Naglerovy teorie předpověď, kterou jsme v~jedné dimenzi potvrdili, a nyní ji ověříme znovu ve dvou.
 \par
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/VariantC_pfn_seg/fig_C_04_bias_variance.png}
+    \caption{Rozklad chyby na bias a rozptyl jako funkce velikosti kontextu pro snadnou a náročnou úlohu (logaritmické osy). Vlevo plné čáry jsou bias, který zůstává na plató, přerušované rozptyl, který klesá. Vpravo rozptyl proti teoretickému řádu $n^{-1}$ plynoucímu z~věty~\ref{theorem:Rozptyl_transformeru}, empirický pokles tomuto řádu zhruba odpovídá.}
+    \label{fig:seg-c-biasvar}
+\end{figure}
 
 \textbf{Diskuze:}
 
@@ -402,13 +428,6 @@ Obrázek~\ref{fig:seg-c-seedy} ukazuje, že se hodnota biasu napříč běhy sho
 Tímto usuzujeme, že neredukovatelný bias je strukturální vlastnost architektury, a ne náhoda jednoho modelu.
 Máme konkrétní praktické potvrzení jevu, který Naglerova teorie přesně předpovídá.
 \par
-
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=\linewidth]{figures/VariantC_pfn_seg/fig_C_04_bias_variance.png}
-    \caption{Rozklad chyby na bias a rozptyl jako funkce velikosti kontextu pro snadnou a náročnou úlohu (logaritmické osy). Vlevo plné čáry jsou bias, který zůstává na plató, přerušované rozptyl, který klesá. Vpravo rozptyl proti teoretickému řádu $n^{-1}$ plynoucímu z~věty~\ref{theorem:Rozptyl_transformeru}, empirický pokles tomuto řádu zhruba odpovídá.}
-    \label{fig:seg-c-biasvar}
-\end{figure}
 
 \begin{figure}[!htb]
     \centering
@@ -479,20 +498,28 @@ Hladší pole (OOD-long) zůstávají srovnatelná s~režimem Easy, kdežto u~č
 V~sekci~\ref{sec:seg-universeg} jsme viděli kolaps k~prioru, tedy že se predikce při malém kontextu vrací k~průměrné masce.
 Zde stejné měření provedeme na vlastním PFN, a to s~pravým priorem místo operační prior masky.
 Prior masku totiž tentokrát známe přesně.
-Před pozorováním vstupního obrázku patří každý pixel do popředí se stejnou pravděpodobností, rovnou podílu popředí.
-Prior maska je tedy jednobarevná plocha bez jakéhokoli tvaru.
+Připomeňme, co je prior maskou.
+Je to první predikce, kdy vstupní obrázek ještě nevidíme, ale známe pravidla této úlohy.
+Pro každý pixel se tedy ptáme, s jakou pravděpodobností patří do popředí.
+Tímto modelu říkáme, kolik zhruba oblasti popředí je na obrázku.
+V naší úloze je odpověď pro všechny pixely stejná.
+Skryté pole totiž vzniká v každém místě obrázku podle stejných pravidel (vzorkování z GP).
+Útvary tvořené GP nemají žádný typický tvar, na rozdíl od např. krvinek.
+Tedy jediná informace, kterou můžeme modelu sdělit, je celkový podíl popředí.
+Zabírá-li popředí například třetinu obrázku, patří do něj každý pixel s pravděpodobností jedna třetina.
+Prior maska je proto mapa se stejnou hodnotou ve všech pixelech, tedy jednobarevná plocha bez jakéhokoli tvaru.
 Měření provedeme na jednom zástupci uvnitř trénovacího rozsahu, konkrétně na náročné úloze (Hard).
 Sledujeme vzdálenost predikce od \emph{oraclu} a od této prior masky jako funkci velikosti kontextu.
 \par
 
-I v tomto případě není zcela zřejmé, co zobrazuje graf na obrázku \ref{fig:seg-c-kolaps} a jak ho správně číst.
-Proto se pokusíme opět čtenáři přiblížit co je vyneseno na tomto grafu.
+Opět zkusme popsat, co tento na první pohled zvláštní graf zobrazuje na obrázku \ref{fig:seg-c-kolaps}.
+Ve skutečnosti používáme zde stejný princip jako v \ref{fig:seg-a-kolaps}.
 Zelená křivka je vzdálenost predikce od \emph{oraclu}, fialová křivka je vzdálenost od uniformní prior masky (náš prior v tomto případě), obě jako funkce velikosti kontextu.
 \par
 
 \textbf{Diskuze:}
 
-Podle popisu grafu výše můžeme udělat následující závěr.
+Podle popisu grafu \ref{fig:seg-c-kolaps} výše můžeme udělat následující závěr.
 Kdyby kolaps k prioru nastával i zde, viděli bychom fialovou křivku klesat k~nule při malém kontextu a zelenou naopak stoupat.
 Predikce by se totiž podobala prior masce, a ne skutečnosti.
 Avšak nic takového se zde neděje.
