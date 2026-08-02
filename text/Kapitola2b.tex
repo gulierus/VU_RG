@@ -6,6 +6,7 @@ Müller ve své práci ukázal empirická pozorování, která ale nepodpořil t
 To se avšak podařilo Naglerovi, který dokázal vybudovat teoretický základ pro PFN a řádně odůvodnit, proč a jak architektura PFN dává dobré výsledky při Bayesovské inferenci.
 Nagler ve své práci používá určitý formalismus pro zavedení celého problému, na kterém pak buduje samotnou teorii.
 My tento formalismus v této práci zachováme.
+Z jeho článku přebíráme i všechny věty této sekce, zdroj proto u jednotlivých vět už opakovat nebudeme.
 
 \subsection{Statistický model}
 \label{subsec:statisticky-model}
@@ -50,7 +51,7 @@ Základním teoretickým poznatkem je, že PPD sama o sobě je pro každé $n$ o
 Definujme třídu všech podmíněných pravděpodobnostních funkcí takto:
 $$\mathcal{Q} = \left\{ q : (\mathcal{Y} \times \mathcal{X})^{n+1} \to [0,1] \;\Big|\; \sum_{y \in \mathcal{Y}} q(y \mid \cdot, \cdot) = 1 \right\}.$$
 Každé $q \in \mathcal{Q}$ je tedy funkce, která dostane $n$ trénovacích párů $(Y_i, X_i)$ a jeden testovací vstup $\mathbf{X}$, a vrátí rozdělení přes $\mathcal{Y}$.
-\begin{theorem}[Nagler~\cite{nagler2023}, Thm 2.2]
+\begin{theorem}
     $\pi$ z rovnice \ref{def:PPD} splňuje:
     \begin{equation}
             \pi = \arg\max_{q \in \mathcal{Q}} \, \mathbb{E}_\Pi[\log q(Y \mid X, D_n)],
@@ -114,7 +115,7 @@ Prior může sice $p_0$ obsahovat ve svém supportu, ale dávat příliš velkou
 Avšak Nagler ve svém článku ukazuje, že PPD se umí učit i v situaci, kdy $p_0$ leží mimo support prioru $\mathcal{P} = \{p : \Pi(p) > 0\}$.
 To platí, za určitých podmínek.
 
-\begin{theorem}[Nagler~\cite{nagler2023}, Thm 3.1]
+\begin{theorem}
     Uvažujme prior $\Pi$. Nechť dále platí:
     \begin{enumerate}
         \item Existuje jedinečné $p^* \in \mathcal{P}$ takové, že
@@ -209,7 +210,7 @@ Takže zkusme najít které strukturální aspekty PFN by to mohly vysvětlit.
 \par 
 
 Obecně ze struktury transformerů plyne, že jsou invariantní vůči permutacím vstupních dat (tj. symetrické), což je mimochodem jednou z výhod pro architekturu PFN: dataset $D_n$ je ze své podstaty množina, ne sekvence, takže permutační invariance je přesně ta vlastnost, kterou chceme pro i.i.d. vzorky.
-\begin{theorem}[Nagler~\cite{nagler2023}, Lemma 5.1]
+\begin{theorem}
     Nechť $f : (\mathcal{Y} \times \mathcal{X})^n \to \mathcal{P}_{\mathcal{Y}|\mathcal{X}}$ je libovolný prediktor. Pak existuje jeho symetrizovaná verze $\tilde{f}$ taková, že pro každé pravděpodobnostní míry $P$:
 \begin{equation}
     \mathbb{E}_{D_n \sim P^n}[\tilde{f}(D_n)] = \mathbb{E}_{D_n \sim P^n}[f(D_n)], \qquad \mathrm{Var}_{D_n \sim P^n}[\tilde{f}(D_n)] \leq \mathrm{Var}_{D_n \sim P^n}[f(D_n)].
@@ -229,7 +230,7 @@ Formálně předpokládáme, že existují $\alpha > 0$ a $L < \infty$ takové, 
 \end{equation}
 
 To nám umožňuje vyslovit tvrzení, které ukazuje, proč rozptyl během učení postupně mizí.
-\begin{theorem}[Nagler~\cite{nagler2023}, Thm 5.2]
+\begin{theorem}
     Nechť platí předpoklad \ref{eq:horní_mez_prediktoru}, pak
     \begin{equation}
         \left| q_\theta(y \mid x, D_n) - \mathbb{E}[q_\theta(y \mid x, D_n)] \right| \lesssim n^{1/2 - \alpha}
@@ -254,7 +255,7 @@ Má–li prediktor $q_\theta(. \mid ., D_n)$ mizející bias na dostatečně boh
 Lokální zde znamená, že např. k $q_\theta(y \mid x, D_n)$ by měly přispívat (asymptoticky) pouze vzorky $(Y_i, X_i) \in D_n$ s $X_i$ blízko $x$.
 Tyto poznatky dává dohromady následující věta.
 
-\begin{theorem}[Nagler~\cite{nagler2023}, Thm 5.4]
+\begin{theorem}
     Nechť $\mathcal{P}$ je třída rozdělení taková, že pro každé $p \in \mathcal{P}$:
 
 \begin{equation}
@@ -321,8 +322,8 @@ Intuitivně to funguje takto: transformer si při predikci pro $x$ vyhledá v tr
 \par   
 
 Nás by také zajímalo, jaké vlastnosti má rozptyl a bias pro tuto architekturu, protože v předchozí sekci jsme poznamenávali, že konkrétní vlastnosti těchto charakteristik se mění v závislosti na volbě konkrétní architektury.
-\begin{theorem}[Nagler~\cite{nagler2023}, Thm 6.2]
-    Pro $\mathcal{X} = \{x : \|x\|_2 \leq K\}$ a omezené matice vah ($\|W^{(h)}_q\|_2, \|W^{(h)}_v\|_2, \|W_{r,1}\|_2, \|W_{r,2}\|_2, \|W_o\|_2 < \infty$) platí
+\begin{theorem}
+    Pro $\mathcal{X} = \{x : \|x\|_2 \leq K\}$ a omezené matice vah ($\|W^{(h)}_q\|_2$, $\|W^{(h)}_v\|_2$, $\|W_{r,1}\|_2$, $\|W_{r,2}\|_2$, ${\|W_o\|_2 < \infty}$) platí
     \begin{equation}
             \left|q_\theta(y \mid x, D_n) - \mathbb{E}[q_\theta(y \mid x, D_n)]\right| \lesssim n^{-1/2}
     \end{equation}
@@ -337,7 +338,7 @@ Důvodem je, že \emph{attention mechanismus} nutně přiděluje každému vzork
 V případě biasu jsme již říkali, že ta situace je horší. 
 Bias v případě transformeru totiž silně závisí na volbě $\theta$.
 Označme $\bar{q}_\theta(y \mid x)$ limitní hodnotu predikce pro $n \to \infty$.
-\begin{theorem}[Nagler~\cite{nagler2023}, Thm 6.3]
+\begin{theorem}
     Za předpokladů platnosti věty \ref{theorem:Rozptyl_transformeru} plyne
     \begin{equation}
             \mathbb{E}[q_\theta(\cdot \mid x, D_n)] \xrightarrow{n \to \infty} \bar{q}_\theta(\cdot \mid x),
